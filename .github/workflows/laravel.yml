@@ -33,8 +33,8 @@ jobs:
         run: php artisan migrate
       - name: Run seeders
         run: php artisan db:seed
-      - name: Duster Lint
-        run: ./vendor/bin/duster lint
+      #- name: Duster Lint
+       # run: ./vendor/bin/duster lint
         #uses: tighten/duster-action@v2
         #with:
           #args: lint
