@@ -34,9 +34,7 @@ jobs:
       - name: Run seeders
         run: php artisan db:seed
       - name: Duster Lint
-        uses: tighten/duster-action@v2
-        with:
-          args: lint
+        run: ./vendor/bin/duster lint
       - name: Run tests
         run: php artisan test
 
