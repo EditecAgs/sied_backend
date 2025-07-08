@@ -19,9 +19,21 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'lastaname',
+        'id_institution',
+        'type',
         'email',
         'password',
     ];
+
+    //Relations
+    /**
+     * Get the institution that owns the user.
+     */
+    public function institution()
+    {
+        return $this->belongsTo(Institution::class, 'id_institution');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
