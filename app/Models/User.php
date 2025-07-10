@@ -36,6 +36,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    // Relations
+    public function institution()
+    {
+        return $this->belongsTo(Institution::class, 'id_institution');
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -49,9 +55,4 @@ class User extends Authenticatable
         ];
     }
 
-    // Relations
-    public function institution()
-    {
-        return $this->belongsTo(Institution::class, 'id_institution');
-    }
 }
