@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-
 use App\Models\Municipality;
 use App\Models\State;
+use Illuminate\Database\Seeder;
 
 class MunicipalitySeeder extends Seeder
 {
