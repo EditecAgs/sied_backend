@@ -9,7 +9,8 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table)
+        {
             $table->string('lastname')->after('name');
             $table->unsignedBigInteger('id_institution')->after('remember_token');
             $table->integer('type')->after('id_institution');

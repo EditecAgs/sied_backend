@@ -9,7 +9,8 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('institutions', function (Blueprint $table) {
+        Schema::table('institutions', function (Blueprint $table)
+        {
             $table->enum('type', ['Pública', 'Privada'])
                 ->default('Pública')
                 ->change();
@@ -18,7 +19,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('institutions', function (Blueprint $table) {
+        Schema::table('institutions', function (Blueprint $table)
+        {
             $table->integer('type')->change();
         });
     }
