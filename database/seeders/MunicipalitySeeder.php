@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Municipality;
+use App\Models\State;
 
 class MunicipalitySeeder extends Seeder
 {
@@ -23,7 +24,7 @@ class MunicipalitySeeder extends Seeder
                 'Rincón de Romos',
                 'San Francisco de los Romo',
                 'Tepezalá',
-                'El Llano'
+                'El Llano',
             ],
             'Baja California' => [
                 'Ensenada',
@@ -32,14 +33,14 @@ class MunicipalitySeeder extends Seeder
                 'Tijuana',
                 'Playas de Rosarito',
                 'San Quintín',
-                'San Felipe'
+                'San Felipe',
             ],
             'Baja California Sur' => [
                 'Comondú',
                 'La Paz',
                 'Loreto',
                 'Los Cabos',
-                'Mulegé'
+                'Mulegé',
             ],
             'Campeche' => [
                 'Calkiní',
@@ -54,7 +55,7 @@ class MunicipalitySeeder extends Seeder
                 'Calakmul',
                 'Candelaria',
                 'Seybaplaya',
-                'Dzitbalché'
+                'Dzitbalché',
             ],
             'Chiapas' => [
                 'Acacoyagua',
@@ -174,7 +175,7 @@ class MunicipalitySeeder extends Seeder
                 'Villa Corzo',
                 'Villaflores',
                 'Yajalón',
-                'Zinacantán'
+                'Zinacantán',
             ],
             'Chihuahua' => [
                 'Ahumada',
@@ -243,7 +244,7 @@ class MunicipalitySeeder extends Seeder
                 'El Tule',
                 'Urique',
                 'Uruachi',
-                'Valle de Zaragoza'
+                'Valle de Zaragoza',
             ],
             'Ciudad de México' => [
                 'Álvaro Obregón',
@@ -261,7 +262,7 @@ class MunicipalitySeeder extends Seeder
                 'Tláhuac',
                 'Tlalpan',
                 'Venustiano Carranza',
-                'Xochimilco'
+                'Xochimilco',
             ],
             'Coahuila' => [
                 'Abasolo',
@@ -301,7 +302,7 @@ class MunicipalitySeeder extends Seeder
                 'Torreón',
                 'Viesca',
                 'Villa Unión',
-                'Zaragoza'
+                'Zaragoza',
             ],
             'Colima' => [
                 'Colima',
@@ -312,7 +313,7 @@ class MunicipalitySeeder extends Seeder
                 'Manzanillo',
                 'Minatitlán',
                 'Tecomán',
-                'Villa de Álvarez'
+                'Villa de Álvarez',
             ],
             'Durango' => [
                 'Canatlán',
@@ -353,7 +354,7 @@ class MunicipalitySeeder extends Seeder
                 'Tepehuanes',
                 'Tlahualilo',
                 'Topia',
-                'Vicente Guerrero'
+                'Vicente Guerrero',
             ],
             'Estado de México' => [
                 'Acambay de Ruíz Castañeda',
@@ -481,7 +482,7 @@ class MunicipalitySeeder extends Seeder
                 'Zumpango',
                 'Luvianos',
                 'San José del Rincón',
-                'Tonanitla'
+                'Tonanitla',
             ],
             'Guanajuato' => [
                 'Abasolo',
@@ -529,7 +530,7 @@ class MunicipalitySeeder extends Seeder
                 'Victoria',
                 'Villagrán',
                 'Xichú',
-                'Yuriria'
+                'Yuriria',
             ],
             'Guerrero' => [
                 'Acapulco de Juárez',
@@ -608,7 +609,7 @@ class MunicipalitySeeder extends Seeder
                 'Zitlala',
                 'Las Vigas',
                 'Ñuu Savi',
-                'San Nicolás'
+                'San Nicolás',
             ],
             'Hidalgo' => [
                 'Acatlán',
@@ -694,7 +695,7 @@ class MunicipalitySeeder extends Seeder
                 'Zacualtipán de Ángeles',
                 'Zapotlán de Juárez',
                 'Zempoala',
-                'Zimapán'
+                'Zimapán',
             ],
             'Jalisco' => [
                 'Acatic',
@@ -816,7 +817,7 @@ class MunicipalitySeeder extends Seeder
                 'Zapotitlán de Vadillo',
                 'Zapotlán del Rey',
                 'Zapotlanejo',
-                'San Ignacio Cerro Gordo'
+                'San Ignacio Cerro Gordo',
             ],
             'Michoacán' => [
                 'Acuitzio',
@@ -931,7 +932,7 @@ class MunicipalitySeeder extends Seeder
                 'Zinapécuaro',
                 'Ziracuaretiro',
                 'Zitácuaro',
-                'José Sixto Verduzco'
+                'José Sixto Verduzco',
             ],
             'Morelos' => [
                 'Amacuzac',
@@ -969,7 +970,7 @@ class MunicipalitySeeder extends Seeder
                 'Yautepec',
                 'Yecapixtla',
                 'Zacatepec',
-                'Zacualpan de Amilpas'
+                'Zacualpan de Amilpas',
             ],
             'Nayarit' => [
                 'Acaponeta',
@@ -991,7 +992,7 @@ class MunicipalitySeeder extends Seeder
                 'Tecuala',
                 'Tepic',
                 'Tuxpan',
-                'Xalisco'
+                'Xalisco',
             ],
             'Nuevo León' => [
                 'Abasolo',
@@ -1044,7 +1045,7 @@ class MunicipalitySeeder extends Seeder
                 'Santa Catarina',
                 'Santiago',
                 'Vallecillo',
-                'Villaldama'
+                'Villaldama',
             ],
             'Oaxaca' => [
                 'Abejones',
@@ -1077,7 +1078,7 @@ class MunicipalitySeeder extends Seeder
                 'Heroica Ciudad de Huajuapan de León',
                 'Heroica Ciudad de Juchitán de Zaragoza',
                 'Heroica Ciudad de Tlaxiaco',
-                'San Juan Bautista Tuxtepec'
+                'San Juan Bautista Tuxtepec',
             ],
             'Puebla' => [
                 'Acajete',
@@ -1296,7 +1297,7 @@ class MunicipalitySeeder extends Seeder
                 'Zinacatepec',
                 'Zongozotla',
                 'Zoquiapan',
-                'Zoquitlán'
+                'Zoquitlán',
             ],
             'Querétaro' => [
                 'Amealco de Bonfil',
@@ -1316,7 +1317,7 @@ class MunicipalitySeeder extends Seeder
                 'San Joaquín',
                 'San Juan del Río',
                 'Tequisquiapan',
-                'Tolimán'
+                'Tolimán',
             ],
             'Quintana Roo' => [
                 'Othón P. Blanco',
@@ -1329,7 +1330,7 @@ class MunicipalitySeeder extends Seeder
                 'Playa del Carmen',
                 'Tulum',
                 'Bacalar',
-                'Puerto Morelos'
+                'Puerto Morelos',
             ],
             'San Luis Potosí' => [
                 'Ahualulco',
@@ -1389,7 +1390,7 @@ class MunicipalitySeeder extends Seeder
                 'Villa Hidalgo',
                 'Villa Juárez',
                 'Xilitla',
-                'Zaragoza'
+                'Zaragoza',
             ],
             'Sinaloa' => [
                 'Ahome',
@@ -1411,7 +1412,7 @@ class MunicipalitySeeder extends Seeder
                 'Sinaloa',
                 'Navolato',
                 'Eldorado',
-                'Juan José Ríos'
+                'Juan José Ríos',
             ],
             'Sonora' => [
                 'Aconchi',
@@ -1485,7 +1486,7 @@ class MunicipalitySeeder extends Seeder
                 'Yécora',
                 'General Plutarco Elías Calles',
                 'Benito Juárez',
-                'San Ignacio Río Muerto'
+                'San Ignacio Río Muerto',
             ],
             'Tabasco' => [
                 'Balancán',
@@ -1504,7 +1505,7 @@ class MunicipalitySeeder extends Seeder
                 'Paraíso',
                 'Tacotalpa',
                 'Teapa',
-                'Tenosique'
+                'Tenosique',
             ],
             'Tamaulipas' => [
                 'Abasolo',
@@ -1549,7 +1550,7 @@ class MunicipalitySeeder extends Seeder
                 'Valle Hermoso',
                 'Victoria',
                 'Villagrán',
-                'Xicoténcatl'
+                'Xicoténcatl',
             ],
             'Tlaxcala' => [
                 'Acuamanala de Miguel Hidalgo',
@@ -1608,7 +1609,7 @@ class MunicipalitySeeder extends Seeder
                 'Xaltocan',
                 'Xicohtzinco',
                 'Yauhquemehcan',
-                'Zacatelco'
+                'Zacatelco',
             ],
             'Veracruz' => [
                 'Acajete',
@@ -1823,7 +1824,7 @@ class MunicipalitySeeder extends Seeder
                 'Tatahuicapan de Juárez',
                 'Uxpanapa',
                 'San Rafael',
-                'Santiago Sochiapan'
+                'Santiago Sochiapan',
             ],
             'Yucatán' => [
                 'Abalá',
@@ -1930,7 +1931,7 @@ class MunicipalitySeeder extends Seeder
                 'Xocchel',
                 'Yaxcabá',
                 'Yaxkukul',
-                'Yobaín'
+                'Yobaín',
             ],
             'Zacatecas' => [
                 'Apozol',
@@ -1989,15 +1990,15 @@ class MunicipalitySeeder extends Seeder
                 'Villanueva',
                 'Zacatecas',
                 'Trancoso',
-                'Santa María de la Paz'
+                'Santa María de la Paz',
             ],
         ];
 
         foreach ($municipalities as $state => $municipalityList) {
             foreach ($municipalityList as $municipality) {
-                \App\Models\Municipality::create([
+                Municipality::create([
                     'name' => $municipality,
-                    'id_state' => \App\Models\State::where('name', $state)->first()->id,
+                    'id_state' => State::where('name', $state)->first()->id,
                 ]);
             }
         }

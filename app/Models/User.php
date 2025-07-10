@@ -26,15 +26,6 @@ class User extends Authenticatable
         'password',
     ];
 
-    //Relations
-    /**
-     * Get the institution that owns the user.
-     */
-    public function institution()
-    {
-        return $this->belongsTo(Institution::class, 'id_institution');
-    }
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -56,5 +47,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relations
+    public function institution()
+    {
+        return $this->belongsTo(Institution::class, 'id_institution');
     }
 }
