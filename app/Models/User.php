@@ -19,6 +19,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'lastaname',
+        'id_institution',
+        'type',
         'email',
         'password',
     ];
@@ -32,6 +35,12 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    // Relations
+    public function institution()
+    {
+        return $this->belongsTo(Institution::class, 'id_institution');
+    }
 
     /**
      * Get the attributes that should be cast.
