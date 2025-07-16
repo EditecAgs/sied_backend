@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $this->route('id'),
+            'email' => 'required|email|max:255|unique:users,email,' . $this->route('id') . '|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
             'id_institution' => 'required|exists:institutions,id',
         ];
     }
