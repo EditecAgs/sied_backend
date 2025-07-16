@@ -18,12 +18,14 @@ class UserController
     public function getUsers()
     {
         $users = User::with(['institution:id,name'])->get();
+
         return response()->json($users, Response::HTTP_OK);
     }
 
     public function getUsersById($id)
     {
         $user = User::with(['institution:id,name'])->where('id', $id)->firstOrFail();
+
         return response()->json($user, Response::HTTP_OK);
     }
 
