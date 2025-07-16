@@ -17,12 +17,16 @@ class UserController
 
     public function getUsers()
     {
-        return User::all();
+        $users = User::with(['institution:id,name'])->get();
+
+        return response()->json($users, Response::HTTP_OK);
     }
 
     public function getUsersById($id)
     {
-        return User::findOrFail($id);
+        $user = User::with(['institution:id,name'])->where('id', $id)->firstOrFail();
+
+        return response()->json($user, Response::HTTP_OK);
     }
 
     public function createUser(StoreUserRequest $request)
