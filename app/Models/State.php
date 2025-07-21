@@ -12,7 +12,7 @@ class State extends Model
         'name',
     ];
 
-    /*public function institutions()
+    public function institutions()
     {
         return $this->hasMany(Institution::class, 'id_state');
     }
@@ -20,5 +20,10 @@ class State extends Model
     public function municipalities()
     {
         return $this->hasMany(Municipality::class, 'id_state');
-    }*/
+    }
+
+    public function organizations()
+    {
+        return $this->hasMany(Organization::class, 'id_state');
+    }
 }

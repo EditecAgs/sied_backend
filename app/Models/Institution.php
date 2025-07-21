@@ -56,4 +56,19 @@ class Institution extends Model
     {
         return $this->hasMany(User::class, 'id_institution');
     }
+
+    public function careers()
+    {
+        return $this->hasMany(Career::class, 'id_institution');
+    }
+
+    public function specialties()
+    {
+        return $this->hasMany(Specialty::class, 'id_institution');
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'id_institution');
+    }
 }

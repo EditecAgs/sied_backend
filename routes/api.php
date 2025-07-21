@@ -8,6 +8,12 @@ use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('login', [UserController::class, 'login']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('logout', [UserController::class, 'logout']);
+});
+
 Route::get('institutions', [InstitutionController::class, 'getInstitutions']);
 Route::get('institutions/{id}', [InstitutionController::class, 'getInstitutionById']);
 Route::post('institutions', [InstitutionController::class, 'createInstitution']);
