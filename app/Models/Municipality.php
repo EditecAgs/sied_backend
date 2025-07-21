@@ -18,8 +18,13 @@ class Municipality extends Model
         return $this->belongsTo(State::class, 'id_state');
     }
 
-    /*public function institutions()
+    public function institutions()
     {
         return $this->hasMany(Institution::class, 'id_municipality');
-    }*/
+    }
+
+    public function organizations()
+    {
+        return $this->hasMany(Organization::class, 'id_municipality');
+    }
 }

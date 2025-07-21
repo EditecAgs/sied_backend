@@ -2,17 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController
 {
-    public function login(): void
+    public function login(LoginRequest $request)
     {
-        echo 'Hello World';
+        $request->validated();
+        if (! Auth::attempt($request->only('email', 'password'))) {
+            return response()->json([
+                'message' => 'Credenciales incorrectas',
+            ], 401);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Inicio de sesión exitoso',
+            'token' => $token,
+            'user' => $user,
+            'status' => Response::HTTP_OK,
+        ]);
+    }
+
+    public function logout()
+    {
+        Auth::user()->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Sesión cerrada exitosamente',
+        ], Response::HTTP_OK);
     }
 
     public function getUsers()
