@@ -41,4 +41,9 @@ class DualProject extends Model
     {
         return $this->hasMany(OrganizationDualProject::class, 'id_dual_project');
     }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'id_dual_project');
+    }
 }

@@ -12,8 +12,14 @@ class AcademicPeriodSeeder extends Seeder
      */
     public function run(): void
     {
-        AcademicPeriod::create([
-            'name' => 'Semestral',
-        ]);
+        $academicPeriods = [
+            'Semestral',
+            'Cuatrimestral',
+        ];
+        foreach ($academicPeriods as $period) {
+            AcademicPeriod::create([
+                'name' => $period,
+            ]);
+        }
     }
 }
