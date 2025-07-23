@@ -12,8 +12,20 @@ class SubsystemSeeder extends Seeder
      */
     public function run(): void
     {
-        Subsystem::create([
-            'name' => 'Tecnológico Nacional de México',
-        ]);
+        $subsytems = [
+            'Tecnológico Nacional de México',
+            'Universidad Politécnica',
+            'Universidad Tecnológica',
+            'Universidad Autónoma',
+            'Universidad Rosario Castellanos',
+            'Instituto Politecnico Nacional',
+            'Centro de Investigación',
+            'Universidad Privada',
+        ];
+        foreach ($subsytems as $subsystem) {
+            Subsystem::create([
+                'name' => $subsystem,
+            ]);
+        }
     }
 }
