@@ -10,6 +10,7 @@ class EconomicSupport extends Model
     use softDeletes;
     protected $table = 'economic_supports';
     protected $fillable = [
+        'id',
         'name',
         'description',
     ];

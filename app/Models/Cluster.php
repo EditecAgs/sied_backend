@@ -10,6 +10,7 @@ class Cluster extends Model
     use SoftDeletes;
     protected $table = 'clusters';
     protected $fillable = [
+        'id',
         'name',
     ];
 

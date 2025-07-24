@@ -13,17 +13,18 @@ class TypeSeeder extends Seeder
     public function run(): void
     {
         $types = [
-            'Empresa Pública',
-            'Empresa Privada',
-            'Dependencia de Gobierno',
-            'Centro de Investigación',
-            'Asociación Civil',
-            'Fundación',
+            ['id' => 1, 'name' => 'Empresa Pública'],
+            ['id' => 2, 'name' => 'Empresa Privada'],
+            ['id' => 3, 'name' => 'Dependencia de Gobierno'],
+            ['id' => 4, 'name' => 'Centro de Investigación'],
+            ['id' => 5, 'name' => 'Asociación Civil'],
+            ['id' => 6, 'name' => 'Fundación'],
         ];
         foreach ($types as $type) {
-            Type::create([
-                'name' => $type,
-            ]);
+            Type::updateOrCreate(
+                ['id' => $type['id']],
+                ['name' => $type['name']]
+            );
         }
     }
 }

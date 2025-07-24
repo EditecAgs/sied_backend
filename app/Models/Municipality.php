@@ -9,6 +9,7 @@ class Municipality extends Model
     protected $table = 'municipalities';
 
     protected $fillable = [
+        'id',
         'name',
         'id_state',
     ];

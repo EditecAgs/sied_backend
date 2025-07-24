@@ -12,17 +12,20 @@ class InstitutionSeeder extends Seeder
      */
     public function run(): void
     {
-        Institution::create([
-            'name' => 'Instituto Tecnológico de Aguascalientes',
-            'street' => 'Av. Adolfo López Mateos Ote.',
-            'external_number' => '1801',
-            'neighborhood' => 'Fracc. Bona Gens',
-            'postal_code' => '20256',
-            'id_state' => 1,
-            'id_municipality' => 1,
-            'city' => 'Aguascalientes',
-            'id_subsystem' => 1,
-            'id_academic_period' => 1,
-        ]);
+        Institution::updateOrCreate(
+            ['id' => 1],
+            [
+                'name' => 'Instituto Tecnológico de Aguascalientes',
+                'street' => 'Av. Adolfo López Mateos Ote.',
+                'external_number' => '1801',
+                'neighborhood' => 'Fracc. Bona Gens',
+                'postal_code' => '20256',
+                'id_state' => 1,
+                'id_municipality' => 1,
+                'city' => 'Aguascalientes',
+                'id_subsystem' => 1,
+                'id_academic_period' => 1,
+            ]
+        );
     }
 }

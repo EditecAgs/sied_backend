@@ -12,16 +12,19 @@ class StudentSeeder extends Seeder
      */
     public function run(): void
     {
-        Student::create([
-            'control_number' => '25151515',
-            'name' => 'Juan',
-            'lastname' => 'Pérez',
-            'gender' => 'Masculino',
-            'semester' => 5,
-            'id_institution' => 1,
-            'id_career' => 1,
-            'id_specialty' => 1,
-            'id_dual_project' => 1,
-        ]);
+        Student::updateOrCreate(
+            ['id' => 1],
+            [
+                'control_number' => '25151515',
+                'name' => 'Juan',
+                'lastname' => 'Pérez',
+                'gender' => 'Masculino',
+                'semester' => 5,
+                'id_institution' => 1,
+                'id_career' => 1,
+                'id_specialty' => 1,
+                'id_dual_project' => 1,
+            ]
+        );
     }
 }

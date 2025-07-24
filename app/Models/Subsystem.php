@@ -12,6 +12,7 @@ class Subsystem extends Model
     protected $table = 'subsystems';
 
     protected $fillable = [
+        'id',
         'name',
     ];
 
