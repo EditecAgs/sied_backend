@@ -13,28 +13,29 @@ class DualAreaSeeder extends Seeder
     public function run(): void
     {
         $dualAreas = [
-            'Desarrollo de Software',
-            'Desarrollo de Maquinaria y Equipo',
-            'Desarrollo de Producto',
-            'Mejora de Procesos',
-            'Planeación Urbana',
-            'Políticas Públicas',
-            'Programas de Desarrollo Regional y Nacional',
-            'Inclusión Social',
-            'Tratamiento de Aguas',
-            'Conservación del Medio Ambiente',
-            'Programas de Salud',
-            'Programas de Equidad de Género',
-            'Creación de Nuevas Empresas',
-            'Automatización de Procesos',
-            'Energía Renovable',
-            'Elaboración e Implementación de Plan de Mantenimiento de Equipo',
-            'Seguridad e Higiene',
+            ['id' => '1', 'name' => 'Desarrollo de Software'],
+            ['id' => '2', 'name' => 'Desarrollo de Maquinaria y Equipo'],
+            ['id' => '3', 'name' => 'Desarrollo de Producto'],
+            ['id' => '4', 'name' => 'Mejora de Procesos'],
+            ['id' => '5', 'name' => 'Planeación Urbana'],
+            ['id' => '6', 'name' => 'Políticas Públicas'],
+            ['id' => '7', 'name' => 'Programas de Desarrollo Regional y Nacional'],
+            ['id' => '8', 'name' => 'Inclusión Social'],
+            ['id' => '9', 'name' => 'Tratamiento de Aguas'],
+            ['id' => '10', 'name' => 'Conservación del Medio Ambiente'],
+            ['id' => '11', 'name' => 'Programas de Salud'],
+            ['id' => '12', 'name' => 'Programas de Equidad de Género'],
+            ['id' => '13', 'name' => 'Creación de Nuevas Empresas'],
+            ['id' => '14', 'name' => 'Automatización de Procesos'],
+            ['id' => '15', 'name' => 'Energía Renovable'],
+            ['id' => '16', 'name' => 'Elaboración e Implementación de Plan de Mantenimiento de Equipo'],
+            ['id' => '17', 'name' => 'Seguridad e Higiene'],
         ];
         foreach ($dualAreas as $area) {
-            DualArea::create([
-                'name' => $area,
-            ]);
+            DualArea::updateOrCreate(
+                ['id' => $area['id']],
+                ['name' => $area['name']]
+            );
         }
     }
 }

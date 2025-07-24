@@ -13,22 +13,25 @@ class CareerSeeder extends Seeder
     public function run(): void
     {
         $careers = [
-            ['name' => 'Ingeniería Industrial', 'id_institution' => 1],
-            ['name' => 'Ingeniería en Gestión Empresarial', 'id_institution' => 1],
-            ['name' => 'Ingeniería en Tecnologías de la Información y las Comunicaciones', 'id_institution' => 1],
-            ['name' => 'Ingeniería Electrónica', 'id_institution' => 1],
-            ['name' => 'Ingeniería Eléctrica', 'id_institution' => 1],
-            ['name' => 'Ingeniería Química', 'id_institution' => 1],
-            ['name' => 'Ingeniería Mecánica', 'id_institution' => 1],
-            ['name' => 'Ingeniería en Materiales', 'id_institution' => 1],
-            ['name' => 'Ingeniería en Semiconductores', 'id_institution' => 1],
-            ['name' => 'Ingeniería en Ciberseguridad', 'id_institution' => 1],
-            ['name' => 'Ingeniería en Desarrollo de Aplicaciones', 'id_institution' => 1],
-            ['name' => 'Licenciatura en Administración', 'id_institution' => 1],
+            ['id' => 1, 'name' => 'Ingeniería Industrial', 'id_institution' => 1],
+            ['id' => 2, 'name' => 'Ingeniería en Gestión Empresarial', 'id_institution' => 1],
+            ['id' => 3, 'name' => 'Ingeniería en Tecnologías de la Información y las Comunicaciones', 'id_institution' => 1],
+            ['id' => 4, 'name' => 'Ingeniería Electrónica', 'id_institution' => 1],
+            ['id' => 5, 'name' => 'Ingeniería Eléctrica', 'id_institution' => 1],
+            ['id' => 6, 'name' => 'Ingeniería Química', 'id_institution' => 1],
+            ['id' => 7, 'name' => 'Ingeniería Mecánica', 'id_institution' => 1],
+            ['id' => 8, 'name' => 'Ingeniería en Materiales', 'id_institution' => 1],
+            ['id' => 9, 'name' => 'Ingeniería en Semiconductores', 'id_institution' => 1],
+            ['id' => 10, 'name' => 'Ingeniería en Ciberseguridad', 'id_institution' => 1],
+            ['id' => 11, 'name' => 'Ingeniería en Desarrollo de Aplicaciones', 'id_institution' => 1],
+            ['id' => 12, 'name' => 'Licenciatura en Administración', 'id_institution' => 1],
         ];
 
         foreach ($careers as $career) {
-            Career::create($career);
+            Career::updateOrCreate(
+                ['id' => $career['id']],
+                $career
+            );
         }
     }
 }

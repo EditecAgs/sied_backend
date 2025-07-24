@@ -10,6 +10,7 @@ class OrganizationDualProject extends Model
     use SoftDeletes;
     protected $table = 'organizations_dual_projects';
     protected $fillable = [
+        'id',
         'id_organization',
         'id_dual_project',
     ];

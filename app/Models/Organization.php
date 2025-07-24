@@ -10,6 +10,7 @@ class Organization extends Model
     use SoftDeletes;
     protected $table = 'organizations';
     protected $fillable = [
+        'id',
         'name',
         'id_type',
         'id_sector',

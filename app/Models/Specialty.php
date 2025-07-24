@@ -10,6 +10,7 @@ class Specialty extends Model
     use SoftDeletes;
     protected $table = 'specialties';
     protected $fillable = [
+        'id',
         'name',
         'id_institution',
         'id_career',

@@ -10,6 +10,7 @@ class DocumentStatus extends Model
     use softDeletes;
     protected $table = 'document_statuses';
     protected $fillable = [
+        'id',
         'name',
     ];
 

@@ -10,6 +10,7 @@ class Student extends Model
     use SoftDeletes;
     protected $table = 'students';
     protected $fillable = [
+        'id',
         'control_number',
         'name',
         'last_name',

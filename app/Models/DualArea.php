@@ -10,6 +10,7 @@ class DualArea extends Model
     use SoftDeletes;
     protected $table = 'dual_areas';
     protected $fillable = [
+        'id',
         'name',
     ];
 

@@ -12,11 +12,13 @@ class SpecialtySeeder extends Seeder
      */
     public function run(): void
     {
-        Specialty::create([
-            'name' => 'Manufactura',
-            'id_institution' => 1,
-            'id_career' => 1,
-
-        ]);
+        Specialty::updateOrCreate(
+            ['id' => 1],
+            [
+                'name' => 'Manufactura',
+                'id_institution' => 1,
+                'id_career' => 1,
+            ],
+        );
     }
 }

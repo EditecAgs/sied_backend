@@ -12,9 +12,12 @@ class OrganizationDualProjectSeeder extends Seeder
      */
     public function run(): void
     {
-        OrganizationDualProject::create([
-            'id_organization' => 1,
-            'id_dual_project' => 1,
-        ]);
+        OrganizationDualProject::updateOrCreate(
+            ['id' => 1],
+            [
+                'id_organization' => 1,
+                'id_dual_project' => 1,
+            ],
+        );
     }
 }

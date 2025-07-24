@@ -10,6 +10,7 @@ class DualProject extends Model
     use SoftDeletes;
     protected $table = 'dual_projects';
     protected $fillable = [
+        'id',
         'name',
         'has_report',
         'number_men',
