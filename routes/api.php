@@ -1,10 +1,19 @@
 <?php
 
 use App\Http\Controllers\AcademicPeriodController;
+use App\Http\Controllers\CareerController;
+use App\Http\Controllers\ClusterController;
+use App\Http\Controllers\DocumentStatusController;
+use App\Http\Controllers\DualAreaController;
+use App\Http\Controllers\EconomicSupportController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\MunicipalityController;
+use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\SectorController;
+use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\SubsystemController;
+use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,3 +53,30 @@ Route::get('municipalities/state/{stateId}', [MunicipalityController::class, 'ge
 
 Route::get('states', [StateController::class, 'getStates']);
 Route::get('states/{id}', [StateController::class, 'getStateById']);
+
+Route::get('careers', [CareerController::class, 'getCareers']);
+Route::get('careers/{id}', [CareerController::class, 'getCareerById']);
+
+Route::get('clusters', [ClusterController::class, 'getClusters']);
+Route::get('clusters/{id}', [ClusterController::class, 'getClusterById']);
+
+Route::get('documents-statuses', [DocumentStatusController::class, 'getDocumentStatuses']);
+Route::get('documents-statuses/{id}', [DocumentStatusController::class, 'getDocumentStatusById']);
+
+Route::get('dual-areas', [DualAreaController::class, 'getDualAreas']);
+Route::get('dual-areas/{id}', [DualAreaController::class, 'getDualAreaById']);
+
+Route::get('economic-supports', [EconomicSupportController::class, 'getEconomicSupports']);
+Route::get('economic-supports/{id}', [EconomicSupportController::class, 'getEconomicSupportById']);
+
+Route::get('organizations', [OrganizationController::class, 'getOrganizations']);
+Route::get('organizations/{id}', [OrganizationController::class, 'getOrganizationById']);
+
+Route::get('sectors', [SectorController::class, 'getSectors']);
+Route::get('sectors/{id}', [SectorController::class, 'getSectorById']);
+
+Route::get('specialties', [SpecialtyController::class, 'getSpecialties']);
+Route::get('specialties/{id}', [SpecialtyController::class, 'getSpecialtyById']);
+
+Route::get('types', [TypeController::class, 'getTypes']);
+Route::get('types/{id}', [TypeController::class, 'getTypeById']);
