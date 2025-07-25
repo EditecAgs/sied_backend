@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
                 EconomicSupportSeeder::class,
                 OrganizationSeeder::class,
                 DualProjectSeeder::class,
+                DualProjectReportSeeder::class,
                 OrganizationDualProjectSeeder::class,
                 SpecialtySeeder::class,
                 StudentSeeder::class,
