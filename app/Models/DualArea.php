@@ -16,6 +16,6 @@ class DualArea extends Model
 
     public function dualProjects()
     {
-        return $this->hasMany(DualProject::class, 'id_dual_area');
+        return $this->hasMany(DualProjectReport::class, 'id_dual_area');
     }
 }

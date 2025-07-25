@@ -20,4 +20,11 @@ class CareerController extends Controller
 
         return response()->json($career, Response::HTTP_OK);
     }
+
+    public function getCareerByInstitution($id)
+    {
+        $career = Career::where('id_institution', $id)->get();
+
+        return response()->json($career, Response::HTTP_OK);
+    }
 }

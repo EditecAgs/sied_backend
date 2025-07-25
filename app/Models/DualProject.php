@@ -11,31 +11,13 @@ class DualProject extends Model
     protected $table = 'dual_projects';
     protected $fillable = [
         'id',
-        'name',
         'has_report',
-        'number_men',
-        'number_women',
-        'id_dual_area',
-        'period_start',
-        'period_end',
-        'status_document',
-        'economic_support',
-        'amount',
+        'id_institution',
     ];
 
-    public function dualArea()
+    public function institution()
     {
-        return $this->belongsTo(DualArea::class, 'id_dual_area');
-    }
-
-    public function statusDocument()
-    {
-        return $this->belongsTo(DocumentStatus::class, 'status_document');
-    }
-
-    public function economicSupport()
-    {
-        return $this->belongsTo(EconomicSupport::class, 'economic_support');
+        return $this->belongsTo(Institution::class, 'id_institution');
     }
 
     public function organizationDualProjects()
@@ -46,5 +28,10 @@ class DualProject extends Model
     public function students()
     {
         return $this->hasMany(Student::class, 'id_dual_project');
+    }
+
+    public function dualProjectReports()
+    {
+        return $this->hasMany(DualProjectReport::class, 'dual_project_id');
     }
 }

@@ -16,6 +16,6 @@ class DocumentStatus extends Model
 
     public function dualProjects()
     {
-        return $this->hasMany(DualProject::class, 'status_document');
+        return $this->hasMany(DualProjectReport::class, 'status_document');
     }
 }

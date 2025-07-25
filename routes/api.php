@@ -56,6 +56,7 @@ Route::get('states/{id}', [StateController::class, 'getStateById']);
 
 Route::get('careers', [CareerController::class, 'getCareers']);
 Route::get('careers/{id}', [CareerController::class, 'getCareerById']);
+Route::get('careers/institution/{id}', [CareerController::class, 'getCareerByInstitution']);
 
 Route::get('clusters', [ClusterController::class, 'getClusters']);
 Route::get('clusters/{id}', [ClusterController::class, 'getClusterById']);
