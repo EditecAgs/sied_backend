@@ -37,6 +37,7 @@ class DualProjectReport extends Model
     {
         return $this->belongsTo(EconomicSupport::class, 'economic_support');
     }
+
     public function dualProject()
     {
         return $this->belongsTo(DualProject::class, 'dual_project_id');

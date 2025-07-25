@@ -6,19 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('dual_project_reports', function (Blueprint $table) {
-             $table->softDeletes()->after('amount');
+            $table->softDeletes()->after('amount');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('dual_project_reports', function (Blueprint $table) {

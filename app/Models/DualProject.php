@@ -12,20 +12,24 @@ class DualProject extends Model
     protected $fillable = [
         'id',
         'has_report',
-        'id_institution'
+        'id_institution',
     ];
+
     public function institution()
     {
         return $this->belongsTo(Institution::class, 'id_institution');
     }
+
     public function organizationDualProjects()
     {
         return $this->hasMany(OrganizationDualProject::class, 'id_dual_project');
     }
+
     public function students()
     {
         return $this->hasMany(Student::class, 'id_dual_project');
     }
+
     public function dualProjectReports()
     {
         return $this->hasMany(DualProjectReport::class, 'dual_project_id');

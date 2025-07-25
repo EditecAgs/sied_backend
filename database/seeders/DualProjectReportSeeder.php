@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\DualProjectReport;
+use Illuminate\Database\Seeder;
 
 class DualProjectReportSeeder extends Seeder
 {
