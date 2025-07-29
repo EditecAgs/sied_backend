@@ -13,7 +13,7 @@ class Student extends Model
         'id',
         'control_number',
         'name',
-        'last_name',
+        'lastname',
         'gender',
         'semester',
         'id_institution',

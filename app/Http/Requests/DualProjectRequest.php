@@ -41,7 +41,7 @@ class DualProjectRequest extends FormRequest
             'gender' => ['required_if:has_report,1', 'in:Masculino,Femenino,Otro'],
             'semester' => ['required_if:has_report,1', 'integer', 'min:1', 'max:16'],
             'id_career' => ['required_if:has_report,1', 'exists:careers,id'],
-            'id_speciality' => ['required_if:has_report,1', 'exists:specialties,id'],
+            'id_specialty' => ['required_if:has_report,1', 'exists:specialties,id'],
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Models\DualProjectReport;
 use App\Models\OrganizationDualProject;
 use App\Models\Student;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\DB;
 
 
 class DualProjectController extends Controller
@@ -74,49 +75,67 @@ class DualProjectController extends Controller
 
     public function createDualProject(DualProjectRequest $request)
     {
-        $data = $request->validated();
-        if ($data['has_report'] == 0) {
-            $dualProject = new DualProject();
-            $dualProject->has_report = $data['has_report'];
-            $dualProject->id_institution = $data['id_institution'];
-            $dualProject->save();
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validated();
+
+            $dualProject = DualProject::create([
+                'has_report' => $data['has_report'],
+                'id_institution' => $data['id_institution']
+            ]);
+
+            if ($data['has_report'] == 1) {
+                $this->createDualProjectReport($data, $dualProject->id);
+                $this->createOrganizationDualProject($data, $dualProject->id);
+                $this->createStudent($data, $dualProject->id);
+            }
+
+            DB::commit();
+
             return response()->json($dualProject, Response::HTTP_CREATED);
-        } else {
-            $dualProject = new DualProject();
-            $dualProject->has_report = $data['has_report'];
-            $dualProject->id_institution = $data['id_institution'];
-            $dualProject->save();
-
-            $dualProjectReport = new DualProjectReport();
-            $dualProjectReport->name = $data['name_report'];
-            $dualProjectReport->dual_project_id = $dualProject->id;
-            $dualProjectReport->number_men = $data['number_men'];
-            $dualProjectReport->number_women = $data['number_women'];
-            $dualProjectReport->id_dual_area = $data['id_dual_area'];
-            $dualProjectReport->period_start = $data['period_start'];
-            $dualProjectReport->period_end = $data['period_end'];
-            $dualProjectReport->status_document = $data['status_document'];
-            $dualProjectReport->economic_support = $data['economic_support'];
-            $dualProjectReport->amount = $data['amount'];
-            $dualProjectReport->save();
-
-            $organizationDualProject = new OrganizationDualProject();
-            $organizationDualProject->id_organization = $data['id_organization'];
-            $organizationDualProject->id_dual_project = $dualProject->id;
-            $organizationDualProject->save();
-
-            $student = new Student();
-            $student->control_number = $data['control_number'];
-            $student->name = $data['name_student'];
-            $student->lastname = $data['lastname'];
-            $student->gender = $data['gender'];
-            $student->semester = $data['semester'];
-            $student->id_career = $data['id_career'];
-            $student->id_specialty = $data['id_specialty'];
-            $student->id_dual_project = $dualProject->id;
-            $student->save();
-
-            return response()->json([$dualProject], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error al crear el proyecto dual', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    protected function createDualProjectReport(array $data, int $dualProjectId)
+    {
+        return DualProjectReport::create([
+            'name' => $data['name_report'],
+            'dual_project_id' => $dualProjectId,
+            'number_men' => $data['number_men'],
+            'number_women' => $data['number_women'],
+            'id_dual_area' => $data['id_dual_area'],
+            'period_start' => $data['period_start'],
+            'period_end' => $data['period_end'],
+            'status_document' => $data['status_document'],
+            'economic_support' => $data['economic_support'],
+            'amount' => $data['amount']
+        ]);
+    }
+
+    protected function createOrganizationDualProject(array $data, int $dualProjectId)
+    {
+        return OrganizationDualProject::create([
+            'id_organization' => $data['id_organization'],
+            'id_dual_project' => $dualProjectId
+        ]);
+    }
+
+    protected function createStudent(array $data, int $dualProjectId)
+    {
+        return Student::create([
+            'control_number' => $data['control_number'],
+            'name' => $data['name_student'],
+            'lastname' => $data['lastname'],
+            'gender' => $data['gender'],
+            'semester' => $data['semester'],
+            'id_institution' => $data['id_institution'],
+            'id_career' => $data['id_career'],
+            'id_specialty' => $data['id_specialty'],
+            'id_dual_project' => $dualProjectId
+        ]);
     }
 }
