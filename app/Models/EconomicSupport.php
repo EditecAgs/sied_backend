@@ -15,7 +15,7 @@ class EconomicSupport extends Model
         'description',
     ];
 
-    public function dualProjects()
+    public function dualProjectReports()
     {
         return $this->hasMany(DualProjectReport::class, 'economic_support');
     }

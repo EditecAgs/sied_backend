@@ -5,6 +5,7 @@ use App\Http\Controllers\CareerController;
 use App\Http\Controllers\ClusterController;
 use App\Http\Controllers\DocumentStatusController;
 use App\Http\Controllers\DualAreaController;
+use App\Http\Controllers\DualProjectController;
 use App\Http\Controllers\EconomicSupportController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\MunicipalityController;
@@ -81,3 +82,7 @@ Route::get('specialties/{id}', [SpecialtyController::class, 'getSpecialtyById'])
 
 Route::get('types', [TypeController::class, 'getTypes']);
 Route::get('types/{id}', [TypeController::class, 'getTypeById']);
+
+Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects']);
+Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject']);
+Route::post('dual-projects', [DualProjectController::class, 'createDualProject']);
