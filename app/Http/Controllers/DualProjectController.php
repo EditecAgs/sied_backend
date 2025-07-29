@@ -3,20 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DualProjectRequest;
-use Illuminate\Http\Request;
 use App\Models\DualProject;
 use App\Models\DualProjectReport;
 use App\Models\OrganizationDualProject;
 use App\Models\Student;
-use Symfony\Component\HttpFoundation\Response;
+use Exception;
 use Illuminate\Support\Facades\DB;
-
+use Symfony\Component\HttpFoundation\Response;
 
 class DualProjectController extends Controller
 {
     public function getUnreportedDualProjects()
     {
         $unReports = DualProject::with(['institution:id,name'])->where('has_report', 0)->get();
+
         return response()->json($unReports, Response::HTTP_OK);
     }
 
@@ -38,10 +38,11 @@ class DualProjectController extends Controller
             'students:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty,id_dual_project',
             'students.institution:id,name',
             'students.career:id,name',
-            'students.specialty:id,name'
+            'students.specialty:id,name',
         ])
             ->where('has_report', 1)
             ->get();
+
         return response()->json($reports, Response::HTTP_OK);
     }
 
@@ -67,8 +68,9 @@ class DualProjectController extends Controller
                 'students:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty,id_dual_project',
                 'students.institution:id,name',
                 'students.career:id,name',
-                'students.specialty:id,name'
+                'students.specialty:id,name',
             ])->findOrFail($id);
+
             return response()->json($project, Response::HTTP_OK);
         }
     }
@@ -82,7 +84,7 @@ class DualProjectController extends Controller
 
             $dualProject = DualProject::create([
                 'has_report' => $data['has_report'],
-                'id_institution' => $data['id_institution']
+                'id_institution' => $data['id_institution'],
             ]);
 
             if ($data['has_report'] == 1) {
@@ -94,8 +96,9 @@ class DualProjectController extends Controller
             DB::commit();
 
             return response()->json($dualProject, Response::HTTP_CREATED);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['message' => 'Error al crear el proyecto dual', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -112,7 +115,7 @@ class DualProjectController extends Controller
             'period_end' => $data['period_end'],
             'status_document' => $data['status_document'],
             'economic_support' => $data['economic_support'],
-            'amount' => $data['amount']
+            'amount' => $data['amount'],
         ]);
     }
 
@@ -120,7 +123,7 @@ class DualProjectController extends Controller
     {
         return OrganizationDualProject::create([
             'id_organization' => $data['id_organization'],
-            'id_dual_project' => $dualProjectId
+            'id_dual_project' => $dualProjectId,
         ]);
     }
 
@@ -135,7 +138,7 @@ class DualProjectController extends Controller
             'id_institution' => $data['id_institution'],
             'id_career' => $data['id_career'],
             'id_specialty' => $data['id_specialty'],
-            'id_dual_project' => $dualProjectId
+            'id_dual_project' => $dualProjectId,
         ]);
     }
 }
