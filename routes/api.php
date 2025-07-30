@@ -91,3 +91,4 @@ Route::post('dual-projects', [DualProjectController::class, 'createDualProject']
     ->name('dual-projects-create');
 Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-update');
 Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-delete');
+
