@@ -2,13 +2,11 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Institution;
 use Tests\TestCase;
 
 class DualProjectTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @test
      */
@@ -27,8 +25,10 @@ class DualProjectTest extends TestCase
     public function create_dual_project()
     {
 
+        $institution = Institution::firstWhere('id', 1);
+
         $data = [
-            'id_institution' => 1,
+            'id_institution' => $institution->id,
             'has_report' => '1',
             'name_report' => 'report name',
             'number_men' => 1,
