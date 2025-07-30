@@ -24,7 +24,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('logout', [UserController::class, 'logout']);
 });
 
-Route::get('institutions', [InstitutionController::class, 'getInstitutions']);
+Route::get('institutions', [InstitutionController::class, 'getInstitutions'])->name('getInstitutions');
 Route::get('institutions/{id}', [InstitutionController::class, 'getInstitutionById']);
 Route::post('institutions', [InstitutionController::class, 'createInstitution']);
 Route::put('institutions/{id}', [InstitutionController::class, 'updateInstitution']);
@@ -83,8 +83,11 @@ Route::get('specialties/{id}', [SpecialtyController::class, 'getSpecialtyById'])
 Route::get('types', [TypeController::class, 'getTypes']);
 Route::get('types/{id}', [TypeController::class, 'getTypeById']);
 
-Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects']);
-Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject']);
-Route::post('dual-projects', [DualProjectController::class, 'createDualProject']);
-Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject']);
-Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject']);
+Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects'])
+    ->name('dual-projects-unreported');
+Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject'])
+    ->name('dual-projects-reported');
+Route::post('dual-projects', [DualProjectController::class, 'createDualProject'])
+    ->name('dual-projects-create');
+Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-update');
+Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-delete');
