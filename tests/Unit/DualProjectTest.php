@@ -42,12 +42,12 @@ class DualProjectTest extends TestCase{
         ];
 
         $response = $this->postJson(route('dual-projects-create'), $data);
-        dump($response->json());
+        //dump($response->json());
         $response->assertStatus(201);
 
 
         $dual_projects = $this->getJson(route('dual-projects-reported'));
-        dump($dual_projects->json());
+        //dump($dual_projects->json());
 
         $dual_projects->assertStatus(200);
         $dual_projects->assertJsonIsArray();
