@@ -86,3 +86,5 @@ Route::get('types/{id}', [TypeController::class, 'getTypeById']);
 Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects']);
 Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject']);
 Route::post('dual-projects', [DualProjectController::class, 'createDualProject']);
+Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject']);
+Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject']);
