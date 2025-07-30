@@ -3,19 +3,17 @@
 namespace Tests\Unit;
 
 use App\Models\Institution;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DualProjectTest extends TestCase
 {
-
     /**
      * @test
      */
     public function retrieve_list_of_dual_projects()
     {
         $response = $this->getJson(route('dual-projects-reported'));
-         //dump($response->json());
+        // dump($response->json());
 
         $response->assertStatus(200);
         $response->assertJsonIsArray();
@@ -52,11 +50,11 @@ class DualProjectTest extends TestCase
         ];
 
         $response = $this->postJson(route('dual-projects-create'), $data);
-        //dump($response->json());
+        // dump($response->json());
         $response->assertStatus(201);
 
         $dual_projects = $this->getJson(route('dual-projects-reported'));
-        //dump($dual_projects->json());
+        // dump($dual_projects->json());
 
         $dual_projects->assertStatus(200);
         $dual_projects->assertJsonIsArray();
