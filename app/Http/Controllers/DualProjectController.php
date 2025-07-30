@@ -103,6 +103,62 @@ class DualProjectController extends Controller
         }
     }
 
+    public function deleteDualProject($id)
+    {
+        $dualProject = DualProject::findOrFail($id);
+        if ($dualProject->has_report == 0) {
+            $dualProject->delete();
+
+            return response(status: Response::HTTP_NO_CONTENT);
+        } else {
+            Student::where('id_dual_project', $id)->delete();
+            OrganizationDualProject::where('id_dual_project', $id)->delete();
+            DualProjectReport::where('dual_project_id', $id)->delete();
+            $dualProject->delete();
+
+            return response(status: Response::HTTP_NO_CONTENT);
+        }
+    }
+
+    public function updateDualProject(DualProjectRequest $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validated();
+            $dualProject = DualProject::findOrFail($id);
+            $previousHasReport = $dualProject->has_report;
+
+            $dualProject->update([
+                'has_report' => $data['has_report'],
+                'id_institution' => $data['id_institution'],
+            ]);
+
+            if ($data['has_report'] == 1) {
+                if ($previousHasReport == 0) {
+                    $this->createDualProjectReport($data, $dualProject->id);
+                    $this->createOrganizationDualProject($data, $dualProject->id);
+                    $this->createStudent($data, $dualProject->id);
+                } else {
+                    $this->updateOrCreateDualProjectReport($data, $dualProject->id);
+                    $this->updateOrCreateOrganizationDualProject($data, $dualProject->id);
+                    $this->updateOrCreateStudent($data, $dualProject->id);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json($dualProject, Response::HTTP_NO_CONTENT);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Error al actualizar el proyecto dual',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     protected function createDualProjectReport(array $data, int $dualProjectId)
     {
         return DualProjectReport::create([
@@ -140,5 +196,48 @@ class DualProjectController extends Controller
             'id_specialty' => $data['id_specialty'],
             'id_dual_project' => $dualProjectId,
         ]);
+    }
+
+    protected function updateOrCreateDualProjectReport(array $data, int $dualProjectId)
+    {
+        DualProjectReport::updateOrCreate(
+            ['dual_project_id' => $dualProjectId],
+            [
+                'name' => $data['name_report'],
+                'number_men' => $data['number_men'],
+                'number_women' => $data['number_women'],
+                'id_dual_area' => $data['id_dual_area'],
+                'period_start' => $data['period_start'],
+                'period_end' => $data['period_end'],
+                'status_document' => $data['status_document'],
+                'economic_support' => $data['economic_support'],
+                'amount' => $data['amount'],
+            ]
+        );
+    }
+
+    protected function updateOrCreateOrganizationDualProject(array $data, int $dualProjectId)
+    {
+        OrganizationDualProject::updateOrCreate(
+            ['id_dual_project' => $dualProjectId],
+            ['id_organization' => $data['id_organization']]
+        );
+    }
+
+    protected function updateOrCreateStudent(array $data, int $dualProjectId)
+    {
+        Student::updateOrCreate(
+            ['id_dual_project' => $dualProjectId],
+            [
+                'control_number' => $data['control_number'],
+                'name' => $data['name_student'],
+                'lastname' => $data['lastname'],
+                'gender' => $data['gender'],
+                'semester' => $data['semester'],
+                'id_institution' => $data['id_institution'],
+                'id_career' => $data['id_career'],
+                'id_specialty' => $data['id_specialty'],
+            ]
+        );
     }
 }

@@ -22,7 +22,7 @@ class DualProject extends Model
 
     public function organizationDualProjects()
     {
-        return $this->hasMany(OrganizationDualProject::class, 'id_dual_project');
+        return $this->hasOne(OrganizationDualProject::class, 'id_dual_project');
     }
 
     public function students()
@@ -32,6 +32,6 @@ class DualProject extends Model
 
     public function dualProjectReports()
     {
-        return $this->hasMany(DualProjectReport::class, 'dual_project_id');
+        return $this->hasOne(DualProjectReport::class, 'dual_project_id');
     }
 }
