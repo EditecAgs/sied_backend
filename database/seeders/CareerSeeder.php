@@ -25,6 +25,10 @@ class CareerSeeder extends Seeder
             ['id' => 10, 'name' => 'Ingeniería en Ciberseguridad', 'id_institution' => 1],
             ['id' => 11, 'name' => 'Ingeniería en Desarrollo de Aplicaciones', 'id_institution' => 1],
             ['id' => 12, 'name' => 'Licenciatura en Administración', 'id_institution' => 1],
+            ['id' => 13, 'name' => 'Licenciatura en Derecho', 'id_institution' => 2],
+            ['id' => 14, 'name' => 'Ingeniería Aereoespacial', 'id_institution' => 3],
+            ['id' => 15, 'name' => 'Ingeniería Robótica', 'id_institution' => 4],
+            ['id' => 16, 'name' => 'Licenciatura en Filosofía y Letras', 'id_institution' => 5],
         ];
 
         foreach ($careers as $career) {

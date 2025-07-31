@@ -28,5 +28,69 @@ class OrganizationSeeder extends Seeder
                 'id_municipality' => 1,
             ],
         );
+        Organization::updateOrCreate(
+            ['id' => 2],
+            [
+                'name' => 'Organización de Ejemplo2',
+                'id_type' => 1,
+                'id_sector' => 5,
+                'size' => 'Micro (1 a 10 trabajadores)',
+                'id_cluster' => 1,
+                'street' => 'Calle Falsa',
+                'external_number' => '123',
+                'neighborhood' => 'Colonia Centro',
+                'postal_code' => '12345',
+                'id_state' => 1,
+                'id_municipality' => 1,
+            ],
+        );
+        Organization::updateOrCreate(
+            ['id' => 3],
+            [
+                'name' => 'Organización de Ejemplo3',
+                'id_type' => 1,
+                'id_sector' => 8,
+                'size' => 'Micro (1 a 10 trabajadores)',
+                'id_cluster' => 1,
+                'street' => 'Calle Falsa',
+                'external_number' => '123',
+                'neighborhood' => 'Colonia Centro',
+                'postal_code' => '12345',
+                'id_state' => 1,
+                'id_municipality' => 1,
+            ],
+        );
+        Organization::updateOrCreate(
+            ['id' => 4],
+            [
+                'name' => 'Organización de Ejemplo4',
+                'id_type' => 1,
+                'id_sector' => 6,
+                'size' => 'Micro (1 a 10 trabajadores)',
+                'id_cluster' => 1,
+                'street' => 'Calle Falsa',
+                'external_number' => '123',
+                'neighborhood' => 'Colonia Centro',
+                'postal_code' => '12345',
+                'id_state' => 1,
+                'id_municipality' => 1,
+            ],
+        );
+        Organization::updateOrCreate(
+            ['id' => 5],
+            [
+                'name' => 'Organización de Ejemplo5',
+                'id_type' => 1,
+                'id_sector' => 8,
+                'size' => 'Micro (1 a 10 trabajadores)',
+                'id_cluster' => 1,
+                'street' => 'Calle Falsa',
+                'external_number' => '123',
+                'neighborhood' => 'Colonia Centro',
+                'postal_code' => '12345',
+                'id_state' => 1,
+                'id_municipality' => 1,
+            ],
+        );
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\ClusterController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentStatusController;
 use App\Http\Controllers\DualAreaController;
 use App\Http\Controllers\DualProjectController;
@@ -92,3 +93,10 @@ Route::post('dual-projects', [DualProjectController::class, 'createDualProject']
     ->name('dual-projects-create');
 Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-update');
 Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-delete');
+
+Route::get('dual-projects/completed/count', [DashboardController::class, 'countDualProjectCompleted']);
+Route::get('students/registered/count', [DashboardController::class, 'countRegisteredStudents']);
+Route::get('projects/by-month', [DashboardController::class, 'countProjectsByMonth']);
+Route::get('projects/dual-area', [DashboardController::class, 'countProjectsByArea']);
+Route::get('projects/sectors', [DashboardController::class, 'countProjectsBySector']);
+Route::get('dual-projects/percetange/institutions', [DashboardController::class, 'getInstitutionProjectPercentage']);
