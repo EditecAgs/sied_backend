@@ -195,4 +195,75 @@ class DualProjectTest extends TestCase
         $this->assertEquals(2, $updatedProject->students->first()->id_career);
         $this->assertEquals(1, $updatedProject->students->first()->id_specialty);
     }
+
+    /**
+     * @test
+     */
+    public function delete_project_without_report()
+    {
+        $project = DualProject::create([
+            'has_report' => 0,
+            'id_institution' => 1,
+        ]);
+
+        $response = $this->deleteJson(route('dual-projects-delete', $project->id));
+
+        $response->assertStatus(204);
+
+        $this->assertSoftDeleted('dual_projects', ['id' => $project->id]);
+        $this->assertDatabaseMissing('dual_project_reports', [
+            'dual_project_id' => $project->id,
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function delete_project_with_report()
+    {
+        $project = DualProject::create([
+            'has_report' => 1,
+            'id_institution' => 1,
+        ]);
+
+        $report = DualProjectReport::create([
+            'dual_project_id' => $project->id,
+            'name' => 'Reporte Inicial',
+            'number_men' => 1,
+            'number_women' => 1,
+            'id_dual_area' => 1,
+            'period_start' => '2024-01-01',
+            'period_end' => '2024-06-30',
+            'status_document' => 1,
+            'economic_support' => 1,
+            'amount' => 1000,
+        ]);
+
+        $organization = OrganizationDualProject::create([
+            'id_dual_project' => $project->id,
+            'id_organization' => 1,
+        ]);
+
+        $student = Student::create([
+            'id_dual_project' => $project->id,
+            'control_number' => 'A00123456',
+            'name' => 'Estudiante Inicial',
+            'lastname' => 'Apellido Inicial',
+            'gender' => 'Masculino',
+            'semester' => 3,
+            'id_institution' => 1,
+            'id_career' => 1,
+            'id_specialty' => 1,
+        ]);
+
+        $response = $this->deleteJson(route('dual-projects-delete', $project->id));
+
+        $response->assertNoContent();
+
+        $this->assertSoftDeleted($project);
+
+        $this->assertSoftDeleted('dual_project_reports', ['id' => $report->id]);
+        $this->assertSoftDeleted('organizations_dual_projects', ['id' => $organization->id]);
+        $this->assertSoftDeleted('students', ['id' => $student->id]);
+    }
 }

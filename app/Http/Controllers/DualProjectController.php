@@ -105,18 +105,29 @@ class DualProjectController extends Controller
 
     public function deleteDualProject($id)
     {
-        $dualProject = DualProject::findOrFail($id);
-        if ($dualProject->has_report == 0) {
+        DB::beginTransaction();
+
+        try {
+            $dualProject = DualProject::findOrFail($id);
+
+            if ($dualProject->has_report == 1) {
+                $dualProject->students()->delete();
+                $dualProject->organizationDualProjects()->delete();
+                $dualProject->dualProjectReports()->delete();
+            }
+
             $dualProject->delete();
 
-            return response(status: Response::HTTP_NO_CONTENT);
-        } else {
-            Student::where('id_dual_project', $id)->delete();
-            OrganizationDualProject::where('id_dual_project', $id)->delete();
-            DualProjectReport::where('dual_project_id', $id)->delete();
-            $dualProject->delete();
+            DB::commit();
 
-            return response(status: Response::HTTP_NO_CONTENT);
+            return response()->json(status: Response::HTTP_NO_CONTENT);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Error al eliminar proyecto',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
