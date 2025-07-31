@@ -20,5 +20,37 @@ class SpecialtySeeder extends Seeder
                 'id_career' => 1,
             ],
         );
+        Specialty::updateOrCreate(
+            ['id' => 2],
+            [
+                'name' => 'Derecho Penal',
+                'id_institution' => 2,
+                'id_career' => 13,
+            ],
+        );
+        Specialty::updateOrCreate(
+            ['id' => 3],
+            [
+                'name' => 'Aeronáutica',
+                'id_institution' => 3,
+                'id_career' => 14,
+            ],
+        );
+        Specialty::updateOrCreate(
+            ['id' => 4],
+            [
+                'name' => 'Diseño de semiconductores',
+                'id_institution' => 4,
+                'id_career' => 15,
+            ],
+        );
+        Specialty::updateOrCreate(
+            ['id' => 5],
+            [
+                'name' => 'Antropología',
+                'id_institution' => 5,
+                'id_career' => 16,
+            ],
+        );
     }
 }
