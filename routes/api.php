@@ -87,6 +87,7 @@ Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnrepo
     ->name('dual-projects-unreported');
 Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject'])
     ->name('dual-projects-reported');
+Route::get('dual-projects/{id}', [DualProjectController::class, 'getDualProjectById']);
 Route::post('dual-projects', [DualProjectController::class, 'createDualProject'])
     ->name('dual-projects-create');
 Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-update');
