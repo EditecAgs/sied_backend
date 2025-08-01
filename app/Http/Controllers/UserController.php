@@ -51,7 +51,7 @@ class UserController
 
     public function getUsersById($id)
     {
-        $user = User::with(['institution:id,name'])->where('id', $id)->firstOrFail();
+        $user = User::with(['institution:id,name,street,external_number,internal_number,neighborhood,postal_code,country,city,google_maps,type,id_state,id_municipality,id_subsystem,id_academic_period', 'institution.state:id,name', 'institution.municipality:id,name', 'institution.subsystem:id,name', 'institution.academicPeriod:id,name'])->where('id', $id)->firstOrFail();
 
         return response()->json($user, Response::HTTP_OK);
     }
