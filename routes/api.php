@@ -68,6 +68,9 @@ Route::get('documents-statuses/{id}', [DocumentStatusController::class, 'getDocu
 
 Route::get('dual-areas', [DualAreaController::class, 'getDualAreas']);
 Route::get('dual-areas/{id}', [DualAreaController::class, 'getDualAreaById']);
+Route::post('dual-areas', [DualAreaController::class, 'createDualArea']);
+Route::put('dual-areas/{id}', [DualAreaController::class, 'updateDualArea']);
+Route::delete('dual-areas/{id}', [DualAreaController::class, 'deleteDualArea']);
 
 Route::get('economic-supports', [EconomicSupportController::class, 'getEconomicSupports']);
 Route::get('economic-supports/{id}', [EconomicSupportController::class, 'getEconomicSupportById']);

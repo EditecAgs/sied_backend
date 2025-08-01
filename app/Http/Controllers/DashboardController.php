@@ -39,7 +39,7 @@ class DashboardController extends Controller
                 DB::raw('MONTHNAME(dual_project_reports.period_start) as month_name'),
                 DB::raw('YEAR(dual_project_reports.period_start) as year')
             )
-            ->groupBy('year', 'month_number', 'month_year', 'month_name') // Todos los campos no agregados
+            ->groupBy('year', 'month_number', 'month_year', 'month_name')
             ->orderBy('year')
             ->orderBy('month_number')
             ->get();
@@ -60,34 +60,36 @@ class DashboardController extends Controller
                 DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
             )
             ->groupBy('dual_areas.id', 'dual_areas.name')
-            ->orderBy('dual_areas.name')
-            ->get();
+            ->orderByDesc('project_count')
+            ->paginate(10);
 
-        return response()->json(['data' => $results], Response::HTTP_OK);
+        return response()->json(['success' => true, 'data' => $results->items(), 'pagination' => ['total' => $results->total(), 'per_page' => $results->perPage(), 'current_page' => $results->currentPage(), 'last_page' => $results->lastPage()]], Response::HTTP_OK);
     }
 
     public function countProjectsBySector()
     {
-        $results = Sector::leftJoin('organizations', 'sectors.id', '=', 'organizations.id_sector')
+        $results = Sector::select(
+            'sectors.id',
+            'sectors.name as sector_name',
+            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
+        )
+            ->leftJoin('organizations', 'sectors.id', '=', 'organizations.id_sector')
             ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
             ->leftJoin('dual_projects', function ($join) {
                 $join->on('dual_projects.id', '=', 'organizations_dual_projects.id_dual_project')
                     ->where('dual_projects.has_report', 1);
             })
-            ->select(
-                'sectors.id',
-                'sectors.name as sector_name',
-                DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
-            )
             ->groupBy('sectors.id', 'sectors.name')
-            ->orderBy('sectors.name')
-            ->get();
+            ->orderByDesc('project_count')
+            ->paginate(10);
 
-        return response()->json(['data' => $results], Response::HTTP_OK);
+        return response()->json(['success' => true, 'data' => $results->items(), 'pagination' => ['total' => $results->total(), 'per_page' => $results->perPage(), 'current_page' => $results->currentPage(), 'last_page' => $results->lastPage()]], Response::HTTP_OK);
     }
 
     public function getInstitutionProjectPercentage()
     {
+        $totalProjects = DualProject::where('has_report', 1)->count();
+
         $results = Institution::leftJoin('dual_projects', function ($join) {
             $join->on('institutions.id', '=', 'dual_projects.id_institution')
                 ->where('dual_projects.has_report', 1);
@@ -95,24 +97,19 @@ class DashboardController extends Controller
             ->select(
                 'institutions.id',
                 'institutions.name as institution_name',
-                DB::raw('COUNT(dual_projects.id) as project_count')
+                DB::raw('COUNT(dual_projects.id) as project_count'),
+                DB::raw('CASE WHEN ' . $totalProjects . ' > 0
+                     THEN ROUND(COUNT(dual_projects.id) * 100.0 / ' . $totalProjects . ', 2)
+                     ELSE 0 END as percentage')
             )
             ->groupBy('institutions.id', 'institutions.name')
-            ->orderBy('institutions.name')
+            ->orderByDesc('percentage')
             ->get();
 
-        $totalProjects = $results->sum('project_count');
-        $results = $results->map(function ($item) use ($totalProjects) {
-            $percentage = $totalProjects > 0 ? round(($item->project_count / $totalProjects) * 100, 2) : 0;
-
-            return [
-                'id' => $item->id,
-                'institution_name' => $item->institution_name,
-                'project_count' => $item->project_count,
-                'percentage' => $percentage,
-            ];
-        });
-
-        return response()->json(['total_projects' => $totalProjects, 'data' => $results], Response::HTTP_OK);
+        return response()->json([
+            'success' => true,
+            'total_projects' => $totalProjects,
+            'data' => $results,
+        ], Response::HTTP_OK);
     }
 }
