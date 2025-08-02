@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class DualArea extends Model
+{
+    use SoftDeletes;
+    protected $table = 'dual_areas';
+    protected $fillable = [
+        'id',
+        'name',
+    ];
+
+    public function dualProjectReports()
+    {
+        return $this->hasMany(DualProjectReport::class, 'id_dual_area');
+    }
+}
