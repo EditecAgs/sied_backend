@@ -77,6 +77,9 @@ Route::get('economic-supports/{id}', [EconomicSupportController::class, 'getEcon
 
 Route::get('organizations', [OrganizationController::class, 'getOrganizations']);
 Route::get('organizations/{id}', [OrganizationController::class, 'getOrganizationById']);
+Route::post('organizations', [OrganizationController::class, 'createOrganization']);
+Route::put('organizations/{id}', [OrganizationController::class, 'updateOrganization']);
+Route::delete('organizations/{id}', [OrganizationController::class, 'deleteOrganization']);
 
 Route::get('sectors', [SectorController::class, 'getSectors']);
 Route::get('sectors/{id}', [SectorController::class, 'getSectorById']);
