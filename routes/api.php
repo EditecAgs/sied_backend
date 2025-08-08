@@ -59,12 +59,21 @@ Route::get('states/{id}', [StateController::class, 'getStateById']);
 Route::get('careers', [CareerController::class, 'getCareers']);
 Route::get('careers/{id}', [CareerController::class, 'getCareerById']);
 Route::get('careers/institution/{id}', [CareerController::class, 'getCareerByInstitution']);
+Route::post('careers', [CareerController::class, 'createCareer']);
+Route::put('careers/{id}', [CareerController::class, 'updateCareer']);
+Route::delete('careers/{id}', [CareerController::class, 'deleteCareer']);
 
 Route::get('clusters', [ClusterController::class, 'getClusters']);
 Route::get('clusters/{id}', [ClusterController::class, 'getClusterById']);
+Route::post('clusters', [ClusterController::class, 'createCluster']);
+Route::put('clusters/{id}', [ClusterController::class, 'updateCluster']);
+Route::delete('clusters/{id}', [ClusterController::class, 'deleteCluster']);
 
 Route::get('documents-statuses', [DocumentStatusController::class, 'getDocumentStatuses']);
 Route::get('documents-statuses/{id}', [DocumentStatusController::class, 'getDocumentStatusById']);
+Route::post('documents-statuses', [DocumentStatusController::class, 'createDocumentStatus']);
+Route::put('documents-statuses/{id}', [DocumentStatusController::class, 'updateDocumentStatus']);
+Route::delete('documents-statuses/{id}', [DocumentStatusController::class, 'deleteDocumentStatus']);
 
 Route::get('dual-areas', [DualAreaController::class, 'getDualAreas']);
 Route::get('dual-areas/{id}', [DualAreaController::class, 'getDualAreaById']);
@@ -74,6 +83,9 @@ Route::delete('dual-areas/{id}', [DualAreaController::class, 'deleteDualArea']);
 
 Route::get('economic-supports', [EconomicSupportController::class, 'getEconomicSupports']);
 Route::get('economic-supports/{id}', [EconomicSupportController::class, 'getEconomicSupportById']);
+Route::post('economic-supports', [EconomicSupportController::class, 'createEconomicSupport']);
+Route::put('economic-supports/{id}', [EconomicSupportController::class, 'updateEconomicSupport']);
+Route::delete('economic-supports/{id}', [EconomicSupportController::class, 'deleteEconomicSupport']);
 
 Route::get('organizations', [OrganizationController::class, 'getOrganizations']);
 Route::get('organizations/{id}', [OrganizationController::class, 'getOrganizationById']);
@@ -83,12 +95,21 @@ Route::delete('organizations/{id}', [OrganizationController::class, 'deleteOrgan
 
 Route::get('sectors', [SectorController::class, 'getSectors']);
 Route::get('sectors/{id}', [SectorController::class, 'getSectorById']);
+Route::post('sectors', [SectorController::class, 'createSector']);
+Route::put('sectors/{id}', [SectorController::class, 'updateSector']);
+Route::delete('sectors/{id}', [SectorController::class, 'deleteSector']);
 
 Route::get('specialties', [SpecialtyController::class, 'getSpecialties']);
 Route::get('specialties/{id}', [SpecialtyController::class, 'getSpecialtyById']);
+Route::post('specialties', [SpecialtyController::class, 'createSpecialty']);
+Route::put('specialties/{id}', [SpecialtyController::class, 'updateSpecialty']);
+Route::delete('specialties/{id}', [SpecialtyController::class, 'deleteSpecialty']);
 
 Route::get('types', [TypeController::class, 'getTypes']);
 Route::get('types/{id}', [TypeController::class, 'getTypeById']);
+Route::post('types', [TypeController::class, 'createType']);
+Route::put('types/{id}', [TypeController::class, 'updateType']);
+Route::delete('types/{id}', [TypeController::class, 'deleteType']);
 
 Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects'])
     ->name('dual-projects-unreported');
