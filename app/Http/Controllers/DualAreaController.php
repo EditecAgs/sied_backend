@@ -31,16 +31,16 @@ class DualAreaController extends Controller
     public function updateDualArea(DualAreaRequest $request, $id)
     {
         $data = $request->validated();
-        $academicPeriod = DualArea::findOrFail($id);
-        $academicPeriod->update($data);
+        $dualArea = DualArea::findOrFail($id);
+        $dualArea->update($data);
 
         return response(status: Response::HTTP_OK);
     }
 
     public function deleteDualArea($id)
     {
-        $academicPeriod = DualArea::findOrFail($id);
-        $academicPeriod->delete();
+        $dualArea = DualArea::findOrFail($id);
+        $dualArea->delete();
 
         return response(status: Response::HTTP_NO_CONTENT);
     }
