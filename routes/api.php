@@ -127,3 +127,4 @@ Route::get('projects/by-month', [DashboardController::class, 'countProjectsByMon
 Route::get('projects/dual-area', [DashboardController::class, 'countProjectsByArea']);
 Route::get('projects/sectors', [DashboardController::class, 'countProjectsBySector']);
 Route::get('dual-projects/percetange/institutions', [DashboardController::class, 'getInstitutionProjectPercentage']);
+Route::get('organizations/registered/count', [DashboardController::class, 'countRegisteredOrganizations']);
