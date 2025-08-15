@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DualArea;
 use App\Models\DualProject;
 use App\Models\Institution;
+use App\Models\Organization;
 use App\Models\Sector;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,13 @@ class DashboardController extends Controller
         $students = Student::count();
 
         return response()->json(['count' => $students], Response::HTTP_OK);
+    }
+
+    public function countRegisteredOrganizations()
+    {
+        $organization = Organization::count();
+
+        return response()->json(['count' => $organization], Response::HTTP_OK);
     }
 
     public function countProjectsByMonth()
