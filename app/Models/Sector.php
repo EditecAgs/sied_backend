@@ -13,6 +13,7 @@ class Sector extends Model
     protected $fillable = [
         'id',
         'name',
+        'plan_mexico',
     ];
 
     public function organizations()
