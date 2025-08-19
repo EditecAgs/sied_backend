@@ -94,6 +94,28 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'data' => $results->items(), 'pagination' => ['total' => $results->total(), 'per_page' => $results->perPage(), 'current_page' => $results->currentPage(), 'last_page' => $results->lastPage()]], Response::HTTP_OK);
     }
 
+    public function countProjectsBySectorPlanMexico()
+    {
+        $results = Sector::select(
+            'sectors.id',
+            'sectors.name as sector_name',
+            'sectors.plan_mexico',
+            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
+        )
+            ->leftJoin('organizations', 'sectors.id', '=', 'organizations.id_sector')
+            ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
+            ->leftJoin('dual_projects', function ($join) {
+                $join->on('dual_projects.id', '=', 'organizations_dual_projects.id_dual_project')
+                    ->where('dual_projects.has_report', 1);
+            })
+            ->where('sectors.plan_mexico', 1)
+            ->groupBy('sectors.id', 'sectors.name')
+            ->orderByDesc('project_count')
+            ->paginate(10);
+
+        return response()->json(['success' => true, 'data' => $results->items(), 'pagination' => ['total' => $results->total(), 'per_page' => $results->perPage(), 'current_page' => $results->currentPage(), 'last_page' => $results->lastPage()]], Response::HTTP_OK);
+    }
+
     public function getInstitutionProjectPercentage()
     {
         $totalProjects = DualProject::where('has_report', 1)->count();

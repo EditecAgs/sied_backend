@@ -128,3 +128,4 @@ Route::get('projects/dual-area', [DashboardController::class, 'countProjectsByAr
 Route::get('projects/sectors', [DashboardController::class, 'countProjectsBySector']);
 Route::get('dual-projects/percetange/institutions', [DashboardController::class, 'getInstitutionProjectPercentage']);
 Route::get('organizations/registered/count', [DashboardController::class, 'countRegisteredOrganizations']);
+Route::get('projects/sectors/mexico', [DashboardController::class, 'countProjectsBySectorPlanMexico']);
