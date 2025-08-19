@@ -109,7 +109,7 @@ class DashboardController extends Controller
                     ->where('dual_projects.has_report', 1);
             })
             ->where('sectors.plan_mexico', 1)
-            ->groupBy('sectors.id', 'sectors.name')
+            ->groupBy('sectors.id', 'sectors.name', 'sectors.plan_mexico')
             ->orderByDesc('project_count')
             ->paginate(10);
 
