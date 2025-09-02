@@ -60,7 +60,7 @@ class UserController
     {
         $data = $request->validated();
 
-        $data['password'] = Hash::make('Prueba123$');
+        $data['password'] = Hash::make($data['password']);
         $data['type'] = 1;
         User::create($data);
 
