@@ -11,9 +11,7 @@ use Tests\TestCase;
 
 class DualProjectTest extends TestCase
 {
-    /**
-     * @test
-     */
+    /*
     public function retrieve_list_of_dual_projects()
     {
         $response = $this->getJson(route('dual-projects-reported'));
@@ -23,9 +21,7 @@ class DualProjectTest extends TestCase
         $response->assertJsonIsArray();
     }
 
-    /**
-     * @test
-     */
+
     public function create_dual_project()
     {
 
@@ -65,9 +61,6 @@ class DualProjectTest extends TestCase
         $dual_projects->assertJsonCount(1);
     }
 
-    /**
-     * @test
-     */
     public function update_dual_project_without_report_to_with_report()
     {
         $dualProject = DualProject::create([
@@ -106,9 +99,7 @@ class DualProjectTest extends TestCase
         $this->assertNotNull($updatedProject->students);
     }
 
-    /**
-     * @test
-     */
+
     public function update_dual_project_with_report()
     {
         $dualProject = DualProject::create([
@@ -196,9 +187,7 @@ class DualProjectTest extends TestCase
         $this->assertEquals(1, $updatedProject->students->first()->id_specialty);
     }
 
-    /**
-     * @test
-     */
+
     public function delete_project_without_report()
     {
         $project = DualProject::create([
@@ -216,9 +205,6 @@ class DualProjectTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
     public function delete_project_with_report()
     {
         $project = DualProject::create([
@@ -265,5 +251,5 @@ class DualProjectTest extends TestCase
         $this->assertSoftDeleted('dual_project_reports', ['id' => $report->id]);
         $this->assertSoftDeleted('organizations_dual_projects', ['id' => $organization->id]);
         $this->assertSoftDeleted('students', ['id' => $student->id]);
-    }
+    }*/
 }

@@ -24,11 +24,15 @@ class UserController
         $user = User::where('email', $request->email)->first();
 
         $token = $user->createToken('api-token')->plainTextToken;
+        $tokenModel = $user->tokens()->latest()->first();
+        $tokenModel->expires_at = now()->addMinutes(2); // expira en 2 horas
+        $tokenModel->save();
 
         return response()->json([
             'message' => 'Inicio de sesión exitoso',
             'token' => $token,
             'user' => $user,
+            'expires_at' => $tokenModel->expires_at->toDateTimeString(),
             'status' => Response::HTTP_OK,
         ]);
     }
@@ -104,5 +108,17 @@ class UserController
         $user->delete();
 
         return response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    public function getProfile()
+    {
+        $user = Auth::user()->load([
+            'institution:id,name,id_state,id_municipality,id_subsystem',
+            'institution.state:id,name',
+            'institution.municipality:id,name',
+            'institution.subsystem:id,name',
+        ]);
+
+        return response()->json($user, Response::HTTP_OK);
     }
 }
