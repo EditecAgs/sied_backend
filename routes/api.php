@@ -26,7 +26,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::delete('users/{id}', [UserController::class, 'deleteUser']);
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('logout', [UserController::class, 'logout']);
     Route::get('institutions', [InstitutionController::class, 'getInstitutions'])->name('getInstitutions');
     Route::get('institutions/{id}', [InstitutionController::class, 'getInstitutionById']);
