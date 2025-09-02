@@ -105,4 +105,16 @@ class UserController
 
         return response(status: Response::HTTP_NO_CONTENT);
     }
+
+    public function getProfile()
+    {
+        $user = Auth::user()->load([
+            'institution:id,name,id_state,id_municipality,id_subsystem',
+            'institution.state:id,name',
+            'institution.municipality:id,name',
+            'institution.subsystem:id,name',
+        ]);
+
+        return response()->json($user, Response::HTTP_OK);
+    }
 }
