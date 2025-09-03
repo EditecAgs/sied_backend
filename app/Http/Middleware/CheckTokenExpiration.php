@@ -23,8 +23,9 @@ class CheckTokenExpiration
 
             if ($inactiveMinutes >= 5) {
                 $token->accessToken->delete();
+
                 return response()->json([
-                    'message' => 'Sesión expirada por inactividad'
+                    'message' => 'Sesión expirada por inactividad',
                 ], 401);
             }
         }
