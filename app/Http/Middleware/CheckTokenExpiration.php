@@ -17,12 +17,16 @@ class CheckTokenExpiration
     {
         $token = $request->user()?->currentAccessToken();
 
-        if ($token && $token->expires_at && $token->expires_at->isPast()) {
-            $token->delete(); // elimina token vencido
+        if ($token) {
+            $lastUsed = $token->last_used_at ?? $token->created_at;
+            $inactiveMinutes = now()->diffInMinutes($lastUsed);
 
-            return response()->json([
-                'message' => 'Token expirado, inicia sesión nuevamente.',
-            ], 401);
+            if ($inactiveMinutes >= 5) {
+                $token->accessToken->delete();
+                return response()->json([
+                    'message' => 'Sesión expirada por inactividad'
+                ], 401);
+            }
         }
 
         return $next($request);
