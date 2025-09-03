@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicPeriodController;
+use App\Http\Controllers\CareerController;
 use App\Http\Controllers\ClusterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentStatusController;
@@ -8,9 +9,11 @@ use App\Http\Controllers\DualAreaController;
 use App\Http\Controllers\DualProjectController;
 use App\Http\Controllers\EconomicSupportController;
 use App\Http\Controllers\InstitutionController;
+use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\SpecialtyController;
+use App\Http\Controllers\StateController;
 use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
@@ -41,6 +44,20 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::post('subsystems', [SubsystemController::class, 'createSubsystem']);
     Route::put('subsystems/{id}', [SubsystemController::class, 'updateSubsystem']);
     Route::delete('subsystems/{id}', [SubsystemController::class, 'deleteSubsystem']);
+
+    Route::get('municipalities', [MunicipalityController::class, 'getMunicipalities']);
+    Route::get('municipalities/{id}', [MunicipalityController::class, 'getMunicipalityById']);
+    Route::get('municipalities/state/{stateId}', [MunicipalityController::class, 'getMunicipalityByStateId']);
+
+    Route::get('states', [StateController::class, 'getStates']);
+    Route::get('states/{id}', [StateController::class, 'getStateById']);
+
+    Route::get('careers', [CareerController::class, 'getCareers']);
+    Route::get('careers/{id}', [CareerController::class, 'getCareerById']);
+    Route::get('careers/institution/{id}', [CareerController::class, 'getCareerByInstitution']);
+    Route::post('careers', [CareerController::class, 'createCareer']);
+    Route::put('careers/{id}', [CareerController::class, 'updateCareer']);
+    Route::delete('careers/{id}', [CareerController::class, 'deleteCareer']);
 
     Route::get('subsystems', [SubsystemController::class, 'getSubsystems']);
     Route::get('subsystems/{id}', [SubsystemController::class, 'getSubsystemById']);
