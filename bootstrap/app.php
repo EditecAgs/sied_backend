@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->group('api', [
+            \App\Http\Middleware\CookieToAuth::class,
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'token.expiration' => CheckTokenExpiration::class,

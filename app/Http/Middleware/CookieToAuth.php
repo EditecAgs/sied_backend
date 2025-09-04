@@ -17,15 +17,14 @@ class CookieToAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $tokenValue = $request->cookie('auth_token');
-
-        if ($tokenValue) {
-            $token = PersonalAccessToken::findToken($tokenValue);
-
-            if ($token && $token->tokenable) {
-                auth()->setUser($token->tokenable);
+        // Si ya viene con header Authorization no hacemos nada
+        if (! $request->bearerToken()) {
+            $token = $request->cookie('auth_token');
+            if ($token) {
+                $request->headers->set('Authorization', 'Bearer ' . $token);
             }
         }
+
 
         return $next($request);
     }
