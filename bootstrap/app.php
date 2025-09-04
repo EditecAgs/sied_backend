@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'token.expiration' => CheckTokenExpiration::class,
+            'cookie.to.auth' => \App\Http\Middleware\CookieToAuth::class,
         ]);
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
     })
