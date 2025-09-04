@@ -22,24 +22,27 @@ class UserController
         }
 
         $user = User::where('email', $request->email)->first();
-
+        //create token
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Inicio de sesión exitoso',
-            'token' => $token,
-            'user' => $user,
-            'status' => Response::HTTP_OK,
-        ]);
+        return response()->json(['message' => 'Login exitoso'])
+            ->cookie(
+                'auth_token',
+                $token,
+                2,     // minutos de vida 2 minutos
+                '/',
+                null,
+                true,  // secure (usar true en producción HTTPS)
+                true   // httpOnly
+            );
     }
 
     public function logout()
     {
         Auth::user()->tokens()->delete();
 
-        return response()->json([
-            'message' => 'Sesión cerrada exitosamente',
-        ], Response::HTTP_OK);
+        return response()->json(['message' => 'Sesión cerrada'])
+            ->cookie('auth_token', '', -1);
     }
 
     public function getUsers()
