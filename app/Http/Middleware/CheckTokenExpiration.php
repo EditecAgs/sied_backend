@@ -15,7 +15,7 @@ class CheckTokenExpiration
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->user()->currentAccessToken();
+        $token = $request->user()?->currentAccessToken();
 
         if ($token) {
             $lastUsed = $token->last_used_at ?? $token->created_at;
