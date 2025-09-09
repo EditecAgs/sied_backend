@@ -21,8 +21,8 @@ class CheckTokenExpiration
             $lastUsed = $token->last_used_at ?? $token->created_at;
             $inactiveMinutes = now()->diffInMinutes($lastUsed);
 
-            if ($inactiveMinutes >= 5) {
-                $token->accessToken->delete();
+            if ($inactiveMinutes >= 1) {
+                $token->delete();
 
                 return response()->json([
                     'message' => 'Sesión expirada por inactividad',

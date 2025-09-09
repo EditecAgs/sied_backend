@@ -1,3 +1,5 @@
+Workflow file for this run
+.github/workflows/laravel.yml at c642746
 name: Laravel
 on: [pull_request]
 jobs:
@@ -37,4 +39,3 @@ jobs:
         run: ./vendor/bin/duster lint
       - name: Run tests
         run: php artisan test
-
