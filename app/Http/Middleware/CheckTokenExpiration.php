@@ -20,14 +20,16 @@ class CheckTokenExpiration
         if ($token) {
             $lastUsed = $token->last_used_at ?? $token->created_at;
             $inactiveMinutes = now()->diffInMinutes($lastUsed);
-
+            
             if ($inactiveMinutes >= 1) {
                 $token->delete();
+
                 return response()->json([
                     'message' => 'Sesión expirada por inactividad',
                 ], 401);
             }
         }
+
         return $next($request);
     }
 }
