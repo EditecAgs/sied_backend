@@ -26,6 +26,7 @@ class StoreUserRequest extends FormRequest
             'lastname' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
             'id_institution' => 'required|exists:institutions,id',
+            'password' => 'required|string|min:8',
         ];
     }
 }

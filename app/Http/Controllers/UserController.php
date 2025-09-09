@@ -60,7 +60,7 @@ class UserController
     {
         $data = $request->validated();
 
-        $data['password'] = Hash::make('Prueba123$');
+        $data['password'] = Hash::make($data['password']);
         $data['type'] = 1;
         User::create($data);
 
@@ -104,5 +104,17 @@ class UserController
         $user->delete();
 
         return response(status: Response::HTTP_NO_CONTENT);
+    }
+
+    public function getProfile()
+    {
+        $user = Auth::user()->load([
+            'institution:id,name,id_state,id_municipality,id_subsystem',
+            'institution.state:id,name',
+            'institution.municipality:id,name',
+            'institution.subsystem:id,name',
+        ]);
+
+        return response()->json($user, Response::HTTP_OK);
     }
 }
