@@ -23,9 +23,6 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, dom, fileinfo, mysql
 
-      #- name: Composer Github auth
-      #  run: composer config --global github-oauth.github.com ${{ secrets.GH_TOKEN }}
-
       - name: Install composer dependencies
         run: composer install
 
@@ -41,8 +38,8 @@ jobs:
       - name: Run seeders
         run: php artisan db:seed
 
-      - name: Duster Lint
-        run: ./vendor/bin/duster lint
+      - name: Duster Fix
+        run: ./vendor/bin/duster fix
 
       - name: Run tests
         run: php artisan test --colors=never
