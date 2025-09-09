@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ClusterSeeder::class,
             DualAreaSeeder::class,
             DocumentStatusSeeder::class,
+            DualTypesSeeder::class,
         ]);
 
         if (App::environment('local')) {
@@ -37,6 +38,8 @@ class DatabaseSeeder extends Seeder
                 OrganizationDualProjectSeeder::class,
                 SpecialtySeeder::class,
                 StudentSeeder::class,
+                MicroCredentialSeeder::class,
+                DualProjectStudentSeeder::class,
             ]);
         }
     }
