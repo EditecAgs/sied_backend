@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
                 OrganizationDualProjectSeeder::class,
                 SpecialtySeeder::class,
                 StudentSeeder::class,
+                UserSeeder::class,
             ]);
         }
     }
