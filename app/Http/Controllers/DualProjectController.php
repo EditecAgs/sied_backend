@@ -24,7 +24,7 @@ class DualProjectController extends Controller
     {
         $reports = DualProject::with([
             'institution:id,name',
-            'dualProjectReports:id,name,dual_project_id,number_men,number_women,period_start,period_end,amount,id_dual_area,status_document,economic_support',
+            'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support',
             'dualProjectReports.dualArea:id,name',
             'dualProjectReports.statusDocument:id,name',
             'dualProjectReports.economicSupport:id,name',
@@ -35,10 +35,10 @@ class DualProjectController extends Controller
             'organizationDualProjects.organization.cluster:id,name',
             'organizationDualProjects.organization.state:id,name',
             'organizationDualProjects.organization.municipality:id,name',
-            'students:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty,id_dual_project',
-            'students.institution:id,name',
-            'students.career:id,name',
-            'students.specialty:id,name',
+            'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
+            'dualProjectStudents.student.institution:id,name',
+            'dualProjectStudents.student.career:id,name',
+            'dualProjectStudents.student.specialty:id,name',
         ])
             ->where('has_report', 1)
             ->get();
@@ -54,7 +54,7 @@ class DualProjectController extends Controller
         } else {
             $project = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,number_men,number_women,period_start,period_end,amount,id_dual_area,status_document,economic_support',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.statusDocument:id,name',
                 'dualProjectReports.economicSupport:id,name',
@@ -65,10 +65,10 @@ class DualProjectController extends Controller
                 'organizationDualProjects.organization.cluster:id,name',
                 'organizationDualProjects.organization.state:id,name',
                 'organizationDualProjects.organization.municipality:id,name',
-                'students:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty,id_dual_project',
-                'students.institution:id,name',
-                'students.career:id,name',
-                'students.specialty:id,name',
+                'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
+                'dualProjectStudents.student.institution:id,name',
+                'dualProjectStudents.student.career:id,name',
+                'dualProjectStudents.student.specialty:id,name',
             ])->findOrFail($id);
 
             return response()->json($project, Response::HTTP_OK);
@@ -90,7 +90,7 @@ class DualProjectController extends Controller
             if ($data['has_report'] == 1) {
                 $this->createDualProjectReport($data, $dualProject->id);
                 $this->createOrganizationDualProject($data, $dualProject->id);
-                $this->createStudent($data, $dualProject->id);
+                $this->createStudents($data, $dualProject->id);
             }
 
             DB::commit();
@@ -111,7 +111,7 @@ class DualProjectController extends Controller
             $dualProject = DualProject::findOrFail($id);
 
             if ($dualProject->has_report == 1) {
-                $dualProject->students()->delete();
+                $dualProject->dualProjectStudents()->delete();
                 $dualProject->organizationDualProjects()->delete();
                 $dualProject->dualProjectReports()->delete();
             }
@@ -149,7 +149,7 @@ class DualProjectController extends Controller
                 if ($previousHasReport == 0) {
                     $this->createDualProjectReport($data, $dualProject->id);
                     $this->createOrganizationDualProject($data, $dualProject->id);
-                    $this->createStudent($data, $dualProject->id);
+                    $this->createStudents($data, $dualProject->id);
                 } else {
                     $this->updateOrCreateDualProjectReport($data, $dualProject->id);
                     $this->updateOrCreateOrganizationDualProject($data, $dualProject->id);
@@ -194,20 +194,33 @@ class DualProjectController extends Controller
         ]);
     }
 
-    protected function createStudent(array $data, int $dualProjectId)
+    protected function createStudents(array $data, int $dualProjectId)
     {
-        return Student::create([
-            'control_number' => $data['control_number'],
-            'name' => $data['name_student'],
-            'lastname' => $data['lastname'],
-            'gender' => $data['gender'],
-            'semester' => $data['semester'],
-            'id_institution' => $data['id_institution'],
-            'id_career' => $data['id_career'],
-            'id_specialty' => $data['id_specialty'],
-            'id_dual_project' => $dualProjectId,
-        ]);
+        if (!isset($data['students']) || !is_array($data['students'])) {
+            return;
+        }
+        foreach ($data['students'] as $studentData) {
+            $student = Student::updateOrCreate(
+                ['control_number' => $studentData['control_number']], 
+                [
+                    'name' => $studentData['name_student'],
+                    'lastname' => $studentData['lastname'],
+                    'gender' => $studentData['gender'],
+                    'semester' => $studentData['semester'],
+                    'id_institution' => $studentData['id_institution'],
+                    'id_career' => $studentData['id_career'],
+                    'id_specialty' => $studentData['id_specialty'],
+                ]
+            );
+            DualProjectStudent::updateOrCreate(
+                [
+                    'id_student' => $student->id,
+                    'id_dual_project' => $dualProjectId
+                ]
+            );
+        }
     }
+
 
     protected function updateOrCreateDualProjectReport(array $data, int $dualProjectId)
     {
@@ -234,21 +247,31 @@ class DualProjectController extends Controller
             ['id_organization' => $data['id_organization']]
         );
     }
-
-    protected function updateOrCreateStudent(array $data, int $dualProjectId)
+    protected function updateOrCreateStudents(array $data, int $dualProjectId)
     {
-        Student::updateOrCreate(
-            ['id_dual_project' => $dualProjectId],
-            [
-                'control_number' => $data['control_number'],
-                'name' => $data['name_student'],
-                'lastname' => $data['lastname'],
-                'gender' => $data['gender'],
-                'semester' => $data['semester'],
-                'id_institution' => $data['id_institution'],
-                'id_career' => $data['id_career'],
-                'id_specialty' => $data['id_specialty'],
-            ]
-        );
+        if (!isset($data['students']) || !is_array($data['students'])) {
+            return;
+        }
+        foreach ($data['students'] as $studentData) {
+            $student = Student::updateOrCreate(
+                ['control_number' => $studentData['control_number']], // criterio único
+                [
+                    'name' => $studentData['name_student'],
+                    'lastname' => $studentData['lastname'],
+                    'gender' => $studentData['gender'],
+                    'semester' => $studentData['semester'],
+                    'id_institution' => $studentData['id_institution'],
+                    'id_career' => $studentData['id_career'],
+                    'id_specialty' => $studentData['id_specialty'],
+                ]
+            );
+            DualProjectStudent::updateOrCreate(
+                [
+                    'id_student' => $student->id,
+                    'id_dual_project' => $dualProjectId
+                ]
+            );
+        }
     }
+
 }
