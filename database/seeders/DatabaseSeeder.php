@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ClusterSeeder::class,
             DualAreaSeeder::class,
             DocumentStatusSeeder::class,
+            UserSeeder::class,
         ]);
 
         if (App::environment('local')) {
