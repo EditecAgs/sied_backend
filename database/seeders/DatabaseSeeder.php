@@ -24,12 +24,12 @@ class DatabaseSeeder extends Seeder
             ClusterSeeder::class,
             DualAreaSeeder::class,
             DocumentStatusSeeder::class,
+            InstitutionSeeder::class,
             UserSeeder::class,
         ]);
 
         if (App::environment('local')) {
             $this->call([
-                InstitutionSeeder::class,
                 CareerSeeder::class,
                 EconomicSupportSeeder::class,
                 OrganizationSeeder::class,
@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
                 OrganizationDualProjectSeeder::class,
                 SpecialtySeeder::class,
                 StudentSeeder::class,
-                UserSeeder::class,
+
             ]);
         }
     }
