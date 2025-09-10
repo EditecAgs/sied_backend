@@ -27,6 +27,7 @@ class Institution extends Model
         'type',
         'id_subsystem',
         'id_academic_period',
+        'image',
     ];
 
     protected $casts = [
