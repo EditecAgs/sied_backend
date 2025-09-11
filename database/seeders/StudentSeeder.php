@@ -23,7 +23,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 1,
                 'id_career' => 1,
                 'id_specialty' => 1,
-                'id_dual_project' => 1,
             ]
         );
 
@@ -38,7 +37,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 1,
                 'id_career' => 1,
                 'id_specialty' => 1,
-                'id_dual_project' => 2,
             ]
         );
 
@@ -53,7 +51,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 1,
                 'id_career' => 1,
                 'id_specialty' => 1,
-                'id_dual_project' => 3,
             ]
         );
 
@@ -68,7 +65,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 1,
                 'id_career' => 1,
                 'id_specialty' => 1,
-                'id_dual_project' => 4,
             ]
         );
 
@@ -84,7 +80,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 1,
                 'id_career' => 1,
                 'id_specialty' => 1,
-                'id_dual_project' => 5,
             ]
         );
 
@@ -100,7 +95,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 2,
                 'id_career' => 13,
                 'id_specialty' => 2,
-                'id_dual_project' => 6,
             ]
         );
 
@@ -115,7 +109,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 2,
                 'id_career' => 13,
                 'id_specialty' => 2,
-                'id_dual_project' => 7,
             ]
         );
 
@@ -130,7 +123,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 3,
                 'id_career' => 14,
                 'id_specialty' => 3,
-                'id_dual_project' => 8,
             ]
         );
 
@@ -145,7 +137,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 4,
                 'id_career' => 15,
                 'id_specialty' => 4,
-                'id_dual_project' => 9,
             ]
         );
         Student::updateOrCreate(
@@ -159,7 +150,6 @@ class StudentSeeder extends Seeder
                 'id_institution' => 5,
                 'id_career' => 16,
                 'id_specialty' => 5,
-                'id_dual_project' => 10,
             ]
         );
     }
