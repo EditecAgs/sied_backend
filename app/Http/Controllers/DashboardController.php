@@ -8,6 +8,7 @@ use App\Models\Institution;
 use App\Models\Organization;
 use App\Models\Sector;
 use App\Models\Student;
+use App\Models\EconomicSupport;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,6 +36,20 @@ class DashboardController extends Controller
 
         return response()->json(['count' => $organization], Response::HTTP_OK);
     }
+
+    public function countOrganizationsByScope()
+    {
+        $counts = Organization::select('scope', DB::raw('COUNT(*) as total'))
+            ->groupBy('scope')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts
+        ], Response::HTTP_OK);
+    }
+
+
 
     public function countProjectsByMonth()
     {
@@ -115,6 +130,47 @@ class DashboardController extends Controller
 
         return response()->json(['success' => true, 'data' => $results->items(), 'pagination' => ['total' => $results->total(), 'per_page' => $results->perPage(), 'current_page' => $results->currentPage(), 'last_page' => $results->lastPage()]], Response::HTTP_OK);
     }
+
+    public function countProjectsByEconomicSupport()
+    {
+        $results = EconomicSupport::select(
+            'economic_supports.id',
+            'economic_supports.name as support_name',
+            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
+        )
+            ->leftJoin('dual_project_reports', 'economic_supports.id', '=', 'dual_project_reports.economic_support')
+            ->leftJoin('dual_projects', function ($join) {
+                $join->on('dual_projects.id', '=', 'dual_project_reports.dual_project_id')
+                    ->where('dual_projects.has_report', 1);
+            })
+            ->groupBy('economic_supports.id', 'economic_supports.name')
+            ->orderByDesc('project_count')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $results
+        ], Response::HTTP_OK);
+    }
+
+    public function averageAmountByEconomicSupport()
+    {
+        $results = EconomicSupport::select(
+            'economic_supports.id',
+            'economic_supports.name as support_name',
+            DB::raw('ROUND(AVG(dual_project_reports.amount), 2) as average_amount')
+        )
+            ->leftJoin('dual_project_reports', 'economic_supports.id', '=', 'dual_project_reports.economic_support')
+            ->groupBy('economic_supports.id', 'economic_supports.name')
+            ->orderByDesc('average_amount')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $results
+        ], Response::HTTP_OK);
+    }
+
 
     public function getInstitutionProjectPercentage()
     {
