@@ -39,6 +39,7 @@ class DualProjectController extends Controller
             'dualProjectStudents.student.institution:id,name',
             'dualProjectStudents.student.career:id,name',
             'dualProjectStudents.student.specialty:id,name',
+            
         ])
             ->where('has_report', 1)
             ->get();
@@ -69,6 +70,7 @@ class DualProjectController extends Controller
                 'dualProjectStudents.student.institution:id,name',
                 'dualProjectStudents.student.career:id,name',
                 'dualProjectStudents.student.specialty:id,name',
+                
             ])->findOrFail($id);
 
             return response()->json($project, Response::HTTP_OK);

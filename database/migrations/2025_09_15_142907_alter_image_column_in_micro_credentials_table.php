@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('institutions', function (Blueprint $table) {
-            $table->longText('image')->nullable()->after('id_academic_period');
+        Schema::table('micro_credentials', function (Blueprint $table) {
+            $table->longText('image')->nullable()->change();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('institutions', function (Blueprint $table) {
-            $table->dropColumn('image');
+        Schema::table('micro_credentials', function (Blueprint $table) {
+            $table->string('image')->nullable()->change();
         });
     }
 };
