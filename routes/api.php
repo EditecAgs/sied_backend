@@ -17,7 +17,9 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MicroCredentialController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentController;
 
 Route::post('login', [UserController::class, 'login']);
 
@@ -118,6 +120,19 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::post('types', [TypeController::class, 'createType']);
     Route::put('types/{id}', [TypeController::class, 'updateType']);
     Route::delete('types/{id}', [TypeController::class, 'deleteType']);
+
+    Route::get('micro-credentials', [MicroCredentialController::class, 'getMicroCredentials']);
+    Route::get('micro-credentials/{id}', [MicroCredentialController::class, 'getMicroCredentialById']);
+    Route::post('micro-credentials', [MicroCredentialController::class, 'createMicroCredential']);
+    Route::put('micro-credentials/{id}', [MicroCredentialController::class, 'updateMicroCredential']);
+    Route::delete('micro-credentials/{id}', [MicroCredentialController::class, 'deleteMicroCredential']);
+
+    Route::get('students', [StudentController::class, 'getStudents']);
+    Route::get('students/{id}', [StudentController::class, 'getStudentById']);
+    Route::post('students', [StudentController::class, 'createStudent']);
+    Route::put('students/{id}', [StudentController::class, 'updateStudent']);
+    Route::delete('students/{id}', [StudentController::class, 'deleteStudent']);
+    Route::patch('students/{id}/restore', [StudentController::class, 'restoreStudent']);
 
     Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects'])
         ->name('dual-projects-unreported');
