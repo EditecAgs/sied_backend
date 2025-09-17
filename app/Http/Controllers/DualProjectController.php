@@ -6,6 +6,7 @@ use App\Http\Requests\DualProjectRequest;
 use App\Models\DualProject;
 use App\Models\DualProjectReport;
 use App\Models\OrganizationDualProject;
+use App\Models\DualProjectStudent;
 use App\Models\Student;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -87,6 +88,7 @@ class DualProjectController extends Controller
             $dualProject = DualProject::create([
                 'has_report' => $data['has_report'],
                 'id_institution' => $data['id_institution'],
+                'number_student' => $data['number_student'],
             ]);
 
             if ($data['has_report'] == 1) {
@@ -145,6 +147,7 @@ class DualProjectController extends Controller
             $dualProject->update([
                 'has_report' => $data['has_report'],
                 'id_institution' => $data['id_institution'],
+                'number_student' => $data['number_student'],
             ]);
 
             if ($data['has_report'] == 1) {
@@ -155,7 +158,7 @@ class DualProjectController extends Controller
                 } else {
                     $this->updateOrCreateDualProjectReport($data, $dualProject->id);
                     $this->updateOrCreateOrganizationDualProject($data, $dualProject->id);
-                    $this->updateOrCreateStudent($data, $dualProject->id);
+                    $this->updateOrCreateStudents($data, $dualProject->id);
                 }
             }
 
@@ -177,8 +180,6 @@ class DualProjectController extends Controller
         return DualProjectReport::create([
             'name' => $data['name_report'],
             'dual_project_id' => $dualProjectId,
-            'number_men' => $data['number_men'],
-            'number_women' => $data['number_women'],
             'id_dual_area' => $data['id_dual_area'],
             'period_start' => $data['period_start'],
             'period_end' => $data['period_end'],
@@ -230,8 +231,6 @@ class DualProjectController extends Controller
             ['dual_project_id' => $dualProjectId],
             [
                 'name' => $data['name_report'],
-                'number_men' => $data['number_men'],
-                'number_women' => $data['number_women'],
                 'id_dual_area' => $data['id_dual_area'],
                 'period_start' => $data['period_start'],
                 'period_end' => $data['period_end'],
