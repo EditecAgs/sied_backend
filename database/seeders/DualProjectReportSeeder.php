@@ -12,10 +12,11 @@ class DualProjectReportSeeder extends Seeder
      */
     public function run(): void
     {
-         DualProjectReport::updateOrCreate(
+        DualProjectReport::updateOrCreate(
             ['id' => 1],
             [
                 'dual_project_id' => 1,
+                'dual_type_id' => 1,
                 'name' => 'Proyecto de Prueba',
                 'id_dual_area' => 1,
                 'period_start' => now(),
@@ -29,10 +30,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 2],
             [
                 'dual_project_id' => 2,
+                'dual_type_id' => 2,
                 'name' => 'Proyecto de Prueba2',
                 'id_dual_area' => 4,
                 'period_start' => now(),
@@ -46,10 +49,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 3],
             [
                 'dual_project_id' => 3,
+                'dual_type_id' => 3,
                 'name' => 'Proyecto de Prueba3',
                 'id_dual_area' => 1,
                 'period_start' => now(),
@@ -63,10 +68,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 4],
             [
                 'dual_project_id' => 4,
+                'dual_type_id' => 4,
                 'name' => 'Proyecto de Prueba4',
                 'id_dual_area' => 10,
                 'period_start' => now()->subMonths(4),
@@ -80,10 +87,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 5],
             [
                 'dual_project_id' => 5,
+                'dual_type_id' => 1,
                 'name' => 'Proyecto de Prueba5',
                 'id_dual_area' => 15,
                 'period_start' => now()->subMonths(4),
@@ -97,10 +106,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 6],
             [
                 'dual_project_id' => 6,
+                'dual_type_id' => 2,
                 'name' => 'Proyecto de Prueba6',
                 'id_dual_area' => 9,
                 'period_start' => now()->subMonths(6),
@@ -114,10 +125,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 7],
             [
                 'dual_project_id' => 7,
+                'dual_type_id' => 3,
                 'name' => 'Proyecto de Prueba7',
                 'id_dual_area' => 10,
                 'period_start' => now()->subMonths(5),
@@ -131,10 +144,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 8],
             [
                 'dual_project_id' => 8,
+                'dual_type_id' => 4,
                 'name' => 'Proyecto de Prueba8',
                 'id_dual_area' => 7,
                 'period_start' => now()->subMonths(3),
@@ -148,10 +163,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 9],
             [
                 'dual_project_id' => 9,
+                'dual_type_id' => 1,
                 'name' => 'Proyecto de Prueba9',
                 'id_dual_area' => 3,
                 'period_start' => now()->subMonths(2),
@@ -165,10 +182,12 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
             ]
         );
+
         DualProjectReport::updateOrCreate(
             ['id' => 10],
             [
                 'dual_project_id' => 10,
+                'dual_type_id' => 2,
                 'name' => 'Proyecto de Prueba10',
                 'id_dual_area' => 5,
                 'period_start' => now()->subMonths(1),

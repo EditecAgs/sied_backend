@@ -44,6 +44,7 @@ class DualProjectRequest extends FormRequest
             'is_hired' => ['required_if:has_report,1', 'boolean'],
             'qualification' => ['nullable', 'integer', 'min:0', 'max:100'],
             'advisor' => ['required_if:has_report,1', 'in:interno,externo'],
+            'dual_type_id' => ['required_if:has_report,1', 'exists:dual_types,id'],
         ];
     }
 }

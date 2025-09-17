@@ -44,6 +44,10 @@ class DualProjectReport extends Model
     {
         return $this->belongsTo(DualProject::class, 'dual_project_id');
     }
+        public function dualType()
+    {
+        return $this->belongsTo(DualType::class, 'dual_type_id');
+    }
     public function dualProjectReportMicroCredentials()
 {
     return $this->hasMany(DualProjectReportMicroCredential::class, 'id_dual_project_report');
