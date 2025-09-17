@@ -13,14 +13,16 @@ class DualProjectReport extends Model
         'id',
         'dual_project_id',
         'name',
-        'number_men',
-        'number_women',
         'id_dual_area',
         'period_start',
         'period_end',
         'status_document',
         'economic_support',
         'amount',
+        'is_concluded',
+        'is_hired',
+        'qualification',
+        'advisor',
     ];
 
     public function dualArea()

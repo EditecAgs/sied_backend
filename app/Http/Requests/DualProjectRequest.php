@@ -24,10 +24,7 @@ class DualProjectRequest extends FormRequest
         return [
             'id_institution' => ['required', 'exists:institutions,id'],
             'has_report' => ['required', 'boolean'],
-
             'name_report' => ['required_if:has_report,1', 'string', 'max:255'],
-            'number_men' => ['required_if:has_report,1', 'integer', 'min:0'],
-            'number_women' => ['required_if:has_report,1', 'integer', 'min:0'],
             'period_start' => ['required_if:has_report,1', 'date'],
             'period_end' => ['required_if:has_report,1', 'date', 'after_or_equal:period_start'],
             'amount' => ['required_if:has_report,1', 'numeric', 'min:0'],
@@ -37,11 +34,16 @@ class DualProjectRequest extends FormRequest
             'id_organization' => ['required_if:has_report,1', 'exists:organizations,id'],
             'control_number' => ['required_if:has_report,1'],
             'name_student' => ['required_if:has_report,1', 'string', 'max:255'],
+            'number_student' => ['required_if:has_report,1', 'string', 'max:50'],
             'lastname' => ['required_if:has_report,1', 'string', 'max:255'],
             'gender' => ['required_if:has_report,1', 'in:Masculino,Femenino,Otro'],
             'semester' => ['required_if:has_report,1', 'integer', 'min:1', 'max:16'],
             'id_career' => ['required_if:has_report,1', 'exists:careers,id'],
             'id_specialty' => ['required_if:has_report,1', 'exists:specialties,id'],
+            'is_concluded' => ['required_if:has_report,1', 'boolean'],
+            'is_hired' => ['required_if:has_report,1', 'boolean'],
+            'qualification' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'advisor' => ['required_if:has_report,1', 'in:interno,externo'],
         ];
     }
 }
