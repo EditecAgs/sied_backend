@@ -10,7 +10,6 @@ use App\Models\DualProjectStudent;
 use App\Models\Student;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class DualProjectController extends Controller
@@ -179,7 +178,6 @@ class DualProjectController extends Controller
 
     protected function handleException(Exception $e, $message = 'Error interno')
     {
-        Log::error($e);
         return response()->json([
             'message' => $message,
             'error' => $e->getMessage(),
@@ -187,26 +185,25 @@ class DualProjectController extends Controller
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
-   
-protected function createDualProjectReport(array $data, int $dualProjectId)
-{
-    return DualProjectReport::create([
-        'name' => $data['name_report'],
-        'dual_project_id' => $dualProjectId,
-        'id_dual_area' => $data['id_dual_area'],
-        'dual_type_id' => $data['dual_type_id'], 
-        'period_start' => $data['period_start'],
-        'period_end' => $data['period_end'],
-        'status_document' => $data['status_document'],
-        'economic_support' => $data['economic_support'],
-        'amount' => $data['amount'],
-        'qualification' => $data['qualification'] ?? null,
-        'advisor' => $data['advisor'] ?? null,
-        'is_concluded' => $data['is_concluded'] ?? false,
-        'is_hired' => $data['is_hired'] ?? false,
-    ]);
-}
-
+    // --- Métodos auxiliares (sin cambios) ---
+    protected function createDualProjectReport(array $data, int $dualProjectId)
+    {
+        return DualProjectReport::create([
+            'name' => $data['name_report'],
+            'dual_project_id' => $dualProjectId,
+            'id_dual_area' => $data['id_dual_area'],
+            'dual_type_id' => $data['dual_type_id'], 
+            'period_start' => $data['period_start'],
+            'period_end' => $data['period_end'],
+            'status_document' => $data['status_document'],
+            'economic_support' => $data['economic_support'],
+            'amount' => $data['amount'],
+            'qualification' => $data['qualification'] ?? null,
+            'advisor' => $data['advisor'] ?? null,
+            'is_concluded' => $data['is_concluded'] ?? false,
+            'is_hired' => $data['is_hired'] ?? false,
+        ]);
+    }
 
     protected function createOrganizationDualProject(array $data, int $dualProjectId)
     {
