@@ -23,6 +23,7 @@ class DualProjectReport extends Model
         'is_hired',
         'qualification',
         'advisor',
+        'dual_type_id'
     ];
 
     public function dualArea()
