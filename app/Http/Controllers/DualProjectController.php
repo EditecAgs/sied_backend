@@ -176,19 +176,25 @@ class DualProjectController extends Controller
         }
     }
 
-    protected function createDualProjectReport(array $data, int $dualProjectId)
-    {
-        return DualProjectReport::create([
-            'name' => $data['name_report'],
-            'dual_project_id' => $dualProjectId,
-            'id_dual_area' => $data['id_dual_area'],
-            'period_start' => $data['period_start'],
-            'period_end' => $data['period_end'],
-            'status_document' => $data['status_document'],
-            'economic_support' => $data['economic_support'],
-            'amount' => $data['amount'],
-        ]);
-    }
+protected function createDualProjectReport(array $data, int $dualProjectId)
+{
+    return DualProjectReport::create([
+        'name' => $data['name_report'],
+        'dual_project_id' => $dualProjectId,
+        'id_dual_area' => $data['id_dual_area'],
+        'id_dual_type' => $data['dual_type_id'],
+        'period_start' => $data['period_start'],
+        'period_end' => $data['period_end'],
+        'status_document' => $data['status_document'],
+        'economic_support' => $data['economic_support'],
+        'amount' => $data['amount'],
+        'qualification' => $data['qualification'] ?? null,
+        'advisor' => $data['advisor'] ?? null,
+        'is_concluded' => $data['is_concluded'] ?? false,
+        'is_hired' => $data['is_hired'] ?? false,
+    ]);
+}
+
 
     protected function createOrganizationDualProject(array $data, int $dualProjectId)
     {
@@ -214,6 +220,7 @@ class DualProjectController extends Controller
                     'id_institution' => $studentData['id_institution'],
                     'id_career' => $studentData['id_career'],
                     'id_specialty' => $studentData['id_specialty'],
+                
                 ]
             );
             DualProjectStudent::updateOrCreate(
@@ -226,21 +233,27 @@ class DualProjectController extends Controller
     }
 
 
-    protected function updateOrCreateDualProjectReport(array $data, int $dualProjectId)
-    {
-        DualProjectReport::updateOrCreate(
-            ['dual_project_id' => $dualProjectId],
-            [
-                'name' => $data['name_report'],
-                'id_dual_area' => $data['id_dual_area'],
-                'period_start' => $data['period_start'],
-                'period_end' => $data['period_end'],
-                'status_document' => $data['status_document'],
-                'economic_support' => $data['economic_support'],
-                'amount' => $data['amount'],
-            ]
-        );
-    }
+protected function updateOrCreateDualProjectReport(array $data, int $dualProjectId)
+{
+    DualProjectReport::updateOrCreate(
+        ['dual_project_id' => $dualProjectId],
+        [
+            'name' => $data['name_report'],
+            'id_dual_area' => $data['id_dual_area'],
+            'id_dual_type' => $data['dual_type_id'],
+            'period_start' => $data['period_start'],
+            'period_end' => $data['period_end'],
+            'status_document' => $data['status_document'],
+            'economic_support' => $data['economic_support'],
+            'amount' => $data['amount'],
+            'qualification' => $data['qualification'] ?? null,
+            'advisor' => $data['advisor'] ?? null,
+            'is_concluded' => $data['is_concluded'] ?? false,
+            'is_hired' => $data['is_hired'] ?? false,
+        ]
+    );
+}
+
 
     protected function updateOrCreateOrganizationDualProject(array $data, int $dualProjectId)
     {
