@@ -14,4 +14,8 @@ class DualType extends Model
         'name',
     ];
     
+    public function dualProjectReport()
+    {
+        return $this->hasMany(DualProjectReport::class, 'dual_type_id');
+    }
 }

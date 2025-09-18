@@ -48,6 +48,7 @@ class DualProjectController extends Controller
                 'dualProjectStudents.student.career:id,name',
                 'dualProjectStudents.student.specialty:id,name',
                 'dualProjectReports.dualType:id,name',
+                
             ])->where('has_report', 1)->get();
 
             return response()->json($reports, Response::HTTP_OK);
@@ -67,8 +68,9 @@ class DualProjectController extends Controller
 
             $project = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id',
                 'dualProjectReports.dualArea:id,name',
+                'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
                 'dualProjectReports.economicSupport:id,name',
                 'organizationDualProjects:id,id_organization,id_dual_project',
