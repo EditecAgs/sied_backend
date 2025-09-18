@@ -17,6 +17,7 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DualTypeController;
 use App\Http\Controllers\MicroCredentialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
@@ -90,6 +91,12 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::post('dual-areas', [DualAreaController::class, 'createDualArea']);
     Route::put('dual-areas/{id}', [DualAreaController::class, 'updateDualArea']);
     Route::delete('dual-areas/{id}', [DualAreaController::class, 'deleteDualArea']);
+
+    Route::get('/dual-types', [DualTypeController::class, 'getDualTypes']);
+    Route::get('/dual-types/{id}', [DualTypeController::class, 'getDualTypeById']);
+    Route::post('/dual-types', [DualTypeController::class, 'createDualType']);
+    Route::put('/dual-types/{id}', [DualTypeController::class, 'updateDualType']);
+    Route::delete('/dual-types/{id}', [DualTypeController::class, 'deleteDualType']);
 
     Route::get('economic-supports', [EconomicSupportController::class, 'getEconomicSupports']);
     Route::get('economic-supports/{id}', [EconomicSupportController::class, 'getEconomicSupportById']);

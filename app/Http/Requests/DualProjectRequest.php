@@ -34,7 +34,7 @@ class DualProjectRequest extends FormRequest
             'id_organization' => ['required_if:has_report,1', 'exists:organizations,id'],
             'control_number' => ['required_if:has_report,1'],
             'name_student' => ['required_if:has_report,1', 'string', 'max:255'],
-            'number_student' => ['required_if:has_report,1', 'string', 'max:50'],
+            'number_student' => ['required_if:has_report,1', 'integer', 'min:1', 'max:16'],
             'lastname' => ['required_if:has_report,1', 'string', 'max:255'],
             'gender' => ['required_if:has_report,1', 'in:Masculino,Femenino,Otro'],
             'semester' => ['required_if:has_report,1', 'integer', 'min:1', 'max:16'],
