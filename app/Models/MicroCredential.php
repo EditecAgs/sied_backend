@@ -20,4 +20,14 @@ class MicroCredential extends Model
 {
     return $this->hasMany(DualProjectReportMicroCredential::class, 'id_micro_credential');
 }
+    public function dualProjectReports()
+    {
+        return $this->belongsToMany(
+            DualProjectReport::class,
+            'dual_project_report_micro_credential',
+            'id_micro_credential',
+            'id_dual_project_report'
+        );
+    }
+
 }

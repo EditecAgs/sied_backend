@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DualProjectReport extends Model
 {
     use SoftDeletes;
+
     protected $table = 'dual_project_reports';
+
     protected $fillable = [
         'id',
         'dual_project_id',
@@ -45,13 +47,19 @@ class DualProjectReport extends Model
     {
         return $this->belongsTo(DualProject::class, 'dual_project_id');
     }
-        public function dualType()
+
+    public function dualType()
     {
         return $this->belongsTo(DualType::class, 'dual_type_id');
     }
-    public function dualProjectReportMicroCredentials()
-{
-    return $this->hasMany(DualProjectReportMicroCredential::class, 'id_dual_project_report');
-}
-    
+
+    public function microCredentials()
+    {
+        return $this->belongsToMany(
+            MicroCredential::class,
+            'dual_project_report_micro_credential',
+            'id_dual_project_report',
+            'id_micro_credential'
+        );
+    }
 }

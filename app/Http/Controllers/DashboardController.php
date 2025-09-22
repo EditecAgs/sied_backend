@@ -183,12 +183,13 @@ class DashboardController extends Controller
             ->select(
                 'institutions.id',
                 'institutions.name as institution_name',
+                'institutions.image', // ✅ añadimos la imagen
                 DB::raw('COUNT(dual_projects.id) as project_count'),
                 DB::raw('CASE WHEN ' . $totalProjects . ' > 0
-                     THEN ROUND(COUNT(dual_projects.id) * 100.0 / ' . $totalProjects . ', 2)
-                     ELSE 0 END as percentage')
+                 THEN ROUND(COUNT(dual_projects.id) * 100.0 / ' . $totalProjects . ', 2)
+                 ELSE 0 END as percentage')
             )
-            ->groupBy('institutions.id', 'institutions.name')
+            ->groupBy('institutions.id', 'institutions.name', 'institutions.image') // ✅ incluimos en el groupBy
             ->orderByDesc('percentage')
             ->get();
 
@@ -198,4 +199,5 @@ class DashboardController extends Controller
             'data' => $results,
         ], Response::HTTP_OK);
     }
+
 }

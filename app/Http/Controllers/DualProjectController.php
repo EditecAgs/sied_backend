@@ -32,10 +32,12 @@ class DualProjectController extends Controller
         try {
             $reports = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id',
                 'dualProjectReports.dualArea:id,name',
+                'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
                 'dualProjectReports.economicSupport:id,name',
+                'dualProjectReports.microCredentials:id,name,organization,description,image',
                 'organizationDualProjects:id,id_organization,id_dual_project',
                 'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
                 'organizationDualProjects.organization.type:id,name',
@@ -47,8 +49,6 @@ class DualProjectController extends Controller
                 'dualProjectStudents.student.institution:id,name',
                 'dualProjectStudents.student.career:id,name',
                 'dualProjectStudents.student.specialty:id,name',
-                'dualProjectReports.dualType:id,name',
-                
             ])->where('has_report', 1)->get();
 
             return response()->json($reports, Response::HTTP_OK);
@@ -73,6 +73,7 @@ class DualProjectController extends Controller
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
                 'dualProjectReports.economicSupport:id,name',
+                'dualProjectReports.microCredentials:id,name,organization,description,image',
                 'organizationDualProjects:id,id_organization,id_dual_project',
                 'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
                 'organizationDualProjects.organization.type:id,name',
@@ -187,14 +188,13 @@ class DualProjectController extends Controller
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
-    // --- Métodos auxiliares (sin cambios) ---
     protected function createDualProjectReport(array $data, int $dualProjectId)
     {
-        return DualProjectReport::create([
+        $report = DualProjectReport::create([
             'name' => $data['name_report'],
             'dual_project_id' => $dualProjectId,
             'id_dual_area' => $data['id_dual_area'],
-            'dual_type_id' => $data['dual_type_id'], 
+            'dual_type_id' => $data['dual_type_id'],
             'period_start' => $data['period_start'],
             'period_end' => $data['period_end'],
             'status_document' => $data['status_document'],
@@ -205,6 +205,12 @@ class DualProjectController extends Controller
             'is_concluded' => $data['is_concluded'] ?? false,
             'is_hired' => $data['is_hired'] ?? false,
         ]);
+
+        if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
+            $report->microCredentials()->sync($data['micro_credentials']);
+        }
+
+        return $report;
     }
 
     protected function createOrganizationDualProject(array $data, int $dualProjectId)
@@ -244,7 +250,7 @@ class DualProjectController extends Controller
 
     protected function updateOrCreateDualProjectReport(array $data, int $dualProjectId)
     {
-        DualProjectReport::updateOrCreate(
+        $report = DualProjectReport::updateOrCreate(
             ['dual_project_id' => $dualProjectId],
             [
                 'name' => $data['name_report'],
@@ -261,6 +267,12 @@ class DualProjectController extends Controller
                 'is_hired' => $data['is_hired'] ?? false,
             ]
         );
+
+        if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
+            $report->microCredentials()->sync($data['micro_credentials']);
+        }
+
+        return $report;
     }
 
     protected function updateOrCreateOrganizationDualProject(array $data, int $dualProjectId)
