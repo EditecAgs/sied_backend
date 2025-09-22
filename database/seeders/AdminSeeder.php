@@ -25,18 +25,5 @@ class UsersSeeder extends Seeder
                 'type' => 0, // 0 = administrador
             ]
         );
-
-        // Usuario normal
-        User::updateOrCreate(
-            ['id' => 2],
-            [
-                'name' => 'Usuario',
-                'lastname' => 'Normal',
-                'email' => 'usuario@aguascalientes.tecnm.mx',
-                'password' => Hash::make('Usuario123$'),
-                'id_institution' => 1,
-                'type' => 1, // 1 = usuario normal
-            ]
-        );
     }
 }

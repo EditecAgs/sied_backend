@@ -103,7 +103,7 @@ class DualProjectController extends Controller
             $dualProject = DualProject::create([
                 'has_report' => $data['has_report'],
                 'id_institution' => $data['id_institution'],
-                'number_student' => $data['number_student'] ?? null,
+                'number_student' => $numberOfStudents,
             ]);
 
             if ($data['has_report'] == 1) {
@@ -133,7 +133,7 @@ class DualProjectController extends Controller
             $dualProject->update([
                 'has_report' => $data['has_report'],
                 'id_institution' => $data['id_institution'],
-                'number_student' => $data['number_student'] ?? null,
+                'number_student' => $numberOfStudents,
             ]);
 
             if ($data['has_report'] == 1) {

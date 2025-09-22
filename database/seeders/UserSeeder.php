@@ -14,19 +14,6 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Usuarios existentes
-        User::updateOrCreate(
-            ['id' => 1],
-            [
-                'name' => 'Pepito',
-                'lastname' => 'Pérez',
-                'email' => 'pepito@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
-                'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Mielsanmarcos24.')
-            ]
-        );
 
         User::updateOrCreate(
             ['id' => 2],
@@ -49,7 +36,7 @@ class UserSeeder extends Seeder
                 'lastname' => 'UAA',
                 'email' => 'adminUAA@example.com',
                 'id_institution' => 2,
-                'type' => 0,
+                'type' => 1,
                 'email_verified_at' => now(),
                 'password' => Hash::make('Admin123$')
             ]
@@ -62,7 +49,7 @@ class UserSeeder extends Seeder
                 'lastname' => 'IPN',
                 'email' => 'adminIPN@example.com',
                 'id_institution' => 3,
-                'type' => 0,
+                'type' => 1,
                 'email_verified_at' => now(),
                 'password' => Hash::make('Admin123$')
             ]
@@ -75,7 +62,7 @@ class UserSeeder extends Seeder
                 'lastname' => 'UPA',
                 'email' => 'adminUPA@example.com',
                 'id_institution' => 4,
-                'type' => 0,
+                'type' => 1,
                 'email_verified_at' => now(),
                 'password' => Hash::make('Admin123$')
             ]
@@ -88,7 +75,7 @@ class UserSeeder extends Seeder
                 'lastname' => 'UNAM',
                 'email' => 'adminUNAM@example.com',
                 'id_institution' => 5,
-                'type' => 0,
+                'type' => 1,
                 'email_verified_at' => now(),
                 'password' => Hash::make('Admin123$')
             ]

@@ -15,22 +15,22 @@ class DualTypesSeeder extends Seeder
     {
         DualType::updateOrCreate(
             ['id' => 1],
-            ['name' => 'residencias']
+            ['name' => 'Residencias']
         );
 
         DualType::updateOrCreate(
             ['id' => 2],
-            ['name' => 'servicio social']
+            ['name' => 'Servicio Social']
         );
 
         DualType::updateOrCreate(
             ['id' => 3],
-            ['name' => 'dual']
+            ['name' => 'Dual']
         );
 
         DualType::updateOrCreate(
             ['id' => 4],
-            ['name' => 'informal']
+            ['name' => 'Informal']
         );
     }
 }
