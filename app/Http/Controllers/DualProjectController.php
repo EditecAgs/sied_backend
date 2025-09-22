@@ -99,6 +99,9 @@ class DualProjectController extends Controller
 
         try {
             $data = $request->validated();
+            $numberOfStudents = isset($data['students']) && is_array($data['students'])
+            ? count($data['students'])
+            : 0;
 
             $dualProject = DualProject::create([
                 'has_report' => $data['has_report'],
@@ -129,6 +132,9 @@ class DualProjectController extends Controller
             $data = $request->validated();
             $dualProject = DualProject::findOrFail($id);
             $previousHasReport = $dualProject->has_report;
+            $numberOfStudents = isset($data['students']) && is_array($data['students'])
+            ? count($data['students'])
+            : 0;
 
             $dualProject->update([
                 'has_report' => $data['has_report'],
