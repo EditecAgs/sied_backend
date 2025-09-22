@@ -289,30 +289,45 @@ class DualProjectController extends Controller
         );
     }
 
-    protected function updateOrCreateStudents(array $data, int $dualProjectId)
-    {
-        if (!isset($data['students']) || !is_array($data['students'])) return;
-
-        foreach ($data['students'] as $studentData) {
-            $student = Student::updateOrCreate(
-                ['control_number' => $studentData['control_number']],
-                [
-                    'name' => $studentData['name_student'],
-                    'lastname' => $studentData['lastname'],
-                    'gender' => $studentData['gender'],
-                    'semester' => $studentData['semester'],
-                    'id_institution' => $studentData['id_institution'],
-                    'id_career' => $studentData['id_career'],
-                    'id_specialty' => $studentData['id_specialty'],
-                ]
-            );
-
-            DualProjectStudent::updateOrCreate(
-                [
-                    'id_student' => $student->id,
-                    'id_dual_project' => $dualProjectId
-                ]
-            );
-        }
+   protected function updateOrCreateStudents(array $data, int $dualProjectId)
+{
+    if (!isset($data['students']) || !is_array($data['students'])) {
+        
+        DualProjectStudent::where('id_dual_project', $dualProjectId)->delete();
+        return;
     }
+
+    
+    $incomingStudentIds = [];
+
+    foreach ($data['students'] as $studentData) {
+        $student = Student::updateOrCreate(
+            ['control_number' => $studentData['control_number']],
+            [
+                'name' => $studentData['name_student'],
+                'lastname' => $studentData['lastname'],
+                'gender' => $studentData['gender'],
+                'semester' => $studentData['semester'],
+                'id_institution' => $studentData['id_institution'],
+                'id_career' => $studentData['id_career'],
+                'id_specialty' => $studentData['id_specialty'],
+            ]
+        );
+
+        $dps = DualProjectStudent::updateOrCreate(
+            [
+                'id_student' => $student->id,
+                'id_dual_project' => $dualProjectId
+            ]
+        );
+
+        $incomingStudentIds[] = $student->id;
+    }
+
+    
+    DualProjectStudent::where('id_dual_project', $dualProjectId)
+        ->whereNotIn('id_student', $incomingStudentIds)
+        ->delete();
+}
+
 }
