@@ -8,19 +8,24 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DualProjectReport extends Model
 {
     use SoftDeletes;
+
     protected $table = 'dual_project_reports';
+
     protected $fillable = [
         'id',
         'dual_project_id',
         'name',
-        'number_men',
-        'number_women',
         'id_dual_area',
         'period_start',
         'period_end',
         'status_document',
         'economic_support',
         'amount',
+        'is_concluded',
+        'is_hired',
+        'qualification',
+        'advisor',
+        'dual_type_id'
     ];
 
     public function dualArea()
@@ -41,5 +46,20 @@ class DualProjectReport extends Model
     public function dualProject()
     {
         return $this->belongsTo(DualProject::class, 'dual_project_id');
+    }
+
+    public function dualType()
+    {
+        return $this->belongsTo(DualType::class, 'dual_type_id');
+    }
+
+    public function microCredentials()
+    {
+        return $this->belongsToMany(
+            MicroCredential::class,
+            'dual_project_report_micro_credential',
+            'id_dual_project_report',
+            'id_micro_credential'
+        );
     }
 }

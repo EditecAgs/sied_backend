@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ClusterSeeder::class,
             DualAreaSeeder::class,
             DocumentStatusSeeder::class,
+            DualTypesSeeder::class,
             InstitutionSeeder::class,
             UserSeeder::class,
         ]);
@@ -38,7 +39,8 @@ class DatabaseSeeder extends Seeder
                 OrganizationDualProjectSeeder::class,
                 SpecialtySeeder::class,
                 StudentSeeder::class,
-
+                MicrocredentialSeeder::class,
+                DualProjectStudentSeeder::class,
             ]);
         }
     }

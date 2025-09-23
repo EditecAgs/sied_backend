@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SectorRequest extends FormRequest
+class MicroCredentialRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,10 @@ class SectorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|string'
+            'name'         => 'required|string|max:255',
+            'organization' => 'nullable|string|max:255',
+            'description'  => 'nullable|string',
+            'image' => 'nullable|string',
         ];
     }
 }

@@ -14,18 +14,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['id' => 1],
-            [
-                'name' => 'Pepito',
-                'lastname' => 'Pérez',
-                'email' => 'pepito@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
-                'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Mielsanmarcos24.')
-            ]
-        );
+
         User::updateOrCreate(
             ['id' => 2],
             [
@@ -39,5 +28,57 @@ class UserSeeder extends Seeder
             ]
         );
 
+        // Admin por institución
+        User::updateOrCreate(
+            ['id' => 3],
+            [
+                'name' => 'Admin',
+                'lastname' => 'UAA',
+                'email' => 'adminUAA@example.com',
+                'id_institution' => 2,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Admin123$')
+            ]
+        );
+
+        User::updateOrCreate(
+            ['id' => 4],
+            [
+                'name' => 'Admin',
+                'lastname' => 'IPN',
+                'email' => 'adminIPN@example.com',
+                'id_institution' => 3,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Admin123$')
+            ]
+        );
+
+        User::updateOrCreate(
+            ['id' => 5],
+            [
+                'name' => 'Admin',
+                'lastname' => 'UPA',
+                'email' => 'adminUPA@example.com',
+                'id_institution' => 4,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Admin123$')
+            ]
+        );
+
+        User::updateOrCreate(
+            ['id' => 6],
+            [
+                'name' => 'Admin',
+                'lastname' => 'UNAM',
+                'email' => 'adminUNAM@example.com',
+                'id_institution' => 5,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Admin123$')
+            ]
+        );
     }
 }

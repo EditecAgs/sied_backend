@@ -36,6 +36,7 @@ class OrganizationRequest extends FormRequest
             'id_municipality' => 'required|exists:municipalities,id',
             'city' => 'nullable|string|max:255',
             'google_maps' => 'nullable|string|max:255',
+            'scope' => 'required|in:municipal_level,federal_level,state_level,international_level',
         ];
     }
 }
