@@ -26,6 +26,7 @@ class Organization extends Model
         'country',
         'city',
         'google_maps',
+        'scope',
     ];
 
     protected $casts = [

@@ -41,8 +41,8 @@ class Student extends Model
         return $this->belongsTo(Career::class, 'id_career');
     }
 
-    public function dualProject()
+    public function dualProjectStudents()
     {
-        return $this->belongsTo(DualProject::class, 'id_dual_project');
+        return $this->hasMany(DualProjectStudent::class, 'id_student');
     }
 }

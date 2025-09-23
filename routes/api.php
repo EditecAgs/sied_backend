@@ -17,7 +17,10 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DualTypeController;
+use App\Http\Controllers\MicroCredentialController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentController;
 
 Route::post('login', [UserController::class, 'login']);
 
@@ -89,6 +92,12 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::put('dual-areas/{id}', [DualAreaController::class, 'updateDualArea']);
     Route::delete('dual-areas/{id}', [DualAreaController::class, 'deleteDualArea']);
 
+    Route::get('/dual-types', [DualTypeController::class, 'getDualTypes']);
+    Route::get('/dual-types/{id}', [DualTypeController::class, 'getDualTypeById']);
+    Route::post('/dual-types', [DualTypeController::class, 'createDualType']);
+    Route::put('/dual-types/{id}', [DualTypeController::class, 'updateDualType']);
+    Route::delete('/dual-types/{id}', [DualTypeController::class, 'deleteDualType']);
+
     Route::get('economic-supports', [EconomicSupportController::class, 'getEconomicSupports']);
     Route::get('economic-supports/{id}', [EconomicSupportController::class, 'getEconomicSupportById']);
     Route::post('economic-supports', [EconomicSupportController::class, 'createEconomicSupport']);
@@ -119,6 +128,19 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::put('types/{id}', [TypeController::class, 'updateType']);
     Route::delete('types/{id}', [TypeController::class, 'deleteType']);
 
+    Route::get('micro-credentials', [MicroCredentialController::class, 'getMicroCredentials']);
+    Route::get('micro-credentials/{id}', [MicroCredentialController::class, 'getMicroCredentialById']);
+    Route::post('micro-credentials', [MicroCredentialController::class, 'createMicroCredential']);
+    Route::put('micro-credentials/{id}', [MicroCredentialController::class, 'updateMicroCredential']);
+    Route::delete('micro-credentials/{id}', [MicroCredentialController::class, 'deleteMicroCredential']);
+
+    Route::get('students', [StudentController::class, 'getStudents']);
+    Route::get('students/{id}', [StudentController::class, 'getStudentById']);
+    Route::post('students', [StudentController::class, 'createStudent']);
+    Route::put('students/{id}', [StudentController::class, 'updateStudent']);
+    Route::delete('students/{id}', [StudentController::class, 'deleteStudent']);
+    Route::patch('students/{id}/restore', [StudentController::class, 'restoreStudent']);
+
     Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects'])
         ->name('dual-projects-unreported');
     Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject'])
@@ -136,5 +158,8 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('projects/sectors', [DashboardController::class, 'countProjectsBySector']);
     Route::get('dual-projects/percetange/institutions', [DashboardController::class, 'getInstitutionProjectPercentage']);
     Route::get('organizations/registered/count', [DashboardController::class, 'countRegisteredOrganizations']);
+    Route::get('organizations/scope/count', [DashboardController::class, 'countOrganizationsByScope']);
     Route::get('projects/sectors/mexico', [DashboardController::class, 'countProjectsBySectorPlanMexico']);
+    Route::get('projects/economic-support', [DashboardController::class, 'countProjectsByEconomicSupport']);
+    Route::get('projects/economic-support/average', [DashboardController::class, 'averageAmountByEconomicSupport']);
 });
