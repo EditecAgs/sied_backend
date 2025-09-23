@@ -212,12 +212,12 @@ class DualProjectController extends Controller
             'is_hired' => $data['is_hired'] ?? false,
         ]);
 
-        if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
-            $report->microCredentials()->sync($data['micro_credentials']);
-        }
+       // if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
+         //   $report->microCredentials()->sync($data['micro_credentials']);
+       //}
 
         return $report;
-    }
+    } 
 
     protected function createOrganizationDualProject(array $data, int $dualProjectId)
     {
@@ -274,9 +274,9 @@ class DualProjectController extends Controller
             ]
         );
 
-        if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
-            $report->microCredentials()->sync($data['micro_credentials']);
-        }
+       // if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
+          //  $report->microCredentials()->sync($data['micro_credentials']);
+     //   }
 
         return $report;
     }
