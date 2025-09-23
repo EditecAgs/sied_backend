@@ -217,7 +217,7 @@ class DualProjectController extends Controller
        //}
 
         return $report;
-    }
+    } 
 
     protected function createOrganizationDualProject(array $data, int $dualProjectId)
     {
