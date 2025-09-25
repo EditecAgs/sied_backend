@@ -29,6 +29,7 @@ class DualProjectRequest extends FormRequest
             'is_concluded'     => ['required_if:has_report,1', 'boolean'],
             'is_hired'         => ['required_if:has_report,1', 'boolean'],
             'qualification'    => ['nullable', 'integer', 'min:0', 'max:100'],
+            'max_qualification'          => ['required_if:has_report,1', 'in:10,100'],
             'micro_credentials' => ['nullable|array'],
             'micro_credentials.*' => ['exists:micro_credentials,id'],
             'advisor'          => ['required_if:has_report,1', 'in:interno,externo'],

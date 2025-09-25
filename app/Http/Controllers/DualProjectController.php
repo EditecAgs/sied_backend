@@ -210,6 +210,7 @@ class DualProjectController extends Controller
             'advisor' => $data['advisor'] ?? null,
             'is_concluded' => $data['is_concluded'] ?? false,
             'is_hired' => $data['is_hired'] ?? false,
+            'max_qualification' => $data['max_qualification'] ?? 10,
         ]);
 
        // if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
@@ -217,7 +218,7 @@ class DualProjectController extends Controller
        //}
 
         return $report;
-    } 
+    }
 
     protected function createOrganizationDualProject(array $data, int $dualProjectId)
     {
@@ -271,6 +272,7 @@ class DualProjectController extends Controller
                 'advisor' => $data['advisor'] ?? null,
                 'is_concluded' => $data['is_concluded'] ?? false,
                 'is_hired' => $data['is_hired'] ?? false,
+                'max_qualification' => $data['max_qualification'] ?? 10,
             ]
         );
 
@@ -292,12 +294,12 @@ class DualProjectController extends Controller
    protected function updateOrCreateStudents(array $data, int $dualProjectId)
 {
     if (!isset($data['students']) || !is_array($data['students'])) {
-        
+
         DualProjectStudent::where('id_dual_project', $dualProjectId)->delete();
         return;
     }
 
-    
+
     $incomingStudentIds = [];
 
     foreach ($data['students'] as $studentData) {
@@ -324,7 +326,7 @@ class DualProjectController extends Controller
         $incomingStudentIds[] = $student->id;
     }
 
-    
+
     DualProjectStudent::where('id_dual_project', $dualProjectId)
         ->whereNotIn('id_student', $incomingStudentIds)
         ->delete();

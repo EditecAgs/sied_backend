@@ -24,6 +24,7 @@ class DualProjectReport extends Model
         'is_concluded',
         'is_hired',
         'qualification',
+        'max_qualification',
         'advisor',
         'dual_type_id'
     ];
