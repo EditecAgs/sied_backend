@@ -3,31 +3,35 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DualProjectReport extends Model
 {
-    use SoftDeletes;
-
-    protected $table = 'dual_project_reports';
-
     protected $fillable = [
-        'id',
-        'dual_project_id',
         'name',
+        'dual_project_id',
         'id_dual_area',
+        'dual_type_id',
         'period_start',
         'period_end',
         'status_document',
         'economic_support',
         'amount',
+        'qualification',
+        'advisor',
         'is_concluded',
         'is_hired',
-        'qualification',
         'max_qualification',
-        'advisor',
-        'dual_type_id'
     ];
+
+    public function microCredentials()
+    {
+        return $this->belongsToMany(
+            MicroCredential::class,
+            'dual_project_report_micro_credential',
+            'id_dual_project_report',
+            'id_micro_credential'
+        )->withTimestamps()->withTrashed();
+    }
 
     public function dualArea()
     {
@@ -52,15 +56,5 @@ class DualProjectReport extends Model
     public function dualType()
     {
         return $this->belongsTo(DualType::class, 'dual_type_id');
-    }
-
-    public function microCredentials()
-    {
-        return $this->belongsToMany(
-            MicroCredential::class,
-            'dual_project_report_micro_credential',
-            'id_dual_project_report',
-            'id_micro_credential'
-        );
     }
 }
