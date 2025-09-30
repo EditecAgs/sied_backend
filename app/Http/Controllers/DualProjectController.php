@@ -32,7 +32,7 @@ class DualProjectController extends Controller
         try {
             $reports = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,max_qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -68,7 +68,7 @@ class DualProjectController extends Controller
 
             $project = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,max_qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -100,8 +100,8 @@ class DualProjectController extends Controller
         try {
             $data = $request->validated();
             $numberOfStudents = isset($data['students']) && is_array($data['students'])
-            ? count($data['students'])
-            : 0;
+                ? count($data['students'])
+                : 0;
 
             $dualProject = DualProject::create([
                 'has_report' => $data['has_report'],
@@ -110,9 +110,14 @@ class DualProjectController extends Controller
             ]);
 
             if ($data['has_report'] == 1) {
-                $this->createDualProjectReport($data, $dualProject->id);
+                $report = $this->createDualProjectReport($data, $dualProject->id);
                 $this->createOrganizationDualProject($data, $dualProject->id);
                 $this->createStudents($data, $dualProject->id);
+
+                // 🔗 microcredenciales
+                if (!empty($data['micro_credentials'])) {
+                    $report->microCredentials()->sync($data['micro_credentials']);
+                }
             }
 
             DB::commit();
@@ -133,8 +138,8 @@ class DualProjectController extends Controller
             $dualProject = DualProject::findOrFail($id);
             $previousHasReport = $dualProject->has_report;
             $numberOfStudents = isset($data['students']) && is_array($data['students'])
-            ? count($data['students'])
-            : 0;
+                ? count($data['students'])
+                : 0;
 
             $dualProject->update([
                 'has_report' => $data['has_report'],
@@ -144,13 +149,20 @@ class DualProjectController extends Controller
 
             if ($data['has_report'] == 1) {
                 if ($previousHasReport == 0) {
-                    $this->createDualProjectReport($data, $dualProject->id);
+                    $report = $this->createDualProjectReport($data, $dualProject->id);
                     $this->createOrganizationDualProject($data, $dualProject->id);
                     $this->createStudents($data, $dualProject->id);
                 } else {
-                    $this->updateOrCreateDualProjectReport($data, $dualProject->id);
+                    $report = $this->updateOrCreateDualProjectReport($data, $dualProject->id);
                     $this->updateOrCreateOrganizationDualProject($data, $dualProject->id);
                     $this->updateOrCreateStudents($data, $dualProject->id);
+                }
+
+                // 🔗 microcredenciales
+                if (!empty($data['micro_credentials'])) {
+                    $report->microCredentials()->sync($data['micro_credentials']);
+                } else {
+                    $report->microCredentials()->detach(); // limpia si ya no hay
                 }
             }
 
@@ -172,7 +184,11 @@ class DualProjectController extends Controller
             if ($dualProject->has_report == 1) {
                 $dualProject->dualProjectStudents()->delete();
                 $dualProject->organizationDualProjects()->delete();
-                $dualProject->dualProjectReports()->delete();
+
+                foreach ($dualProject->dualProjectReports as $report) {
+                    $report->microCredentials()->detach();
+                    $report->delete();
+                }
             }
 
             $dualProject->delete();
@@ -196,7 +212,7 @@ class DualProjectController extends Controller
 
     protected function createDualProjectReport(array $data, int $dualProjectId)
     {
-        $report = DualProjectReport::create([
+        return DualProjectReport::create([
             'name' => $data['name_report'],
             'dual_project_id' => $dualProjectId,
             'id_dual_area' => $data['id_dual_area'],
@@ -210,14 +226,9 @@ class DualProjectController extends Controller
             'advisor' => $data['advisor'] ?? null,
             'is_concluded' => $data['is_concluded'] ?? false,
             'is_hired' => $data['is_hired'] ?? false,
+            'max_qualification' => $data['max_qualification'] ?? 10,
         ]);
-
-       // if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
-         //   $report->microCredentials()->sync($data['micro_credentials']);
-       //}
-
-        return $report;
-    } 
+    }
 
     protected function createOrganizationDualProject(array $data, int $dualProjectId)
     {
@@ -256,7 +267,7 @@ class DualProjectController extends Controller
 
     protected function updateOrCreateDualProjectReport(array $data, int $dualProjectId)
     {
-        $report = DualProjectReport::updateOrCreate(
+        return DualProjectReport::updateOrCreate(
             ['dual_project_id' => $dualProjectId],
             [
                 'name' => $data['name_report'],
@@ -271,14 +282,9 @@ class DualProjectController extends Controller
                 'advisor' => $data['advisor'] ?? null,
                 'is_concluded' => $data['is_concluded'] ?? false,
                 'is_hired' => $data['is_hired'] ?? false,
+                'max_qualification' => $data['max_qualification'] ?? 10,
             ]
         );
-
-       // if (isset($data['micro_credentials']) && is_array($data['micro_credentials'])) {
-          //  $report->microCredentials()->sync($data['micro_credentials']);
-     //   }
-
-        return $report;
     }
 
     protected function updateOrCreateOrganizationDualProject(array $data, int $dualProjectId)
@@ -289,45 +295,41 @@ class DualProjectController extends Controller
         );
     }
 
-   protected function updateOrCreateStudents(array $data, int $dualProjectId)
-{
-    if (!isset($data['students']) || !is_array($data['students'])) {
-        
-        DualProjectStudent::where('id_dual_project', $dualProjectId)->delete();
-        return;
+    protected function updateOrCreateStudents(array $data, int $dualProjectId)
+    {
+        if (!isset($data['students']) || !is_array($data['students'])) {
+            DualProjectStudent::where('id_dual_project', $dualProjectId)->delete();
+            return;
+        }
+
+        $incomingStudentIds = [];
+
+        foreach ($data['students'] as $studentData) {
+            $student = Student::updateOrCreate(
+                ['control_number' => $studentData['control_number']],
+                [
+                    'name' => $studentData['name_student'],
+                    'lastname' => $studentData['lastname'],
+                    'gender' => $studentData['gender'],
+                    'semester' => $studentData['semester'],
+                    'id_institution' => $studentData['id_institution'],
+                    'id_career' => $studentData['id_career'],
+                    'id_specialty' => $studentData['id_specialty'],
+                ]
+            );
+
+            DualProjectStudent::updateOrCreate(
+                [
+                    'id_student' => $student->id,
+                    'id_dual_project' => $dualProjectId
+                ]
+            );
+
+            $incomingStudentIds[] = $student->id;
+        }
+
+        DualProjectStudent::where('id_dual_project', $dualProjectId)
+            ->whereNotIn('id_student', $incomingStudentIds)
+            ->delete();
     }
-
-    
-    $incomingStudentIds = [];
-
-    foreach ($data['students'] as $studentData) {
-        $student = Student::updateOrCreate(
-            ['control_number' => $studentData['control_number']],
-            [
-                'name' => $studentData['name_student'],
-                'lastname' => $studentData['lastname'],
-                'gender' => $studentData['gender'],
-                'semester' => $studentData['semester'],
-                'id_institution' => $studentData['id_institution'],
-                'id_career' => $studentData['id_career'],
-                'id_specialty' => $studentData['id_specialty'],
-            ]
-        );
-
-        $dps = DualProjectStudent::updateOrCreate(
-            [
-                'id_student' => $student->id,
-                'id_dual_project' => $dualProjectId
-            ]
-        );
-
-        $incomingStudentIds[] = $student->id;
-    }
-
-    
-    DualProjectStudent::where('id_dual_project', $dualProjectId)
-        ->whereNotIn('id_student', $incomingStudentIds)
-        ->delete();
-}
-
 }

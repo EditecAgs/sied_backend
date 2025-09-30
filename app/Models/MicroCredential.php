@@ -27,7 +27,7 @@ class MicroCredential extends Model
             'dual_project_report_micro_credential',
             'id_micro_credential',
             'id_dual_project_report'
-        );
+        )->withTimestamps()->withTrashed();
     }
 
 }
