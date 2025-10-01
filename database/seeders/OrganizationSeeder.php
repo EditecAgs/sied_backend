@@ -26,7 +26,7 @@ class OrganizationSeeder extends Seeder
                 'postal_code' => '12345',
                 'id_state' => 1,
                 'id_municipality' => 1,
-                'scope' => 'municipal_level', 
+                'scope' => 'Municipal',
             ],
         );
         Organization::updateOrCreate(
@@ -43,7 +43,7 @@ class OrganizationSeeder extends Seeder
                 'postal_code' => '12345',
                 'id_state' => 1,
                 'id_municipality' => 1,
-                'scope' => 'federal_level',
+                'scope' => 'Federal',
             ],
         );
         Organization::updateOrCreate(
@@ -60,7 +60,7 @@ class OrganizationSeeder extends Seeder
                 'postal_code' => '12345',
                 'id_state' => 1,
                 'id_municipality' => 1,
-                'scope' => 'state_level',
+                'scope' => 'Estatal',
             ],
         );
         Organization::updateOrCreate(
@@ -77,7 +77,7 @@ class OrganizationSeeder extends Seeder
                 'postal_code' => '12345',
                 'id_state' => 1,
                 'id_municipality' => 1,
-                'scope' => 'international_level',
+                'scope' => 'Internacional',
             ],
         );
         Organization::updateOrCreate(
@@ -94,7 +94,7 @@ class OrganizationSeeder extends Seeder
                 'postal_code' => '12345',
                 'id_state' => 1,
                 'id_municipality' => 1,
-                'scope' => 'municipal_level',
+                'scope' => 'Municipal',
             ],
         );
     }

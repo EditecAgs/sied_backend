@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::table('organizations', function (Blueprint $table) {
             $table->enum('scope', [
-                'municipal_level', 
-                'federal_level', 
-                'state_level', 
-                'international_level'
-            ]); 
+                'Municipal',
+                'Federal',
+                'Estatal',
+                'Internacional'
+            ]);
         });
     }
 
