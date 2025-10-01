@@ -9,19 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('organizations', function (Blueprint $table) {
-            $table->enum('scope', [
-                'Municipal',
-                'Federal',
-                'Estatal',
-                'Internacional',
-            ]);
+            $table->foreignId('id_cluster_local')->constrained('clusters')->onDelete('restrict')->after('id_cluster');
+
         });
     }
 
     public function down(): void
     {
         Schema::table('organizations', function (Blueprint $table) {
-            $table->dropColumn('scope');
+            $table->dropForeign(['id_cluster_local']);
+            $table->dropColumn('id_cluster_local');
         });
     }
 };

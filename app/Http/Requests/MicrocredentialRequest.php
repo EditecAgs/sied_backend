@@ -22,9 +22,9 @@ class MicroCredentialRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'         => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'organization' => 'nullable|string|max:255',
-            'description'  => 'nullable|string',
+            'description' => 'nullable|string',
             'image' => 'nullable|string',
         ];
     }

@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\DualArea;
 use App\Models\DualProject;
+use App\Models\EconomicSupport;
 use App\Models\Institution;
 use App\Models\Organization;
 use App\Models\Sector;
 use App\Models\Student;
-use App\Models\EconomicSupport;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -45,11 +45,9 @@ class DashboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $counts
+            'data' => $counts,
         ], Response::HTTP_OK);
     }
-
-
 
     public function countProjectsByMonth()
     {
@@ -149,7 +147,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $results
+            'data' => $results,
         ], Response::HTTP_OK);
     }
 
@@ -167,10 +165,9 @@ class DashboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $results
+            'data' => $results,
         ], Response::HTTP_OK);
     }
-
 
     public function getInstitutionProjectPercentage()
     {
@@ -199,5 +196,4 @@ class DashboardController extends Controller
             'data' => $results,
         ], Response::HTTP_OK);
     }
-
 }

@@ -27,6 +27,7 @@ class OrganizationRequest extends FormRequest
             'id_sector' => 'required|exists:sectors,id',
             'size' => 'required|in:Micro (1 a 10 trabajadores),Pequeña (11 a 50 trabajadores),Mediana (51 a 100 trabajadores),Grande (Más de 100 trabajadores)',
             'id_cluster' => 'required|exists:clusters,id',
+            'id_cluster_local' => 'required|exists:clusters,id',
             'street' => 'required|string|max:255',
             'external_number' => 'required|string|max:255',
             'internal_number' => 'nullable|string|max:255',
@@ -36,7 +37,7 @@ class OrganizationRequest extends FormRequest
             'id_municipality' => 'required|exists:municipalities,id',
             'city' => 'nullable|string|max:255',
             'google_maps' => 'nullable|string|max:255',
-            'scope' => 'required|in:municipal_level,federal_level,state_level,international_level',
+            'scope' => 'required|in:Municipal,Federal,Estatal,Internacional',
         ];
     }
 }

@@ -23,6 +23,7 @@ class ClusterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'type' => 'required|in:Local,Nacional',
         ];
     }
 }

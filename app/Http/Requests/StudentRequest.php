@@ -23,14 +23,14 @@ class StudentRequest extends FormRequest
     {
         return [
             'control_number' => 'required|string|max:50|unique:students,control_number,' . $this->id,
-            'name'           => 'required|string|max:255',
-            'lastname'       => 'required|string|max:255',
-            'gender'         => 'required|in:Masculino,Femenino,Otro',
-            'semester'       => 'required|integer|min:1|max:12',
+            'name' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'gender' => 'required|in:Masculino,Femenino,Otro',
+            'semester' => 'required|integer|min:1|max:12',
             'id_institution' => 'required|exists:institutions,id',
-            'id_specialty'   => 'nullable|exists:specialties,id',
-            'id_career'      => 'nullable|exists:careers,id',
-            'id_dual_project'=> 'nullable|exists:dual_projects,id',
+            'id_specialty' => 'nullable|exists:specialties,id',
+            'id_career' => 'nullable|exists:careers,id',
+            'id_dual_project' => 'nullable|exists:dual_projects,id',
         ];
     }
 }

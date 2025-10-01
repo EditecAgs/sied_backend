@@ -13,7 +13,7 @@ class DualProject extends Model
         'id',
         'has_report',
         'id_institution',
-        'number_student'
+        'number_student',
     ];
 
     public function institution()
