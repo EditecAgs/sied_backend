@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DualProjectRequest;
 use App\Models\DualProject;
 use App\Models\DualProjectReport;
-use App\Models\OrganizationDualProject;
 use App\Models\DualProjectStudent;
+use App\Models\OrganizationDualProject;
 use App\Models\Student;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -115,7 +115,7 @@ class DualProjectController extends Controller
                 $this->createStudents($data, $dualProject->id);
 
                 // 🔗 microcredenciales
-                if (!empty($data['micro_credentials'])) {
+                if (! empty($data['micro_credentials'])) {
                     $report->microCredentials()->sync($data['micro_credentials']);
                 }
             }
@@ -125,6 +125,7 @@ class DualProjectController extends Controller
             return response()->json($dualProject, Response::HTTP_CREATED);
         } catch (Exception $e) {
             DB::rollBack();
+
             return $this->handleException($e, 'Error al crear el proyecto dual');
         }
     }
@@ -159,7 +160,7 @@ class DualProjectController extends Controller
                 }
 
                 // 🔗 microcredenciales
-                if (!empty($data['micro_credentials'])) {
+                if (! empty($data['micro_credentials'])) {
                     $report->microCredentials()->sync($data['micro_credentials']);
                 } else {
                     $report->microCredentials()->detach(); // limpia si ya no hay
@@ -167,9 +168,11 @@ class DualProjectController extends Controller
             }
 
             DB::commit();
+
             return response()->json($dualProject, Response::HTTP_OK);
         } catch (Exception $e) {
             DB::rollBack();
+
             return $this->handleException($e, 'Error al actualizar el proyecto dual');
         }
     }
@@ -197,6 +200,7 @@ class DualProjectController extends Controller
             return response()->json(['message' => 'Proyecto eliminado correctamente'], Response::HTTP_OK);
         } catch (Exception $e) {
             DB::rollBack();
+
             return $this->handleException($e, 'Error al eliminar proyecto');
         }
     }
@@ -206,7 +210,7 @@ class DualProjectController extends Controller
         return response()->json([
             'message' => $message,
             'error' => $e->getMessage(),
-            'trace' => $e->getTrace()
+            'trace' => $e->getTrace(),
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
@@ -240,7 +244,9 @@ class DualProjectController extends Controller
 
     protected function createStudents(array $data, int $dualProjectId)
     {
-        if (!isset($data['students']) || !is_array($data['students'])) return;
+        if (! isset($data['students']) || ! is_array($data['students'])) {
+            return;
+        }
 
         foreach ($data['students'] as $studentData) {
             $student = Student::updateOrCreate(
@@ -259,7 +265,7 @@ class DualProjectController extends Controller
             DualProjectStudent::updateOrCreate(
                 [
                     'id_student' => $student->id,
-                    'id_dual_project' => $dualProjectId
+                    'id_dual_project' => $dualProjectId,
                 ]
             );
         }
@@ -297,8 +303,9 @@ class DualProjectController extends Controller
 
     protected function updateOrCreateStudents(array $data, int $dualProjectId)
     {
-        if (!isset($data['students']) || !is_array($data['students'])) {
+        if (! isset($data['students']) || ! is_array($data['students'])) {
             DualProjectStudent::where('id_dual_project', $dualProjectId)->delete();
+
             return;
         }
 
@@ -321,7 +328,7 @@ class DualProjectController extends Controller
             DualProjectStudent::updateOrCreate(
                 [
                     'id_student' => $student->id,
-                    'id_dual_project' => $dualProjectId
+                    'id_dual_project' => $dualProjectId,
                 ]
             );
 

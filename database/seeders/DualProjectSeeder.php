@@ -17,7 +17,7 @@ class DualProjectSeeder extends Seeder
             [
                 'has_report' => 1,
                 'id_institution' => 1,
-                'number_student' => 2, 
+                'number_student' => 2,
             ]
         );
         DualProject::updateOrCreate(

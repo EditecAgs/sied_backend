@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('sectors', function (Blueprint $table) {
-            $table->longText('image')->nullable()->after('plan_mexico');
+        Schema::table('clusters', function (Blueprint $table) {
+            $table->enum('type', ['Local', 'Nacional'])->after('name')->default('Nacional');
         });
     }
 
     public function down(): void
     {
-        Schema::table('sectors', function (Blueprint $table) {
-            $table->dropColumn('image');
+        Schema::table('clusters', function (Blueprint $table) {
+            $table->dropColumn('type');
         });
     }
 };

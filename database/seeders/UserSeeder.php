@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -24,7 +23,7 @@ class UserSeeder extends Seeder
                 'id_institution' => 1,
                 'type' => 0,
                 'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$')
+                'password' => Hash::make('Prueba123$'),
             ]
         );
 
@@ -38,7 +37,7 @@ class UserSeeder extends Seeder
                 'id_institution' => 2,
                 'type' => 1,
                 'email_verified_at' => now(),
-                'password' => Hash::make('Admin123$')
+                'password' => Hash::make('Admin123$'),
             ]
         );
 
@@ -51,7 +50,7 @@ class UserSeeder extends Seeder
                 'id_institution' => 3,
                 'type' => 1,
                 'email_verified_at' => now(),
-                'password' => Hash::make('Admin123$')
+                'password' => Hash::make('Admin123$'),
             ]
         );
 
@@ -64,7 +63,7 @@ class UserSeeder extends Seeder
                 'id_institution' => 4,
                 'type' => 1,
                 'email_verified_at' => now(),
-                'password' => Hash::make('Admin123$')
+                'password' => Hash::make('Admin123$'),
             ]
         );
 
@@ -77,7 +76,7 @@ class UserSeeder extends Seeder
                 'id_institution' => 5,
                 'type' => 1,
                 'email_verified_at' => now(),
-                'password' => Hash::make('Admin123$')
+                'password' => Hash::make('Admin123$'),
             ]
         );
     }

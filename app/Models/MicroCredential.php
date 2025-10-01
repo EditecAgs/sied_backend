@@ -16,10 +16,12 @@ class MicroCredential extends Model
         'description',
         'image',
     ];
+
     public function dualProjectReportMicroCredentials()
-{
-    return $this->hasMany(DualProjectReportMicroCredential::class, 'id_micro_credential');
-}
+    {
+        return $this->hasMany(DualProjectReportMicroCredential::class, 'id_micro_credential');
+    }
+
     public function dualProjectReports()
     {
         return $this->belongsToMany(
@@ -29,5 +31,4 @@ class MicroCredential extends Model
             'id_dual_project_report'
         )->withTimestamps()->withTrashed();
     }
-
 }

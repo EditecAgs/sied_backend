@@ -19,6 +19,7 @@ class DualProjectStudent extends Model
     {
         return $this->belongsTo(Student::class, 'id_student');
     }
+
     public function dualProject()
     {
         return $this->belongsTo(DualProject::class, 'id_dual_project');

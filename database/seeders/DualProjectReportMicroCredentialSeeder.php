@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\DualProjectReportMicroCredential;
-
+use Illuminate\Database\Seeder;
 
 class DualProjectReportMicroCredentialSeeder extends Seeder
 {
@@ -14,7 +12,7 @@ class DualProjectReportMicroCredentialSeeder extends Seeder
      */
     public function run(): void
     {
-         DualProjectReportMicroCredential::updateOrCreate(
+        DualProjectReportMicroCredential::updateOrCreate(
             ['id' => 1],
             [
                 'id_dual_project_report' => 1,
