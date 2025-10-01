@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\MicroCredential;
+use Illuminate\Database\Seeder;
 
 class MicroCredentialSeeder extends Seeder
 {
@@ -18,7 +17,7 @@ class MicroCredentialSeeder extends Seeder
             [
                 'name' => 'CCNA: Cisco Certified Network Associate',
                 'organization' => 'Cisco',
-                'description' => 'Certificación de fundamentos de redes, routing y switching según estándares Cisco.'
+                'description' => 'Certificación de fundamentos de redes, routing y switching según estándares Cisco.',
             ]
         );
 
@@ -27,7 +26,7 @@ class MicroCredentialSeeder extends Seeder
             [
                 'name' => 'CCNP: Cisco Certified Network Professional',
                 'organization' => 'Cisco',
-                'description' => 'Certificación avanzada en diseño, implementación y resolución de problemas de redes.'
+                'description' => 'Certificación avanzada en diseño, implementación y resolución de problemas de redes.',
             ]
         );
 
@@ -36,7 +35,7 @@ class MicroCredentialSeeder extends Seeder
             [
                 'name' => 'Seguridad en Redes',
                 'organization' => 'CompTIA',
-                'description' => 'Curso sobre protección de redes, firewalls, VPNs y prevención de ataques cibernéticos.'
+                'description' => 'Curso sobre protección de redes, firewalls, VPNs y prevención de ataques cibernéticos.',
             ]
         );
 
@@ -45,7 +44,7 @@ class MicroCredentialSeeder extends Seeder
             [
                 'name' => 'Administración de Servidores',
                 'organization' => 'Microsoft',
-                'description' => 'Capacitación en gestión de servidores Windows, Active Directory y servicios de red.'
+                'description' => 'Capacitación en gestión de servidores Windows, Active Directory y servicios de red.',
             ]
         );
 
@@ -54,7 +53,7 @@ class MicroCredentialSeeder extends Seeder
             [
                 'name' => 'IoT y Redes Industriales',
                 'organization' => 'Universidad ABC',
-                'description' => 'Curso sobre integración de dispositivos IoT y comunicación en redes industriales.'
+                'description' => 'Curso sobre integración de dispositivos IoT y comunicación en redes industriales.',
             ]
         );
 
@@ -63,7 +62,7 @@ class MicroCredentialSeeder extends Seeder
             [
                 'name' => 'Fundamentos de Cloud Computing',
                 'organization' => 'AWS',
-                'description' => 'Introducción a servicios en la nube, arquitecturas y seguridad en entornos cloud.'
+                'description' => 'Introducción a servicios en la nube, arquitecturas y seguridad en entornos cloud.',
             ]
         );
 
@@ -72,7 +71,7 @@ class MicroCredentialSeeder extends Seeder
             [
                 'name' => 'Ciberseguridad Básica',
                 'organization' => 'Cisco Networking Academy',
-                'description' => 'Curso de seguridad informática, amenazas comunes y buenas prácticas en TICs.'
+                'description' => 'Curso de seguridad informática, amenazas comunes y buenas prácticas en TICs.',
             ]
         );
     }

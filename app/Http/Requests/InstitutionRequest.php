@@ -36,7 +36,7 @@ class InstitutionRequest extends FormRequest
             'type' => 'required|in:Pública,Privada',
             'id_subsystem' => 'required|exists:subsystems,id',
             'id_academic_period' => 'required|exists:academic_periods,id',
-            'image' => 'nullable|string'
+            'image' => 'nullable|string',
         ];
     }
 

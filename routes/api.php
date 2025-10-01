@@ -7,20 +7,20 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentStatusController;
 use App\Http\Controllers\DualAreaController;
 use App\Http\Controllers\DualProjectController;
+use App\Http\Controllers\DualTypeController;
 use App\Http\Controllers\EconomicSupportController;
 use App\Http\Controllers\InstitutionController;
+use App\Http\Controllers\MicroCredentialController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\DualTypeController;
-use App\Http\Controllers\MicroCredentialController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StudentController;
 
 Route::post('login', [UserController::class, 'login']);
 
@@ -92,11 +92,11 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::put('dual-areas/{id}', [DualAreaController::class, 'updateDualArea']);
     Route::delete('dual-areas/{id}', [DualAreaController::class, 'deleteDualArea']);
 
-    Route::get('/dual-types', [DualTypeController::class, 'getDualTypes']);
-    Route::get('/dual-types/{id}', [DualTypeController::class, 'getDualTypeById']);
-    Route::post('/dual-types', [DualTypeController::class, 'createDualType']);
-    Route::put('/dual-types/{id}', [DualTypeController::class, 'updateDualType']);
-    Route::delete('/dual-types/{id}', [DualTypeController::class, 'deleteDualType']);
+    Route::get('dual-types', [DualTypeController::class, 'getDualTypes']);
+    Route::get('dual-types/{id}', [DualTypeController::class, 'getDualTypeById']);
+    Route::post('dual-types', [DualTypeController::class, 'createDualType']);
+    Route::put('dual-types/{id}', [DualTypeController::class, 'updateDualType']);
+    Route::delete('dual-types/{id}', [DualTypeController::class, 'deleteDualType']);
 
     Route::get('economic-supports', [EconomicSupportController::class, 'getEconomicSupports']);
     Route::get('economic-supports/{id}', [EconomicSupportController::class, 'getEconomicSupportById']);
