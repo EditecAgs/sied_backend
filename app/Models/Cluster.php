@@ -12,6 +12,7 @@ class Cluster extends Model
     protected $fillable = [
         'id',
         'name',
+        'type',
     ];
 
     public function organizations()

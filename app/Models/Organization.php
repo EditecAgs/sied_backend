@@ -16,6 +16,7 @@ class Organization extends Model
         'id_sector',
         'size',
         'id_cluster',
+        'id_cluster_local',
         'street',
         'external_number',
         'internal_number',
