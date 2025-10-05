@@ -134,7 +134,7 @@ class StudentSeeder extends Seeder
                 'lastname' => 'Díaz',
                 'gender' => 'Masculino',
                 'semester' => 3,
-                'id_institution' => 4,
+                'id_institution' => 8,
                 'id_career' => 15,
                 'id_specialty' => 4,
             ]
@@ -147,7 +147,7 @@ class StudentSeeder extends Seeder
                 'lastname' => 'Ramírez-Cortés',
                 'gender' => 'Masculino',
                 'semester' => 9,
-                'id_institution' => 5,
+                'id_institution' => 9,
                 'id_career' => 16,
                 'id_specialty' => 5,
             ]
