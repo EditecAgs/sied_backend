@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('semester');
             $table->foreignId('id_institution')->constrained('institutions')->onDelete('restrict');
             $table->foreignId('id_career')->constrained('careers')->onDelete('restrict');
-            $table->foreignId('id_specialty')->constrained('specialties')->onDelete('restrict');
+            $table->foreignId('id_specialty')->nullable()->constrained('specialties')->onDelete('restrict');
             $table->softDeletes();
             $table->timestamps();
         });

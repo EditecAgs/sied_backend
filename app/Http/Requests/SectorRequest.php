@@ -24,6 +24,7 @@ class SectorRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'image' => 'nullable|string',
+            'plan_mexico' => 'nullable|string|max:255',
         ];
     }
 }

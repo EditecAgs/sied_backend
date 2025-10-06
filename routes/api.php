@@ -10,7 +10,7 @@ use App\Http\Controllers\DualProjectController;
 use App\Http\Controllers\DualTypeController;
 use App\Http\Controllers\EconomicSupportController;
 use App\Http\Controllers\InstitutionController;
-use App\Http\Controllers\MicroCredentialController;
+use App\Http\Controllers\MicrocredentialController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\SectorController;
@@ -128,11 +128,11 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::put('types/{id}', [TypeController::class, 'updateType']);
     Route::delete('types/{id}', [TypeController::class, 'deleteType']);
 
-    Route::get('micro-credentials', [MicroCredentialController::class, 'getMicroCredentials']);
-    Route::get('micro-credentials/{id}', [MicroCredentialController::class, 'getMicroCredentialById']);
-    Route::post('micro-credentials', [MicroCredentialController::class, 'createMicroCredential']);
-    Route::put('micro-credentials/{id}', [MicroCredentialController::class, 'updateMicroCredential']);
-    Route::delete('micro-credentials/{id}', [MicroCredentialController::class, 'deleteMicroCredential']);
+    Route::get('micro-credentials', [MicrocredentialController::class, 'getMicroCredentials']);
+    Route::get('micro-credentials/{id}', [MicrocredentialController::class, 'getMicroCredentialById']);
+    Route::post('micro-credentials', [MicrocredentialController::class, 'createMicroCredential']);
+    Route::put('micro-credentials/{id}', [MicrocredentialController::class, 'updateMicroCredential']);
+    Route::delete('micro-credentials/{id}', [MicrocredentialController::class, 'deleteMicroCredential']);
 
     Route::get('students', [StudentController::class, 'getStudents']);
     Route::get('students/{id}', [StudentController::class, 'getStudentById']);

@@ -80,7 +80,7 @@ class DualProjectSeeder extends Seeder
             ['id' => 9],
             [
                 'has_report' => 1,
-                'id_institution' => 4,
+                'id_institution' => 8,
                 'number_student' => 0,
             ]
         );
@@ -88,7 +88,7 @@ class DualProjectSeeder extends Seeder
             ['id' => 10],
             [
                 'has_report' => 1,
-                'id_institution' => 5,
+                'id_institution' => 9,
                 'number_student' => 0,
             ]
         );
