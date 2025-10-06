@@ -40,7 +40,7 @@ class SpecialtySeeder extends Seeder
             ['id' => 4],
             [
                 'name' => 'Diseño de semiconductores',
-                'id_institution' => 4,
+                'id_institution' => 9,
                 'id_career' => 15,
             ],
         );
@@ -48,7 +48,7 @@ class SpecialtySeeder extends Seeder
             ['id' => 5],
             [
                 'name' => 'Antropología',
-                'id_institution' => 5,
+                'id_institution' => 9,
                 'id_career' => 16,
             ],
         );
