@@ -40,7 +40,7 @@ class DualProjectRequest extends FormRequest
             'students.*.gender' => ['required', 'in:Masculino,Femenino,Otro'],
             'students.*.semester' => ['required', 'integer', 'min:1', 'max:16'],
             'students.*.id_career' => ['required', 'exists:careers,id'],
-            'students.*.id_specialty' => ['required', 'exists:specialties,id'],
+            'students.*.id_specialty' => ['nullable', 'exists:specialties,id'],
             'students.*.id_institution' => ['required', 'exists:institutions,id'],
         ];
     }
