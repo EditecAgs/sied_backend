@@ -31,7 +31,7 @@ class DualTypesSeeder extends Seeder
             ['id' => 4],
             ['name' => 'Residencias Profesionales']
         );
-                DualType::updateOrCreate(
+        DualType::updateOrCreate(
             ['id' => 5],
             ['name' => 'Estancias']
         );

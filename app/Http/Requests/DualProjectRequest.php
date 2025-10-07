@@ -23,6 +23,7 @@ class DualProjectRequest extends FormRequest
             'amount' => ['required_if:has_report,1', 'numeric', 'min:0'],
             'id_dual_area' => ['required_if:has_report,1', 'exists:dual_areas,id'],
             'dual_type_id' => ['required_if:has_report,1', 'exists:dual_types,id'],
+            'description' => ['nullable'],
             'status_document' => ['required_if:has_report,1', 'exists:document_statuses,id'],
             'economic_support' => ['required_if:has_report,1', 'exists:economic_supports,id'],
             'id_organization' => ['required_if:has_report,1', 'exists:organizations,id'],
