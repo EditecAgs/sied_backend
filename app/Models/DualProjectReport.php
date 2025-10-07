@@ -21,6 +21,7 @@ class DualProjectReport extends Model
         'is_concluded',
         'is_hired',
         'max_qualification',
+        'description',
     ];
 
     public function microCredentials()
