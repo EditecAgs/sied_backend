@@ -68,7 +68,7 @@ class DualProjectController extends Controller
 
             $project = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,max_qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,qualification,max_qualification,advisor,period_start,period_end,amount,id_dual_area,status_document,economic_support,dual_type_id, description',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -221,6 +221,7 @@ class DualProjectController extends Controller
             'dual_project_id' => $dualProjectId,
             'id_dual_area' => $data['id_dual_area'],
             'dual_type_id' => $data['dual_type_id'],
+            'description' => $data['description'],
             'period_start' => $data['period_start'],
             'period_end' => $data['period_end'],
             'status_document' => $data['status_document'],
@@ -279,6 +280,7 @@ class DualProjectController extends Controller
                 'name' => $data['name_report'],
                 'id_dual_area' => $data['id_dual_area'],
                 'dual_type_id' => $data['dual_type_id'],
+                'description' => $data['description'],
                 'period_start' => $data['period_start'],
                 'period_end' => $data['period_end'],
                 'status_document' => $data['status_document'],
