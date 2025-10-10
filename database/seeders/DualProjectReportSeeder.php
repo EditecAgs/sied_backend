@@ -28,6 +28,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => false,
                 'qualification' => null,
                 'advisor' => 'interno',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -47,6 +49,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => false,
                 'qualification' => null,
                 'advisor' => 'interno',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -66,6 +70,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => true,
                 'qualification' => 8,
                 'advisor' => 'interno',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -85,6 +91,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => false,
                 'qualification' => 7,
                 'advisor' => 'externo',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -104,6 +112,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => true,
                 'qualification' => 9,
                 'advisor' => 'externo',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -123,6 +133,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => true,
                 'qualification' => 10,
                 'advisor' => 'interno',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -142,6 +154,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => false,
                 'qualification' => null,
                 'advisor' => 'externo',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -161,6 +175,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => false,
                 'qualification' => 6,
                 'advisor' => 'interno',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -180,6 +196,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => true,
                 'qualification' => 8,
                 'advisor' => 'externo',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
 
@@ -199,6 +217,8 @@ class DualProjectReportSeeder extends Seeder
                 'is_hired' => true,
                 'qualification' => 9,
                 'advisor' => 'interno',
+                'period_observation' => null,
+                'hired_observation' => null,
             ]
         );
     }
