@@ -189,5 +189,17 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Prueba123$'),
             ]
         );
+        User::updateOrCreate(
+            ['id' => 15],
+            [
+                'name' => 'Usuario',
+                'lastname' => 'Aguascalientes',
+                'email' => 'aguascalientes2@example.com',
+                'id_institution' => 1,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Prueba123$'),
+            ]
+        );
     }
 }
