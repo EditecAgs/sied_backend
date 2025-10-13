@@ -192,9 +192,81 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['id' => 15],
             [
-                'name' => 'Usuario',
+                'name' => 'Jorge',
+                'lastname' => 'Mondragón',
+                'email' => 'sistemas@aguascalientes.tecnm.mx',
+                'id_institution' => 1,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Prueba123$'),
+            ]
+        );
+        User::updateOrCreate(
+            ['id' => 16],
+            [
+                'name' => 'Irvin',
+                'lastname' => 'Covarrubias',
+                'email' => 'industrial@aguascalientes.tecnm.mx',
+                'id_institution' => 1,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Prueba123$'),
+            ]
+        );
+        User::updateOrCreate(
+            ['id' => 17],
+            [
+                'name' => 'Francisco',
+                'lastname' => 'Louvier',
+                'email' => 'jefatura.depi@aguascalientes.tecnm.mx',
+                'id_institution' => 1,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Prueba123$'),
+            ]
+        );
+        User::updateOrCreate(
+            ['id' => 18],
+            [
+                'name' => 'Agustin',
+                'lastname' => 'Jaime',
+                'email' => 'mecanica@aguascalientes.tecnm.mx',
+                'id_institution' => 1,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Prueba123$'),
+            ]
+        );
+        User::updateOrCreate(
+            ['id' => 19],
+            [
+                'name' => 'Juan',
+                'lastname' => 'Carlos',
+                'email' => 'electrica_electronica@aguascalientes.tecnm.mx',
+                'id_institution' => 1,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Prueba123$'),
+            ]
+        );
+        User::updateOrCreate(
+            ['id' => 20],
+            [
+                'name' => 'Ulises',
                 'lastname' => 'Aguascalientes',
-                'email' => 'aguascalientes2@example.com',
+                'email' => 'quimica@aguascalientes.tecnm.mx',
+                'id_institution' => 1,
+                'type' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make('Prueba123$'),
+            ]
+        );
+        User::updateOrCreate(
+            ['id' => 21],
+            [
+                'name' => 'Salvador',
+                'lastname' => 'Barba Macias',
+                'email' => 'salvador.bm@aguascalientes.tecnm.mx',
                 'id_institution' => 1,
                 'type' => 1,
                 'email_verified_at' => now(),
