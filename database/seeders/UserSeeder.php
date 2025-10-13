@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-                User::updateOrCreate(
+        User::updateOrCreate(
             ['id' => 2],
             [
                 'name' => 'Admin',
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Prueba123$'),
             ]
         );
-  
+
         User::updateOrCreate(
             ['id' => 3],
             [
@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Prueba123$'),
             ]
         );
-        
+
         User::updateOrCreate(
             ['id' => 4],
             [
@@ -153,7 +153,6 @@ class UserSeeder extends Seeder
             ]
         );
 
-
         User::updateOrCreate(
             ['id' => 13],
             [
@@ -166,7 +165,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Prueba123$'),
             ]
         );
-                User::updateOrCreate(
+        User::updateOrCreate(
             ['id' => 14],
             [
                 'name' => 'José Nino',

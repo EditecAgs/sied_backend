@@ -28,7 +28,7 @@ class InstitutionRequest extends FormRequest
             'external_number' => 'required|string|max:255',
             'internal_number' => 'nullable|string|max:255',
             'neighborhood' => 'required|string|max:255',
-            'postal_code'=> 'required|string|regex:/^\d{5}$/',
+            'postal_code' => 'required|string|regex:/^\d{5}$/',
             'id_state' => 'required|exists:states,id',
             'id_municipality' => 'required|exists:municipalities,id',
             'city' => 'nullable|string|max:255',

@@ -14,7 +14,7 @@ class DualTypesSeeder extends Seeder
     {
         DualType::updateOrCreate(
             ['id' => 1],
-            ['name' => 'Desarrollo de Proyecto ']
+            ['name' => 'Desarrollo de Proyecto']
         );
 
         DualType::updateOrCreate(
@@ -29,26 +29,27 @@ class DualTypesSeeder extends Seeder
 
         DualType::updateOrCreate(
             ['id' => 4],
-            ['name' => 'Residencias Profesionales']
+            ['name' => 'Prácticas Profesionales']
         );
-                DualType::updateOrCreate(
+
+        DualType::updateOrCreate(
             ['id' => 5],
-            ['name' => 'Estancias']
+            ['name' => 'Prácticas']
         );
 
         DualType::updateOrCreate(
             ['id' => 6],
-            ['name' => 'Practicas']
-        );
-
-        DualType::updateOrCreate(
-            ['id' => 7],
             ['name' => 'Estadías']
         );
 
         DualType::updateOrCreate(
-            ['id' => 8],
+            ['id' => 7],
             ['name' => 'Becarios']
+        );
+
+        DualType::updateOrCreate(
+            ['id' => 8],
+            ['name' => 'Internado']
         );
     }
 }
