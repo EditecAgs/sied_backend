@@ -22,10 +22,11 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $this->route('id') . '|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-            'id_institution' => 'required|exists:institutions,id',
+            'name' => ['required', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'id_institution' => ['required', 'integer', 'exists:institutions,id'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
     }
 }
