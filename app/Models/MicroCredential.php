@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class MicroCredential extends Model
 {
+    use LogsActivity;
     use SoftDeletes;
     protected $table = 'micro_credentials';
     protected $fillable = [
@@ -30,5 +33,12 @@ class MicroCredential extends Model
             'id_micro_credential',
             'id_dual_project_report'
         )->withTimestamps()->withTrashed();
+    }
+        public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'organization', 'description', 'image'])
+            ->logOnlyDirty()
+            ->useLogName('micro_credential');
     }
 }
