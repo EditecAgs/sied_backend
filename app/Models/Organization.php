@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Organization extends Model
 {
+    use LogsActivity;
     use SoftDeletes;
     protected $table = 'organizations';
     protected $fillable = [
@@ -62,5 +65,31 @@ class Organization extends Model
     public function organizationDualProjects()
     {
         return $this->hasMany(OrganizationDualProject::class, 'id_organization');
+    }
+    
+        public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name',
+                'id_type',
+                'id_sector',
+                'size',
+                'id_cluster',
+                'id_cluster_local',
+                'street',
+                'external_number',
+                'internal_number',
+                'neighborhood',
+                'postal_code',
+                'id_state',
+                'id_municipality',
+                'country',
+                'city',
+                'google_maps',
+                'scope',
+            ])
+            ->logOnlyDirty()
+            ->useLogName('organization');
     }
 }

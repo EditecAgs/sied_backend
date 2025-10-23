@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Institution extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, LogsActivity;
 
     protected $table = 'institutions';
 
@@ -72,5 +74,29 @@ class Institution extends Model
     public function students()
     {
         return $this->hasMany(Student::class, 'id_institution');
+    }
+    
+        public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name',
+                'street',
+                'external_number',
+                'internal_number',
+                'neighborhood',
+                'postal_code',
+                'id_municipality',
+                'id_state',
+                'country',
+                'city',
+                'google_maps',
+                'type',
+                'id_subsystem',
+                'id_academic_period',
+                'image'
+            ])
+            ->logOnlyDirty()
+            ->useLogName('institution');
     }
 }

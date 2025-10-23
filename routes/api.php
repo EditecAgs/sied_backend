@@ -21,6 +21,7 @@ use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LogController;
 
 Route::post('login', [UserController::class, 'login']);
 
@@ -162,4 +163,6 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('projects/sectors/mexico', [DashboardController::class, 'countProjectsBySectorPlanMexico']);
     Route::get('projects/economic-support', [DashboardController::class, 'countProjectsByEconomicSupport']);
     Route::get('projects/economic-support/average', [DashboardController::class, 'averageAmountByEconomicSupport']);
+    Route::get('logs', [LogController::class, 'index']);
+    Route::get('logs/{id}', [LogController::class, 'show']);
 });

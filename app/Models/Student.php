@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Student extends Model
 {
+    use LogsActivity;
     use SoftDeletes;
     protected $table = 'students';
     protected $fillable = [
@@ -45,4 +48,12 @@ class Student extends Model
     {
         return $this->hasMany(DualProjectStudent::class, 'id_student');
     }
+    
+        public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['control_number', 'name', 'lastname', 'gender', 'semester', 'id_institution', 'id_specialty', 'id_career', 'id_dual_project'])
+            ->logOnlyDirty()
+            ->useLogName('student');
+}
 }

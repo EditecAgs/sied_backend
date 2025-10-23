@@ -8,11 +8,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 
 class User extends Authenticatable
 {
+    
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, softDeletes;
+    use HasApiTokens, HasFactory, Notifiable, softDeletes, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -55,5 +60,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    
+        public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'lastname', 'id_institution', 'type', 'email'])
+            ->logOnlyDirty()
+            ->useLogName('user');
     }
 }
