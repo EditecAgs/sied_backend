@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
+use App\Models\BitacoraAcceso;
+
 class UserController
 {
     public function login(LoginRequest $request)
@@ -25,6 +27,14 @@ class UserController
 
         $token = $user->createToken('api-token')->plainTextToken;
 
+        BitacoraAcceso::create([
+        'user_id' => $user->id,
+        'accion' => 'login',
+        'ip' => $request->ip(),
+        'navegador' => $request->header('User-Agent'),
+        'fecha_hora' => now(),
+     ]);
+
         return response()->json([
             'message' => 'Inicio de sesión exitoso',
             'token' => $token,
@@ -33,9 +43,20 @@ class UserController
         ]);
     }
 
-    public function logout()
+        public function logout()
     {
-        Auth::user()->tokens()->delete();
+        $user = Auth::user();
+
+        if ($user) {
+            \App\Models\BitacoraAcceso::create([
+                'user_id' => $user->id,
+                'accion' => 'logout',
+                'ip' => request()->ip(),
+                'navegador' => request()->header('User-Agent'),
+            ]);
+
+            $user->tokens()->delete();
+        }
 
         return response()->json([
             'message' => 'Sesión cerrada exitosamente',

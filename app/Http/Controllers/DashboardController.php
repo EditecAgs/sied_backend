@@ -124,7 +124,7 @@ class DashboardController extends Controller
             ->where('sectors.plan_mexico', 1)
             ->groupBy('sectors.id', 'sectors.name', 'sectors.plan_mexico')
             ->orderByDesc('project_count')
-            ->paginate(10);
+            ->paginate(11);
 
         return response()->json(['success' => true, 'data' => $results->items(), 'pagination' => ['total' => $results->total(), 'per_page' => $results->perPage(), 'current_page' => $results->currentPage(), 'last_page' => $results->lastPage()]], Response::HTTP_OK);
     }
