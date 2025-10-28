@@ -72,7 +72,16 @@ class UserController
 
     public function getUsersById($id)
     {
-        $user = User::with(['institution:id,name,street,external_number,internal_number,neighborhood,postal_code,country,city,google_maps,type,id_state,id_municipality,id_subsystem,id_academic_period', 'institution.state:id,name', 'institution.municipality:id,name', 'institution.subsystem:id,name', 'institution.academicPeriod:id,name'])->where('id', $id)->firstOrFail();
+        $user = User::with([
+            'institution:id,name,type,id_state,id_municipality,id_subsystem,id_academic_period',
+            'institution.state:id,name',
+            'institution.municipality:id,name',
+            'institution.subsystem:id,name',
+            'institution.academicPeriod:id,name'
+        ])
+            ->select('id', 'name', 'lastname', 'id_institution', 'type', 'email')
+            ->where('id', $id)
+            ->firstOrFail();
 
         return response()->json($user, Response::HTTP_OK);
     }
@@ -129,7 +138,13 @@ class UserController
 
     public function getProfile()
     {
-        $user = Auth::user()->load([
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no autenticado'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $user->load([
             'institution:id,name,id_state,id_municipality,id_subsystem',
             'institution.state:id,name',
             'institution.municipality:id,name',
@@ -138,4 +153,33 @@ class UserController
 
         return response()->json($user, Response::HTTP_OK);
     }
+
+    public function updateProfile(UpdateUserRequest $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no autenticado'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $data = $request->validated();
+
+        // Solo actualiza campos permitidos
+        $allowedFields = ['name', 'lastname', 'email', 'password', 'id_institution'];
+        $data = array_intersect_key($data, array_flip($allowedFields));
+
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return response()->json([
+            'message' => 'Perfil actualizado correctamente',
+            'user' => $user->load(['institution:id,name'])
+        ], Response::HTTP_OK);
+    }
+
 }

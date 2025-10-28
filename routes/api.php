@@ -26,6 +26,11 @@ use App\Http\Controllers\BitacoraAccesoController;
 
 Route::post('login', [UserController::class, 'login']);
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/profile', [UserController::class, 'getProfile']);
+    Route::put('/profile', [UserController::class, 'updateProfile']);
+});
+
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('users', [UserController::class, 'getUsers']);
     Route::get('users/{id}', [UserController::class, 'getUsersById']);
