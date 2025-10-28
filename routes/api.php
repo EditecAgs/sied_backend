@@ -23,8 +23,88 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\BitacoraAccesoController;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
+use Illuminate\Auth\Events\PasswordReset;
 
 Route::post('login', [UserController::class, 'login']);
+
+
+Route::post('/forgot-password', function (Request $request) {
+    try { $request->validate(['email' => 'required|email|exists:users,email']);
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+        if ($status === Password::RESET_LINK_SENT) {return response()->json([
+                'message' => 'Se ha enviado un enlace de recuperación a tu correo electrónico.',
+                'status' => $status
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'No pudimos enviar el enlace de recuperación. Por favor intenta nuevamente.',
+            'status' => $status
+        ], 400);
+    } catch (\Exception $e) {
+        \Log::error('Error en forgot-password: ' . $e->getMessage());
+        return response()->json([
+            'message' => 'Error interno del servidor',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
+Route::post('/reset-password', function (Request $request) {
+    try {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+        if ($status == Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => 'Contraseña restablecida exitosamente.',
+                'status' => $status
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'El token es inválido o ha expirado.',
+            'status' => $status
+        ], 400);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'message' => 'Error de validación',
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Exception $e) {
+        \Log::error('Error en reset-password', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json([
+            'message' => 'Error interno del servidor',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
+Route::get('/reset-password/{token}', function($token, Request $request) {
+    $email = $request->query('email');
+    return redirect("http://localhost:5173/reset-password?token=$token&email=$email");
+})->name('password.reset');
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/profile', [UserController::class, 'getProfile']);
