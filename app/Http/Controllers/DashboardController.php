@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DualArea;
+use App\Models\DualType;
 use App\Models\DualProject;
 use App\Models\EconomicSupport;
 use App\Models\Institution;
@@ -196,4 +197,27 @@ class DashboardController extends Controller
             'data' => $results,
         ], Response::HTTP_OK);
     }
+
+    public function countProjectsByDualType()
+    {
+        $results = \App\Models\DualType::leftJoin('dual_project_reports', 'dual_types.id', '=', 'dual_project_reports.dual_type_id')
+            ->leftJoin('dual_projects', function ($join) {
+                $join->on('dual_projects.id', '=', 'dual_project_reports.dual_project_id')
+                    ->where('dual_projects.has_report', 1);
+            })
+            ->select(
+                'dual_types.id',
+                'dual_types.name as dual_type',
+                DB::raw('COUNT(DISTINCT dual_projects.id) as total')
+            )
+            ->groupBy('dual_types.id', 'dual_types.name')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $results
+        ], Response::HTTP_OK);
+    }
+
 }

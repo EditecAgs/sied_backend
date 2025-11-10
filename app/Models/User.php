@@ -10,12 +10,10 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
+use App\Notifications\CustomResetPassword; // Añade esta línea
 
 class User extends Authenticatable
 {
-    
-
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, softDeletes, LogsActivity;
 
@@ -61,12 +59,23 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    
-        public function getActivitylogOptions(): LogOptions
+
+    public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'lastname', 'id_institution', 'type', 'email'])
             ->logOnlyDirty()
             ->useLogName('user');
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
     }
 }
