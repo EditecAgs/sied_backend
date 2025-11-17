@@ -220,4 +220,48 @@ class DashboardController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function countOrganizationsByCluster()
+    {
+        // Contar por clusters nacionales
+        $nacionales = \App\Models\Cluster::select(
+            'clusters.id',
+            'clusters.name as cluster_name',
+            'clusters.type',
+            DB::raw('COUNT(organizations.id) as organization_count')
+        )
+            ->leftJoin('organizations', function($join) {
+                $join->on('clusters.id', '=', 'organizations.id_cluster')
+                    ->where('clusters.type', 'Nacional');
+            })
+            ->where('clusters.type', 'Nacional')
+            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
+            ->orderBy('organization_count', 'desc')
+            ->get();
+
+        // Contar por clusters locales
+        $locales = \App\Models\Cluster::select(
+            'clusters.id',
+            'clusters.name as cluster_name',
+            'clusters.type',
+            DB::raw('COUNT(organizations.id) as organization_count')
+        )
+            ->leftJoin('organizations', function($join) {
+                $join->on('clusters.id', '=', 'organizations.id_cluster_local')
+                    ->where('clusters.type', 'Local');
+            })
+            ->where('clusters.type', 'Local')
+            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
+            ->orderBy('organization_count', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'nacionales' => $nacionales,
+                'locales' => $locales
+            ]
+        ], Response::HTTP_OK);
+    }
+
+
 }
