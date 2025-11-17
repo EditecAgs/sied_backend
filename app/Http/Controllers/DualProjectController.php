@@ -32,7 +32,7 @@ class DualProjectController extends Controller
         try {
             $reports = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,advisor,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,advisor,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -49,6 +49,8 @@ class DualProjectController extends Controller
                 'dualProjectStudents.student.institution:id,name',
                 'dualProjectStudents.student.career:id,name',
                 'dualProjectStudents.student.specialty:id,name',
+                'dualProjectReports.certifications',
+                'dualProjectReports.diplomas',
             ])->where('has_report', 1)->get();
 
             return response()->json($reports, Response::HTTP_OK);
@@ -68,12 +70,14 @@ class DualProjectController extends Controller
 
             $project = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,advisor,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,advisor,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
                 'dualProjectReports.economicSupport:id,name',
                 'dualProjectReports.microCredentials:id,name,organization,description,image',
+                'dualProjectReports.certifications',
+                'dualProjectReports.diplomas',
                 'organizationDualProjects:id,id_organization,id_dual_project',
                 'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
                 'organizationDualProjects.organization.type:id,name',
@@ -117,6 +121,12 @@ class DualProjectController extends Controller
                 // 🔗 microcredenciales
                 if (! empty($data['micro_credentials'])) {
                     $report->microCredentials()->sync($data['micro_credentials']);
+                }
+                If (! empty($data['diplomas'])) {
+                    $report->diplomas()->sync($data['diplomas']);
+                }
+                If (! empty($data['certifications'])) {
+                    $report->certifications()->sync($data['certifications']);
                 }
             }
 
@@ -163,7 +173,17 @@ class DualProjectController extends Controller
                 if (! empty($data['micro_credentials'])) {
                     $report->microCredentials()->sync($data['micro_credentials']);
                 } else {
-                    $report->microCredentials()->detach(); // limpia si ya no hay
+                    $report->microCredentials()->detach(); 
+                }
+                If (! empty($data['diplomas'])) {
+                    $report->diplomas()->sync($data['diplomas']);
+                } else {
+                    $report->diplomas()->detach(); 
+                }
+                If (! empty($data['certifications'])) {
+                    $report->certifications()->sync($data['certifications']);
+                } else {
+                    $report->certifications()->detach(); 
                 }
             }
 
@@ -190,6 +210,8 @@ class DualProjectController extends Controller
 
                 foreach ($dualProject->dualProjectReports as $report) {
                     $report->microCredentials()->detach();
+                    $report->certifications()->detach();
+                    $report->diplomas()->detach();
                     $report->delete();
                 }
             }
@@ -234,6 +256,10 @@ class DualProjectController extends Controller
             'is_concluded' => $data['is_concluded'] ?? false,
             'is_hired' => $data['is_hired'] ?? false,
             'max_qualification' => $data['max_qualification'] ?? 10,
+            'internal_advisor_name' => $data['internal_advisor_name'] ?? null,
+            'internal_advisor_qualification' => $data['internal_advisor_qualification'] ?? null,
+            'external_advisor_name' => $data['external_advisor_name'] ?? null,
+            'external_advisor_qualification' => $data['external_advisor_qualification'] ?? null,
         ]);
     }
 
@@ -295,6 +321,10 @@ class DualProjectController extends Controller
                 'is_concluded' => $data['is_concluded'] ?? false,
                 'is_hired' => $data['is_hired'] ?? false,
                 'max_qualification' => $data['max_qualification'] ?? 10,
+                'internal_advisor_name' => $data['internal_advisor_name'] ?? null,
+                'internal_advisor_qualification' => $data['internal_advisor_qualification'] ?? null,
+                'external_advisor_name' => $data['external_advisor_name'] ?? null,
+                'external_advisor_qualification' => $data['external_advisor_qualification'] ?? null,
             ]
         );
     }

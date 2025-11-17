@@ -11,6 +11,8 @@ use App\Http\Controllers\DualTypeController;
 use App\Http\Controllers\EconomicSupportController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\MicrocredentialController;
+use App\Http\Controllers\DiplomaController;
+use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\SectorController;
@@ -220,6 +222,18 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::post('micro-credentials', [MicrocredentialController::class, 'createMicroCredential']);
     Route::put('micro-credentials/{id}', [MicrocredentialController::class, 'updateMicroCredential']);
     Route::delete('micro-credentials/{id}', [MicrocredentialController::class, 'deleteMicroCredential']);
+
+    Route::get('diplomas', [DiplomaController::class, 'getDiplomas']);
+    Route::get('diplomas/{id}', [DiplomaController::class, 'getDiplomaById']);
+    Route::post('diplomas', [DiplomaController::class, 'createDiploma']);
+    Route::put('diplomas/{id}', [DiplomaController::class, 'updateDiploma']);
+    Route::delete('diplomas/{id}', [DiplomaController::class, 'deleteDiploma']);
+
+    Route::get('certifications', [CertificationController::class, 'getCertifications']);
+    Route::get('certifications/{id}', [CertificationController::class, 'getCertificationById']);
+    Route::post('certifications', [CertificationController::class, 'createCertification']);
+    Route::put('certifications/{id}', [CertificationController::class, 'updateCertification']);
+    Route::delete('certifications/{id}', [CertificationController::class, 'deleteCertification']);
 
     Route::get('students', [StudentController::class, 'getStudents']);
     Route::get('students/{id}', [StudentController::class, 'getStudentById']);

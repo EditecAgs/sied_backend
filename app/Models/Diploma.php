@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class MicroCredential extends Model
+class Diploma extends Model
 {
     use LogsActivity;
     use SoftDeletes;
-    protected $table = 'micro_credentials';
+
+    protected $table = 'diplomas';
+
     protected $fillable = [
         'id',
         'name',
@@ -21,25 +23,26 @@ class MicroCredential extends Model
         'type',
     ];
 
-    public function dualProjectReportMicroCredentials()
+    public function dualProjectReportDiplomas()
     {
-        return $this->hasMany(DualProjectReportMicroCredential::class, 'id_micro_credential');
+        return $this->hasMany(DualProjectReportDiploma::class, 'id_diploma');
     }
 
     public function dualProjectReports()
     {
         return $this->belongsToMany(
             DualProjectReport::class,
-            'dual_project_report_micro_credential',
-            'id_micro_credential',
+            'dual_project_report_diploma',
+            'id_diploma',
             'id_dual_project_report'
         )->withTimestamps()->withTrashed();
     }
-        public function getActivitylogOptions(): LogOptions
+
+    public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'organization', 'description', 'image', 'type'])
+            ->logOnly(['name', 'organization', 'description', 'image'])
             ->logOnlyDirty()
-            ->useLogName('micro_credential');
+            ->useLogName('diploma');
     }
 }
