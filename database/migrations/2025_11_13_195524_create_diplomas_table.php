@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('organization');
-            $table->longText('image')->nullable()->change();
+            $table->longText('image')->nullable();
             $table->enum('type', ['academic', 'no_academic'])
                   ->default('academic');
             $table->softDeletes();

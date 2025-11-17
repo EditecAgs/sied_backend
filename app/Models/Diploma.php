@@ -9,6 +9,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Diploma extends Model
 {
+
     use LogsActivity;
     use SoftDeletes;
 

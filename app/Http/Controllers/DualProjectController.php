@@ -32,7 +32,7 @@ class DualProjectController extends Controller
         try {
             $reports = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,advisor,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -70,7 +70,7 @@ class DualProjectController extends Controller
 
             $project = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,advisor,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -118,7 +118,6 @@ class DualProjectController extends Controller
                 $this->createOrganizationDualProject($data, $dualProject->id);
                 $this->createStudents($data, $dualProject->id);
 
-                // 🔗 microcredenciales
                 if (! empty($data['micro_credentials'])) {
                     $report->microCredentials()->sync($data['micro_credentials']);
                 }
@@ -173,17 +172,17 @@ class DualProjectController extends Controller
                 if (! empty($data['micro_credentials'])) {
                     $report->microCredentials()->sync($data['micro_credentials']);
                 } else {
-                    $report->microCredentials()->detach(); 
+                    $report->microCredentials()->detach();
                 }
                 If (! empty($data['diplomas'])) {
                     $report->diplomas()->sync($data['diplomas']);
                 } else {
-                    $report->diplomas()->detach(); 
+                    $report->diplomas()->detach();
                 }
                 If (! empty($data['certifications'])) {
                     $report->certifications()->sync($data['certifications']);
                 } else {
-                    $report->certifications()->detach(); 
+                    $report->certifications()->detach();
                 }
             }
 
@@ -252,7 +251,6 @@ class DualProjectController extends Controller
             'economic_support' => $data['economic_support'],
             'amount' => $data['amount'],
             'qualification' => $data['qualification'] ?? null,
-            'advisor' => $data['advisor'] ?? null,
             'is_concluded' => $data['is_concluded'] ?? false,
             'is_hired' => $data['is_hired'] ?? false,
             'max_qualification' => $data['max_qualification'] ?? 10,
@@ -317,7 +315,6 @@ class DualProjectController extends Controller
                 'economic_support' => $data['economic_support'],
                 'amount' => $data['amount'],
                 'qualification' => $data['qualification'] ?? null,
-                'advisor' => $data['advisor'] ?? null,
                 'is_concluded' => $data['is_concluded'] ?? false,
                 'is_hired' => $data['is_hired'] ?? false,
                 'max_qualification' => $data['max_qualification'] ?? 10,

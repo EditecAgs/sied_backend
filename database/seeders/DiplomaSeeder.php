@@ -17,6 +17,7 @@ class DiplomaSeeder extends Seeder
                 'organization' => 'Platzi',
                 'description' => 'Diplomado integral que cubre tanto el frontend como el backend del desarrollo web.',
                 'type' => 'academic',
+                'image' => null,
             ]
         );
 
@@ -27,6 +28,7 @@ class DiplomaSeeder extends Seeder
                 'organization' => 'Coursera',
                 'description' => 'Programa avanzado que abarca análisis de datos, estadística y algoritmos de machine learning.',
                 'type' => 'academic',
+                'image' => null,
             ]
         );
 
@@ -37,6 +39,7 @@ class DiplomaSeeder extends Seeder
                 'organization' => 'edX',
                 'description' => 'Diplomado enfocado en metodologías ágiles como Scrum y Kanban para la gestión de proyectos.',
                 'type' => 'no_academic',
+                'image' => null,
             ]
         );
     }

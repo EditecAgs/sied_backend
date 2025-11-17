@@ -28,9 +28,9 @@ class DualProjectReport extends Model
         'description',
         'period_observation',
         'hired_observation',
-        'internal_advisor_name', 
-        'internal_advisor_qualification', 
-        'external_advisor_name', 
+        'internal_advisor_name',
+        'internal_advisor_qualification',
+        'external_advisor_name',
         'external_advisor_qualification'
     ];
 
@@ -101,16 +101,15 @@ class DualProjectReport extends Model
                 'economic_support',
                 'amount',
                 'qualification',
-                'advisor',
                 'is_concluded',
                 'is_hired',
                 'max_qualification',
                 'description',
                 'period_observation',
                 'hired_observation',
-                'internal_advisor_name', 
-                'internal_advisor_qualification', 
-                'external_advisor_name', 
+                'internal_advisor_name',
+                'internal_advisor_qualification',
+                'external_advisor_name',
                 'external_advisor_qualification'
             ])
             ->logOnlyDirty()

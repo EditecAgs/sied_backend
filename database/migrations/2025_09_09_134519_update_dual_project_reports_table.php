@@ -13,7 +13,7 @@ return new class extends Migration
 
             $table->boolean('is_concluded')->default(false);
             $table->boolean('is_hired')->default(false);
-            $table->integer('qualification')->nullable();
+            $table->decimal('qualification', 5, 2)->nullable();
             $table->enum('advisor', ['interno', 'externo'])->default('interno');
         });
     }
