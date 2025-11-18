@@ -10,7 +10,7 @@ class CertificationController extends Controller
 {
     public function getCertifications()
     {
-        $certifications = Certification::with(['dualProjectReportCertifications'])->get();
+        $certifications = Certification::with(['dualProjectReportCertifications'])->orderBy('name', 'asc')->get();
 
         return response()->json($certifications, Response::HTTP_OK);
     }

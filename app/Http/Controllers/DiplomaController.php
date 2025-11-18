@@ -10,7 +10,7 @@ class DiplomaController extends Controller
 {
     public function getDiplomas()
     {
-        $diplomas = Diploma::with(['dualProjectReportDiplomas'])->get();
+        $diplomas = Diploma::with(['dualProjectReportDiplomas'])->orderBy('name', 'asc')->get();
 
         return response()->json($diplomas, Response::HTTP_OK);
     }

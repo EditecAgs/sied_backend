@@ -9,7 +9,7 @@ class StateController extends Controller
 {
     public function getStates()
     {
-        return response()->json(State::all(), Response::HTTP_OK);
+        return response()->json(State::orderBy('name', 'asc')->get(), Response::HTTP_OK);
     }
 
     public function getStateById($id)

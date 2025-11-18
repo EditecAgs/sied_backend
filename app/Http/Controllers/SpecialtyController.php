@@ -10,7 +10,7 @@ class SpecialtyController extends Controller
 {
     public function getSpecialties()
     {
-        $specialties = Specialty::with(['institution:id,name', 'career:id,name'])->get();
+        $specialties = Specialty::with(['institution:id,name', 'career:id,name'])->orderBy('name', 'asc')->get();
 
         return response()->json($specialties, Response::HTTP_OK);
     }

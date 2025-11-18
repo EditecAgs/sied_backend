@@ -10,7 +10,7 @@ class TypeController extends Controller
 {
     public function getTypes()
     {
-        $types = Type::all();
+        $types = Type::orderBy('name', 'asc')->get();
 
         return response()->json($types, Response::HTTP_OK);
     }

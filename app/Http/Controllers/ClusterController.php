@@ -10,7 +10,7 @@ class ClusterController extends Controller
 {
     public function getClusters()
     {
-        return response()->json(Cluster::all(), Response::HTTP_OK);
+        return response()->json(Cluster::orderBy('name', 'asc')->get(), Response::HTTP_OK);
     }
 
     public function getClusterById($id)

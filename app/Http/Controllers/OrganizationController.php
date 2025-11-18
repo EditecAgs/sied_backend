@@ -17,7 +17,7 @@ class OrganizationController extends Controller
             'clusterLocal:id,name,type',
             'state:id,name',
             'municipality:id,name'
-        ])->get();
+        ])->orderBy('name', 'asc')->get();
 
         return response()->json($organizations, Response::HTTP_OK);
     }
