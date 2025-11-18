@@ -11,6 +11,7 @@ class Organization extends Model
 {
     use LogsActivity;
     use SoftDeletes;
+
     protected $table = 'organizations';
     protected $fillable = [
         'id',
@@ -18,8 +19,8 @@ class Organization extends Model
         'id_type',
         'id_sector',
         'size',
-        'id_cluster',
-        'id_cluster_local',
+        'id_cluster',           // Cluster nacional
+        'id_cluster_local',     // Cluster local
         'street',
         'external_number',
         'internal_number',
@@ -46,10 +47,15 @@ class Organization extends Model
     {
         return $this->belongsTo(Sector::class, 'id_sector');
     }
-
+    
     public function cluster()
     {
         return $this->belongsTo(Cluster::class, 'id_cluster');
+    }
+
+    public function clusterLocal()
+    {
+        return $this->belongsTo(Cluster::class, 'id_cluster_local');
     }
 
     public function state()
@@ -66,8 +72,8 @@ class Organization extends Model
     {
         return $this->hasMany(OrganizationDualProject::class, 'id_organization');
     }
-    
-        public function getActivitylogOptions(): LogOptions
+
+    public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly([

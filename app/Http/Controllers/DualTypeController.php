@@ -10,7 +10,7 @@ class DualTypeController extends Controller
 {
     public function getDualTypes()
     {
-        return response()->json(DualType::all(), Response::HTTP_OK);
+        return response()->json(DualType::get(), Response::HTTP_OK);
     }
 
     public function getDualTypeById($id)

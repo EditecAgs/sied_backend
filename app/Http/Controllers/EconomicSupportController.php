@@ -10,7 +10,7 @@ class EconomicSupportController extends Controller
 {
     public function getEconomicSupports()
     {
-        return response()->json(EconomicSupport::all(), Response::HTTP_OK);
+        return response()->json(EconomicSupport::orderBy('name', 'asc')->get(), Response::HTTP_OK);
     }
 
     public function getEconomicSupportById($id)

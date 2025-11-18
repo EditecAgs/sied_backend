@@ -10,7 +10,7 @@ class CareerController extends Controller
 {
     public function getCareers()
     {
-        $careers = Career::with(['institution:id,name'])->get();
+        $careers = Career::with(['institution:id,name'])->orderBy('name', 'asc')->get();
 
         return response()->json($careers, Response::HTTP_OK);
     }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('number_women');
             $table->foreignId('id_dual_area')->constrained('dual_areas')->onDelete('restrict');
             $table->date('period_start');
-            $table->date('period_end');
+            $table->date('period_end')->nullable();
             $table->foreignId('status_document')->constrained('document_statuses')->onDelete('restrict');
             $table->foreignId('economic_support')->constrained('economic_supports')->onDelete('restrict');
             $table->double('amount')->default(0);

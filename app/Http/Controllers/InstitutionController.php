@@ -10,7 +10,7 @@ class InstitutionController extends Controller
 {
     public function getInstitutions()
     {
-        $institutions = Institution::with(['subsystem:id,name', 'state:id,name', 'municipality:id,name', 'academicPeriod:id,name'])->get();
+        $institutions = Institution::with(['subsystem:id,name', 'state:id,name', 'municipality:id,name', 'academicPeriod:id,name'])->orderBy('name', 'asc')->get();
 
         return response()->json($institutions, Response::HTTP_OK);
     }

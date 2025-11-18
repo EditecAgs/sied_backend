@@ -10,7 +10,7 @@ class AcademicPeriodController extends Controller
 {
     public function getAcademicPeriods()
     {
-        return AcademicPeriod::all();
+        return AcademicPeriod::orderBy('name', 'asc')->get();
     }
 
     public function getAcademicPeriodById($id)

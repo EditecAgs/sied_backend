@@ -10,7 +10,7 @@ class DualAreaController extends Controller
 {
     public function getDualAreas()
     {
-        return response()->json(DualArea::all(), Response::HTTP_OK);
+        return response()->json(DualArea::orderBy('name', 'asc')->get(), Response::HTTP_OK);
     }
 
     public function getDualAreaById($id)

@@ -10,7 +10,7 @@ class SubsystemController extends Controller
 {
     public function getSubsystems()
     {
-        return Subsystem::all();
+        return Subsystem::orderBy('name', 'asc')->get();
     }
 
     public function getSubsystemById($id)
