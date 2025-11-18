@@ -27,7 +27,11 @@ class DualProjectReport extends Model
         'max_qualification',
         'description',
         'period_observation',
-        'hired_observation'
+        'hired_observation',
+        'internal_advisor_name',
+        'internal_advisor_qualification',
+        'external_advisor_name',
+        'external_advisor_qualification'
     ];
 
     public function microCredentials()
@@ -37,6 +41,25 @@ class DualProjectReport extends Model
             'dual_project_report_micro_credential',
             'id_dual_project_report',
             'id_micro_credential'
+        )->withTimestamps()->withTrashed();
+    }
+    public function diplomas()
+    {
+        return $this->belongsToMany(
+            Diploma::class,
+            'dual_project_report_diploma',
+            'id_dual_project_report',
+            'id_diploma'
+        )->withTimestamps()->withTrashed();
+    }
+
+    public function certifications()
+    {
+        return $this->belongsToMany(
+            Certification::class,
+            'dual_project_report_certification',
+            'id_dual_project_report',
+            'id_certification'
         )->withTimestamps()->withTrashed();
     }
 
@@ -78,13 +101,16 @@ class DualProjectReport extends Model
                 'economic_support',
                 'amount',
                 'qualification',
-                'advisor',
                 'is_concluded',
                 'is_hired',
                 'max_qualification',
                 'description',
                 'period_observation',
-                'hired_observation'
+                'hired_observation',
+                'internal_advisor_name',
+                'internal_advisor_qualification',
+                'external_advisor_name',
+                'external_advisor_qualification'
             ])
             ->logOnlyDirty()
             ->useLogName('dual_project_report');

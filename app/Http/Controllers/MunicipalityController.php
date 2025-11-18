@@ -9,7 +9,7 @@ class MunicipalityController extends Controller
 {
     public function getMunicipalities()
     {
-        $municipalities = Municipality::with(['state:id,name'])->get();
+        $municipalities = Municipality::with(['state:id,name'])->orderBy('name', 'asc')->get();
 
         return response()->json($municipalities, Response::HTTP_OK);
     }

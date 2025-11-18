@@ -30,6 +30,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -51,6 +55,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -72,6 +80,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -93,6 +105,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -114,6 +130,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null, 
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -135,6 +155,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -156,6 +180,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -177,6 +205,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -198,6 +230,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'externo',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
 
@@ -219,6 +255,10 @@ class DualProjectReportSeeder extends Seeder
                 'advisor' => 'interno',
                 'period_observation' => null,
                 'hired_observation' => null,
+                'internal_advisor_name' => null,
+                'internal_advisor_qualification' => null,
+                'external_advisor_name' => null,
+                'external_advisor_qualification' => null,
             ]
         );
     }

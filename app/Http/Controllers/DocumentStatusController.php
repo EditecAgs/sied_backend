@@ -10,7 +10,7 @@ class DocumentStatusController extends Controller
 {
     public function getDocumentStatuses()
     {
-        return response()->json(DocumentStatus::all(), Response::HTTP_OK);
+        return response()->json(DocumentStatus::orderBy('name', 'asc')->get(), Response::HTTP_OK);
     }
 
     public function getDocumentStatusById($id)

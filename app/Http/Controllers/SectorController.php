@@ -10,7 +10,7 @@ class SectorController extends Controller
 {
     public function getSectors()
     {
-        return response()->json(Sector::all(), Response::HTTP_OK);
+        return response()->json(Sector::orderBy('name', 'asc')->get(), Response::HTTP_OK);
     }
 
     public function getSectorById($id)

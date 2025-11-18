@@ -17,6 +17,7 @@ class EconomicSupportSeeder extends Seeder
             ['id' => 2, 'name' => 'Apoyo Económico', 'description' => 'Apoyo económico para estudiantes'],
             ['id' => 3, 'name' => 'Apoyo de Transporte', 'description' => 'Apoyo para cubrir gastos de transporte a la unidad dual.'],
             ['id' => 4, 'name' => 'Apoyo Alimentario', 'description' => 'Apoyo para cubrir gastos de alimentación de los estudiantes.'],
+            ['id'=> 5, 'name' => 'Otro', 'description' => 'Cualquier otro tipo de apoyo económico no especificado.'],
         ];
 
         foreach ($economicSupports as $economicSupport) {

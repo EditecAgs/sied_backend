@@ -40,6 +40,8 @@ class DatabaseSeeder extends Seeder
                 SpecialtySeeder::class,
                 StudentSeeder::class,
                 MicroCredentialSeeder::class,
+                DiplomaSeeder::class,
+                CertificationSeeder::class,
                 DualProjectStudentSeeder::class,
             ]);
         }

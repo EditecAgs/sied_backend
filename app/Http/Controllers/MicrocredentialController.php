@@ -10,7 +10,7 @@ class MicroCredentialController extends Controller
 {
     public function getMicroCredentials()
     {
-        $microCredentials = MicroCredential::with(['dualProjectReportMicroCredentials'])->get();
+        $microCredentials = MicroCredential::with(['dualProjectReportMicroCredentials'])->orderBy('name', 'asc')->get();
 
         return response()->json($microCredentials, Response::HTTP_OK);
     }
