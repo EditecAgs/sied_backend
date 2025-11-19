@@ -31,7 +31,8 @@ class DualProjectController extends Controller
     {
         try {
             $reports = DualProject::with([
-                'institution:id,name',
+                'institution:id,name,city,id_state',
+                'institution.state:id,name',
                 'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',

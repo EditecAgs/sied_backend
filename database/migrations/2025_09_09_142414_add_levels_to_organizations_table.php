@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('organizations', function (Blueprint $table) {
             $table->enum('scope', [
                 'Municipal',
-                'Federal',
+                'Nacional',
                 'Estatal',
                 'Internacional',
             ]);
