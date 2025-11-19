@@ -19,7 +19,7 @@ class DualProjectRequest extends FormRequest
             'number_student' => ['required_if:has_report,1', 'integer', 'min:1', 'max:16'],
             'name_report' => ['required_if:has_report,1', 'string', 'max:255'],
             'period_start' => ['required_if:has_report,1', 'date'],
-            'period_end' => ['required_if:has_report,1', 'date', 'after_or_equal:period_start'],
+            'period_end' => ['nullable', 'date', 'after_or_equal:period_start'],
             'period_observation' => ['nullable', 'string'],
             'hired_observation' => ['nullable', 'string'],
             'amount' => ['nullable', 'numeric', 'min:0'],
