@@ -9,7 +9,7 @@ class LogController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 100);
+        $perPage = $request->input('per_page', 10);
 
         $userFilter = $request->input('user');
         $moduleFilter = $request->input('module');
