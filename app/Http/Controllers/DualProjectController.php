@@ -48,12 +48,10 @@ class DualProjectController extends Controller
             'dualProjectReports.diplomas',
         ]);
 
-        // Filtrar por institución del usuario (si aplica)
         if ($user->type != 0 && $user->id_institution) {
             $query->where('id_institution', $user->id_institution);
         }
 
-        // Aplicar filtros dinámicos
         if (!empty($filters)) {
             foreach ($filters as $field => $value) {
                 if (!empty($value)) {
@@ -117,10 +115,9 @@ class DualProjectController extends Controller
                             });
                             break;
                         
-                        // Estos filtros solo aplican a proyectos con reporte
                         case 'education_type':
                             $query->where(function ($q) use ($value) {
-                                $q->where('has_report', 0) // Proyectos sin reporte
+                                $q->where('has_report', 0)
                                     ->orWhereHas('dualProjectReports.dualType', function ($subQ) use ($value) {
                                         $subQ->where('name', 'like', "%{$value}%");
                                     });
@@ -129,7 +126,7 @@ class DualProjectController extends Controller
                             
                         case 'project_name':
                             $query->where(function ($q) use ($value) {
-                                $q->where('has_report', 0) // Proyectos sin reporte
+                                $q->where('has_report', 0)
                                     ->orWhereHas('dualProjectReports', function ($subQ) use ($value) {
                                         $subQ->where('name', 'like', "%{$value}%");
                                     });
@@ -138,7 +135,7 @@ class DualProjectController extends Controller
                             
                         case 'agreement':
                             $query->where(function ($q) use ($value) {
-                                $q->where('has_report', 0) // Proyectos sin reporte
+                                $q->where('has_report', 0) 
                                     ->orWhereHas('dualProjectReports.statusDocument', function ($subQ) use ($value) {
                                         $subQ->where('name', 'like', "%{$value}%");
                                     });
@@ -148,14 +145,14 @@ class DualProjectController extends Controller
                         case 'project_status':
                             if (strtolower($value) === 'concluido' || strtolower($value) === 'completado') {
                                 $query->where(function ($q) {
-                                    $q->where('has_report', 0) // Proyectos sin reporte
+                                    $q->where('has_report', 0) 
                                         ->orWhereHas('dualProjectReports', function ($subQ) {
                                             $subQ->where('is_concluded', 1);
                                         });
                                 });
                             } elseif (strtolower($value) === 'en progreso' || strtolower($value) === 'activo') {
                                 $query->where(function ($q) {
-                                    $q->where('has_report', 0) // Proyectos sin reporte
+                                    $q->where('has_report', 0) 
                                         ->orWhereHas('dualProjectReports', function ($subQ) {
                                             $subQ->where('is_concluded', 0);
                                         });
@@ -168,14 +165,14 @@ class DualProjectController extends Controller
                         case 'grade':
                             if (is_numeric($value)) {
                                 $query->where(function ($q) use ($value) {
-                                    $q->where('has_report', 0) // Proyectos sin reporte
+                                    $q->where('has_report', 0) 
                                         ->orWhereHas('dualProjectReports', function ($subQ) use ($value) {
                                             $subQ->where('qualification', '>=', (float)$value);
                                         });
                                 });
                             } else {
                                 $query->where(function ($q) use ($value) {
-                                    $q->where('has_report', 0) // Proyectos sin reporte
+                                    $q->where('has_report', 0) 
                                         ->orWhereHas('dualProjectReports', function ($subQ) use ($value) {
                                             $subQ->where('qualification', 'like', "%{$value}%");
                                         });
@@ -185,7 +182,7 @@ class DualProjectController extends Controller
                             
                         case 'area':
                             $query->where(function ($q) use ($value) {
-                                $q->where('has_report', 0) // Proyectos sin reporte
+                                $q->where('has_report', 0)
                                     ->orWhereHas('dualProjectReports.dualArea', function ($subQ) use ($value) {
                                         $subQ->where('name', 'like', "%{$value}%");
                                     });
@@ -194,7 +191,7 @@ class DualProjectController extends Controller
                             
                         case 'certifications':
                             $query->where(function ($q) use ($value) {
-                                $q->where('has_report', 0) // Proyectos sin reporte
+                                $q->where('has_report', 0)
                                     ->orWhere(function ($subQ) use ($value) {
                                         $subQ->whereHas('dualProjectReports.certifications', function ($certQ) use ($value) {
                                             $certQ->where('name', 'like', "%{$value}%");
@@ -216,15 +213,12 @@ class DualProjectController extends Controller
         $query->orderBy('id', 'desc');
         $projects = $query->paginate($perPage, ['*'], 'page', $page);
 
-        // Transformar los datos para la respuesta CON MANEJO DE NULLS
         $transformedData = $projects->map(function ($project) {
             $institutionData = $project->institution;
-            
-            // CORRECCIÓN: Manejar organizationDualProjects que puede ser null
+
             $organizationDualProject = $project->organizationDualProjects ? $project->organizationDualProjects->first() : null;
             $organizationData = $organizationDualProject ? $organizationDualProject->organization : null;
-            
-            // Datos base comunes
+
             $data = [
                 'id' => $project->id,
                 'has_report' => $project->has_report,
@@ -251,7 +245,6 @@ class DualProjectController extends Controller
                     $diplomas->map(fn($d) => [...$d->toArray(), 'type' => 'Diploma'])->toArray()
                 );
 
-                // Datos de estudiantes
                 $studentNames = '';
                 $rawStudents = [];
                 
@@ -288,7 +281,6 @@ class DualProjectController extends Controller
                     'raw_students' => $rawStudents,
                 ]);
             } else {
-                // Datos para proyectos sin reporte
                 $data = array_merge($data, [
                     'project_name' => 'Por definir',
                     'area' => 'Por definir',
@@ -326,6 +318,52 @@ class DualProjectController extends Controller
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }
+
+public function getUnreportedDualProjects()
+    {
+        try {
+            $unReports = DualProject::with(['institution:id,name'])
+                ->where('has_report', 0)
+                ->get();
+
+            return response()->json($unReports, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return $this->handleException($e, 'Error al obtener proyectos no reportados');
+        }
+    }
+
+    public function getReportedDualProject()
+    {
+        try {
+            $reports = DualProject::with([
+                'institution:id,name,city,id_state',
+                'institution.state:id,name',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+                'dualProjectReports.dualArea:id,name',
+                'dualProjectReports.dualType:id,name',
+                'dualProjectReports.statusDocument:id,name',
+                'dualProjectReports.economicSupport:id,name',
+                'dualProjectReports.microCredentials:id,name,organization,description,image',
+                'organizationDualProjects:id,id_organization,id_dual_project',
+                'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
+                'organizationDualProjects.organization.type:id,name',
+                'organizationDualProjects.organization.sector:id,name',
+                'organizationDualProjects.organization.cluster:id,name',
+                'organizationDualProjects.organization.state:id,name',
+                'organizationDualProjects.organization.municipality:id,name',
+                'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
+                'dualProjectStudents.student.institution:id,name',
+                'dualProjectStudents.student.career:id,name',
+                'dualProjectStudents.student.specialty:id,name',
+                'dualProjectReports.certifications',
+                'dualProjectReports.diplomas',
+            ])->where('has_report', 1)->get();
+
+            return response()->json($reports, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return $this->handleException($e, 'Error al obtener proyectos reportados');
+        }
+    }
 
     public function getDualProjectById($id)
     {
