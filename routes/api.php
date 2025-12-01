@@ -258,6 +258,7 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('projects/dual-area', [DashboardController::class, 'countProjectsByArea']);
     Route::get('projects/dual-type', [DashboardController::class, 'countProjectsByDualType']);
     Route::get('projects/sectors', [DashboardController::class, 'countProjectsBySector']);
+    Route::get('projects/cluster/count', [DashboardController::class, 'countProjectsByCluster']);
     Route::get('dual-projects/percetange/institutions', [DashboardController::class, 'getInstitutionProjectPercentage']);
     Route::get('organizations/registered/count', [DashboardController::class, 'countRegisteredOrganizations']);
     Route::get('organizations/scope/count', [DashboardController::class, 'countOrganizationsByScope']);

@@ -222,7 +222,6 @@ class DashboardController extends Controller
 
     public function countOrganizationsByCluster()
     {
-        // Contar por clusters nacionales
         $nacionales = \App\Models\Cluster::select(
             'clusters.id',
             'clusters.name as cluster_name',
@@ -238,7 +237,6 @@ class DashboardController extends Controller
             ->orderBy('organization_count', 'desc')
             ->get();
 
-        // Contar por clusters locales
         $locales = \App\Models\Cluster::select(
             'clusters.id',
             'clusters.name as cluster_name',
@@ -252,6 +250,45 @@ class DashboardController extends Controller
             ->where('clusters.type', 'Local')
             ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
             ->orderBy('organization_count', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'nacionales' => $nacionales,
+                'locales' => $locales
+            ]
+        ], Response::HTTP_OK);
+    }
+
+    public function countProjectsByCluster()
+    {
+        $nacionales = \App\Models\Cluster::select(
+            'clusters.id',
+            'clusters.name as cluster_name',
+            'clusters.type',
+            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
+        )
+            ->leftJoin('organizations', 'clusters.id', '=', 'organizations.id_cluster')
+            ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
+            ->leftJoin('dual_projects', 'organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
+            ->where('clusters.type', 'Nacional')
+            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
+            ->orderBy('project_count', 'desc')
+            ->get();
+
+        $locales = \App\Models\Cluster::select(
+            'clusters.id',
+            'clusters.name as cluster_name',
+            'clusters.type',
+            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
+        )
+            ->leftJoin('organizations', 'clusters.id', '=', 'organizations.id_cluster_local')
+            ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
+            ->leftJoin('dual_projects', 'organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
+            ->where('clusters.type', 'Local')
+            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
+            ->orderBy('project_count', 'desc')
             ->get();
 
         return response()->json([
