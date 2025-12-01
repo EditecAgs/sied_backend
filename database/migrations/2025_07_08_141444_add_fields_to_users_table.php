@@ -10,9 +10,11 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('lastname')->after('name');
-            $table->unsignedBigInteger('id_institution')->after('remember_token');
+            $table->foreignUuid('id_institution')
+                ->after('remember_token')
+                ->constrained('institutions')
+                ->restrictOnDelete();
             $table->integer('type')->after('id_institution');
-            $table->foreign('id_institution')->references('id')->on('institutions')->onDelete('restrict');
         });
     }
 

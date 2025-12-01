@@ -9,15 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('control_number');
             $table->string('name');
             $table->string('lastname');
             $table->enum('gender', ['Masculino', 'Femenino', 'Otro']);
             $table->integer('semester');
-            $table->foreignId('id_institution')->constrained('institutions')->onDelete('restrict');
-            $table->foreignId('id_career')->constrained('careers')->onDelete('restrict');
-            $table->foreignId('id_specialty')->nullable()->constrained('specialties')->onDelete('restrict');
+            $table->foreignUuid('id_institution')->constrained('institutions')->restrictOnDelete();
+            $table->foreignUuid('id_career')->constrained('careers')->restrictOnDelete();
+            $table->foreignUuid('id_specialty')->nullable()->constrained('specialties')->restrictOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

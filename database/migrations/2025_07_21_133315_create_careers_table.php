@@ -9,9 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('careers', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
-            $table->foreignId('id_institution')->constrained('institutions')->onDelete('restrict');
+            $table->foreignUuid('id_institution')->constrained('institutions')->restrictOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

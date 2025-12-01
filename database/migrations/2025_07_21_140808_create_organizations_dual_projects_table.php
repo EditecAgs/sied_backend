@@ -9,9 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('organizations_dual_projects', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_organization')->constrained('organizations')->onDelete('restrict');
-            $table->foreignId('id_dual_project')->constrained('dual_projects')->onDelete('restrict');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('id_organization')->constrained('organizations')->restrictOnDelete();
+            $table->foreignUuid('id_dual_project')->constrained('dual_projects')->restrictOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });
