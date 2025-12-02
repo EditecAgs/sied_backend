@@ -9,6 +9,8 @@ use App\Models\EconomicSupport;
 use App\Models\Institution;
 use App\Models\Organization;
 use App\Models\Sector;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
@@ -261,8 +263,18 @@ class DashboardController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function countProjectsByCluster()
+    public function countProjectsByCluster(Request $request)
     {
+        $user = Auth::user();
+        $filtersAdd = $request->query('filtersAdd');
+            $userStateId = null;
+    if ($filtersAdd == 2 && $user && $user->id_institution) {
+
+        $userInstitution = $user->institution;
+        if ($userInstitution && $userInstitution->id_state) {
+            $userStateId = $userInstitution->id_state;
+        }
+    }
         $nacionales = \App\Models\Cluster::select(
             'clusters.id',
             'clusters.name as cluster_name',
@@ -273,6 +285,12 @@ class DashboardController extends Controller
             ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
             ->leftJoin('dual_projects', 'organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
             ->where('clusters.type', 'Nacional')
+            ->when($filtersAdd == 1 && $user && $user->id_institution, function($query) use ($user) {
+                $query->where('dual_projects.id_institution', $user->id_institution);
+        })
+                ->when($filtersAdd == 2 && $userStateId, function($query) use ($userStateId) {
+            $query->where('institutions.id_state', $userStateId);
+        })
             ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
             ->orderBy('project_count', 'desc')
             ->get();
