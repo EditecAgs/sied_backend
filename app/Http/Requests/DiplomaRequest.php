@@ -27,6 +27,7 @@ class DiplomaRequest extends FormRequest
             'description' => 'nullable|string',
             'image' => 'nullable|string',
             'type' => 'required|in:academic,no_academic',
+            'hours' => 'nullable|integer|min:0',
         ];
     }
 }

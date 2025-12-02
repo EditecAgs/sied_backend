@@ -29,7 +29,7 @@ class BitacoraAccesoController extends Controller
         }
 
 
-        $perPage = $request->get('per_page', 100);
+        $perPage = $request->get('per_page', 10);
         $bitacoras = $query->paginate($perPage);
 
         return response()->json($bitacoras, Response::HTTP_OK);

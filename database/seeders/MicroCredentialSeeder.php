@@ -19,6 +19,7 @@ class MicroCredentialSeeder extends Seeder
                 'organization' => 'Cisco Networking Academy',
                 'description' => 'Microcredencial enfocada en conceptos básicos de redes, topologías y protocolos.',
                 'type' => 'academic',
+                'hours' => 10,
             ]
         );
 
@@ -29,6 +30,7 @@ class MicroCredentialSeeder extends Seeder
                 'organization' => 'CompTIA',
                 'description' => 'Curso corto sobre amenazas, malware, análisis de riesgos y buenas prácticas.',
                 'type' => 'academic',
+                'hours' => 8,
             ]
         );
 
@@ -39,6 +41,7 @@ class MicroCredentialSeeder extends Seeder
                 'organization' => 'Microsoft Learn',
                 'description' => 'Microcredencial sobre gestión de usuarios, permisos y servicios esenciales.',
                 'type' => 'academic',
+                'hours' => 12,
             ]
         );
 
@@ -49,6 +52,7 @@ class MicroCredentialSeeder extends Seeder
                 'organization' => 'AWS Academy',
                 'description' => 'Competencia introductoria sobre IoT, sus componentes y aplicaciones.',
                 'type' => 'no_academic',
+                'hours' => 6,
             ]
         );
 
@@ -59,6 +63,7 @@ class MicroCredentialSeeder extends Seeder
                 'organization' => 'Google',
                 'description' => 'Microcredencial para identificar fraudes, phishing y aplicar prácticas seguras.',
                 'type' => 'no_academic',
+                'hours' => 4,
             ]
         );
 
@@ -69,6 +74,7 @@ class MicroCredentialSeeder extends Seeder
                 'organization' => 'AWS Academy',
                 'description' => 'Curso breve sobre servicios cloud, modelos de servicio y buenas prácticas.',
                 'type' => 'academic',
+                'hours' => 9,
             ]
         );
 
@@ -79,6 +85,7 @@ class MicroCredentialSeeder extends Seeder
                 'organization' => 'Microsoft',
                 'description' => 'Microcredencial orientada al aprendizaje de lógica, algoritmos y descomposición de problemas.',
                 'type' => 'academic',
+                'hours' => 7,
             ]
         );
     }

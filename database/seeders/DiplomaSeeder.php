@@ -18,6 +18,7 @@ class DiplomaSeeder extends Seeder
                 'description' => 'Diplomado integral que cubre tanto el frontend como el backend del desarrollo web.',
                 'type' => 'academic',
                 'image' => null,
+                'hours' => 40,
             ]
         );
 
@@ -29,6 +30,7 @@ class DiplomaSeeder extends Seeder
                 'description' => 'Programa avanzado que abarca análisis de datos, estadística y algoritmos de machine learning.',
                 'type' => 'academic',
                 'image' => null,
+                'hours' => 50,
             ]
         );
 
@@ -40,6 +42,7 @@ class DiplomaSeeder extends Seeder
                 'description' => 'Diplomado enfocado en metodologías ágiles como Scrum y Kanban para la gestión de proyectos.',
                 'type' => 'no_academic',
                 'image' => null,
+                'hours' => 30,
             ]
         );
     }

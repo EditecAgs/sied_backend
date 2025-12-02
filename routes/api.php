@@ -242,10 +242,13 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::delete('students/{id}', [StudentController::class, 'deleteStudent']);
     Route::patch('students/{id}/restore', [StudentController::class, 'restoreStudent']);
 
+    Route::get('dual-projects/all', [DualProjectController::class, 'getAllDualProjects'])
+        ->name('dual-projects-all');
     Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects'])
         ->name('dual-projects-unreported');
     Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject'])
         ->name('dual-projects-reported');
+
     Route::get('dual-projects/{id}', [DualProjectController::class, 'getDualProjectById']);
     Route::post('dual-projects', [DualProjectController::class, 'createDualProject'])
         ->name('dual-projects-create');
@@ -258,6 +261,7 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('projects/dual-area', [DashboardController::class, 'countProjectsByArea']);
     Route::get('projects/dual-type', [DashboardController::class, 'countProjectsByDualType']);
     Route::get('projects/sectors', [DashboardController::class, 'countProjectsBySector']);
+    Route::get('projects/cluster/count', [DashboardController::class, 'countProjectsByCluster']);
     Route::get('dual-projects/percetange/institutions', [DashboardController::class, 'getInstitutionProjectPercentage']);
     Route::get('organizations/registered/count', [DashboardController::class, 'countRegisteredOrganizations']);
     Route::get('organizations/scope/count', [DashboardController::class, 'countOrganizationsByScope']);

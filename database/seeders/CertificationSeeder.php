@@ -17,6 +17,7 @@ class CertificationSeeder extends Seeder
                 'organization' => 'freeCodeCamp',
                 'description' => 'Certificación que cubre los conceptos básicos de programación y desarrollo web.',
                 'type' => 'academic',
+                'hours' => 15,
             ]
         );
 
@@ -27,6 +28,7 @@ class CertificationSeeder extends Seeder
                 'organization' => 'Google Digital Garage',
                 'description' => 'Programa que abarca estrategias y herramientas clave para el marketing digital efectivo.',
                 'type' => 'no_academic',
+                'hours' => 20,
             ]
         );
 
@@ -37,6 +39,7 @@ class CertificationSeeder extends Seeder
                 'organization' => 'Cybrary',
                 'description' => 'Certificación enfocada en prácticas y principios de seguridad informática.',
                 'type' => 'academic',
+                'hours' => 18,
             ]
         );
     }

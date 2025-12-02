@@ -22,6 +22,7 @@ class Certification extends Model
         'description',
         'image',
         'type',
+        'hours',
     ];
 
     public function dualProjectReportCertifications()
@@ -42,7 +43,7 @@ class Certification extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'organization', 'description', 'image'])
+            ->logOnly(['name', 'organization', 'description', 'image', 'hours'])
             ->logOnlyDirty()
             ->useLogName('certification');
     }
