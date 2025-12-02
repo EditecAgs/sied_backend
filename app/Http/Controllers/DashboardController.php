@@ -84,17 +84,31 @@ class DashboardController extends Controller
             }
         }
 
-        $organization = Organization::when($filtersAdd == 1 && $user && $user->id_institution, function($query) use ($user) {
-            $query->whereHas('dualProjects', function($q) use ($user) {
-                $q->where('dual_projects.id_institution', $user->id_institution);
+        $query = Organization::query();
+
+        if ($filtersAdd == 1 && $user && $user->id_institution) {
+            $query->whereExists(function ($subQuery) use ($user) {
+                $subQuery->select(DB::raw(1))
+                    ->from('organizations_dual_projects')
+                    ->join('dual_projects', 'organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
+                    ->whereColumn('organizations_dual_projects.id_organization', 'organizations.id')
+                    ->where('dual_projects.has_report', 1)
+                    ->where('dual_projects.id_institution', $user->id_institution);
             });
-        })
-            ->when($filtersAdd == 2 && $userStateId, function($query) use ($userStateId) {
-                $query->whereHas('dualProjects.institution', function($q) use ($userStateId) {
-                    $q->where('id_state', $userStateId);
-                });
-            })
-            ->count();
+        } elseif ($filtersAdd == 2 && $userStateId) {
+            $query->whereExists(function ($subQuery) use ($userStateId) {
+                $subQuery->select(DB::raw(1))
+                    ->from('organizations_dual_projects')
+                    ->join('dual_projects', 'organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
+                    ->join('institutions', 'dual_projects.id_institution', '=', 'institutions.id')
+                    ->whereColumn('organizations_dual_projects.id_organization', 'organizations.id')
+                    ->where('dual_projects.has_report', 1)
+                    ->where('institutions.id_state', $userStateId);
+            });
+        } elseif ($filtersAdd == 0) {
+        }
+
+        $organization = $query->count();
 
         return response()->json(['count' => $organization], Response::HTTP_OK);
     }
@@ -112,15 +126,26 @@ class DashboardController extends Controller
             }
         }
 
-        $counts = Organization::select('scope', DB::raw('COUNT(*) as total'))
+        $counts = Organization::select('scope', DB::raw('COUNT(DISTINCT organizations.id) as total'))
             ->when($filtersAdd == 1 && $user && $user->id_institution, function($query) use ($user) {
-                $query->whereHas('dualProjects', function($q) use ($user) {
-                    $q->where('dual_projects.id_institution', $user->id_institution);
+                $query->whereExists(function ($subQuery) use ($user) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('organizations_dual_projects')
+                        ->join('dual_projects', 'organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
+                        ->whereColumn('organizations_dual_projects.id_organization', 'organizations.id')
+                        ->where('dual_projects.has_report', 1)
+                        ->where('dual_projects.id_institution', $user->id_institution);
                 });
             })
             ->when($filtersAdd == 2 && $userStateId, function($query) use ($userStateId) {
-                $query->whereHas('dualProjects.institution', function($q) use ($userStateId) {
-                    $q->where('id_state', $userStateId);
+                $query->whereExists(function ($subQuery) use ($userStateId) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('organizations_dual_projects')
+                        ->join('dual_projects', 'organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
+                        ->join('institutions', 'dual_projects.id_institution', '=', 'institutions.id')
+                        ->whereColumn('organizations_dual_projects.id_organization', 'organizations.id')
+                        ->where('dual_projects.has_report', 1)
+                        ->where('institutions.id_state', $userStateId);
                 });
             })
             ->groupBy('scope')
@@ -131,6 +156,7 @@ class DashboardController extends Controller
             'data' => $counts,
         ], Response::HTTP_OK);
     }
+
 
     public function countProjectsByMonth(Request $request)
     {
@@ -488,54 +514,64 @@ class DashboardController extends Controller
             }
         }
 
+        // Para nacionales: Usar subquery para el conteo de organizaciones con proyectos
         $nacionales = \App\Models\Cluster::select(
             'clusters.id',
             'clusters.name as cluster_name',
             'clusters.type',
-            DB::raw('COUNT(organizations.id) as organization_count')
+            DB::raw('COALESCE(org_counts.organization_count, 0) as organization_count')
         )
-            ->leftJoin('organizations', function($join) use ($filtersAdd, $user, $userStateId) {
-                $join->on('clusters.id', '=', 'organizations.id_cluster')
-                    ->where('clusters.type', 'Nacional');
-
-                if ($filtersAdd == 1 && $user && $user->id_institution) {
-                    $join->whereHas('dualProjects', function($q) use ($user) {
-                        $q->where('dual_projects.id_institution', $user->id_institution);
-                    });
-                } elseif ($filtersAdd == 2 && $userStateId) {
-                    $join->whereHas('dualProjects.institution', function($q) use ($userStateId) {
-                        $q->where('id_state', $userStateId);
-                    });
-                }
-            })
+            ->leftJoin(DB::raw('(
+            SELECT
+                organizations.id_cluster,
+                COUNT(DISTINCT organizations.id) as organization_count
+            FROM organizations
+            WHERE EXISTS (
+                SELECT 1
+                FROM organizations_dual_projects odp
+                INNER JOIN dual_projects dp ON odp.id_dual_project = dp.id
+                ' . ($filtersAdd == 1 && $user && $user->id_institution ?
+                    ' AND dp.id_institution = ' . $user->id_institution : '') . '
+                ' . ($filtersAdd == 2 && $userStateId ?
+                    ' INNER JOIN institutions inst ON dp.id_institution = inst.id
+                      AND inst.id_state = ' . $userStateId : '') . '
+                WHERE odp.id_organization = organizations.id
+                AND dp.has_report = 1
+            )
+            GROUP BY organizations.id_cluster
+        ) as org_counts'), 'clusters.id', '=', 'org_counts.id_cluster')
             ->where('clusters.type', 'Nacional')
-            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
-            ->orderBy('organization_count', 'desc')
+            ->orderByDesc('organization_count')
             ->get();
 
+        // Para locales: Usar subquery para el conteo de organizaciones con proyectos
         $locales = \App\Models\Cluster::select(
             'clusters.id',
             'clusters.name as cluster_name',
             'clusters.type',
-            DB::raw('COUNT(organizations.id) as organization_count')
+            DB::raw('COALESCE(org_counts.organization_count, 0) as organization_count')
         )
-            ->leftJoin('organizations', function($join) use ($filtersAdd, $user, $userStateId) {
-                $join->on('clusters.id', '=', 'organizations.id_cluster_local')
-                    ->where('clusters.type', 'Local');
-
-                if ($filtersAdd == 1 && $user && $user->id_institution) {
-                    $join->whereHas('dualProjects', function($q) use ($user) {
-                        $q->where('dual_projects.id_institution', $user->id_institution);
-                    });
-                } elseif ($filtersAdd == 2 && $userStateId) {
-                    $join->whereHas('dualProjects.institution', function($q) use ($userStateId) {
-                        $q->where('id_state', $userStateId);
-                    });
-                }
-            })
+            ->leftJoin(DB::raw('(
+            SELECT
+                organizations.id_cluster_local,
+                COUNT(DISTINCT organizations.id) as organization_count
+            FROM organizations
+            WHERE EXISTS (
+                SELECT 1
+                FROM organizations_dual_projects odp
+                INNER JOIN dual_projects dp ON odp.id_dual_project = dp.id
+                ' . ($filtersAdd == 1 && $user && $user->id_institution ?
+                    ' AND dp.id_institution = ' . $user->id_institution : '') . '
+                ' . ($filtersAdd == 2 && $userStateId ?
+                    ' INNER JOIN institutions inst ON dp.id_institution = inst.id
+                      AND inst.id_state = ' . $userStateId : '') . '
+                WHERE odp.id_organization = organizations.id
+                AND dp.has_report = 1
+            )
+            GROUP BY organizations.id_cluster_local
+        ) as org_counts'), 'clusters.id', '=', 'org_counts.id_cluster_local')
             ->where('clusters.type', 'Local')
-            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
-            ->orderBy('organization_count', 'desc')
+            ->orderByDesc('organization_count')
             ->get();
 
         return response()->json([
