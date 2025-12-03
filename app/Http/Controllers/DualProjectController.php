@@ -502,35 +502,47 @@ public function getUnreportedDualProjects()
         }
     }
 
-    public function deleteDualProject($id)
-    {
-        DB::beginTransaction();
+public function deleteDualProject($id)
+{
+    DB::beginTransaction();
 
-        try {
-            $dualProject = DualProject::findOrFail($id);
+    try {
+        $dualProject = DualProject::with([
+            'dualProjectReports.microCredentials',
+            'dualProjectReports.certifications',
+            'dualProjectReports.diplomas',
+            'dualProjectStudents',
+            'organizationDualProjects'
+        ])->findOrFail($id);
 
-            if ($dualProject->has_report == 1) {
-                $dualProject->dualProjectStudents()->delete();
-                $dualProject->organizationDualProjects()->delete();
+        collect($dualProject->dualProjectStudents)->each(fn($student) => $student->delete());
 
-                foreach ($dualProject->dualProjectReports as $report) {
-                    $report->microCredentials()->detach();
-                    $report->certifications()->detach();
-                    $report->diplomas()->detach();
-                    $report->delete();
-                }
-            }
+        collect($dualProject->organizationDualProjects)->each(fn($org) => $org->delete());
 
-            $dualProject->delete();
-            DB::commit();
+        collect($dualProject->dualProjectReports)->each(function($report) {
+            $report->microCredentials()->detach();
+            $report->certifications()->detach();
+            $report->diplomas()->detach();
+            $report->delete();
+        });
 
-            return response()->json(['message' => 'Proyecto eliminado correctamente'], Response::HTTP_OK);
-        } catch (Exception $e) {
-            DB::rollBack();
+        $dualProject->delete();
 
-            return $this->handleException($e, 'Error al eliminar proyecto');
-        }
+        DB::commit();
+
+        return response()->json(['message' => 'Proyecto eliminado correctamente'], 200);
+
+    } catch (Exception $e) {
+        DB::rollBack();
+
+
+        return response()->json([
+            'message' => 'Error al eliminar proyecto',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     protected function handleException(Exception $e, $message = 'Error interno')
     {
