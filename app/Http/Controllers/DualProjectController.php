@@ -103,6 +103,7 @@ class DualProjectController extends Controller
             $query->orderBy('id', 'desc');
             $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
+            // Cargar relaciones con todas las columnas existentes
             $paginator->load([
                 'institution:id,name,city,id_state',
                 'institution.state:id,name',
@@ -111,9 +112,10 @@ class DualProjectController extends Controller
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
                 'dualProjectReports.economicSupport:id,name',
-                'dualProjectReports.microCredentials:id,name,organization,description,image',
-                'dualProjectReports.certifications',
-                'dualProjectReports.diplomas',
+                // Cargar todas las columnas de cada tabla
+                'dualProjectReports.microCredentials:id,name,organization,description,image,type,hours',
+                'dualProjectReports.certifications:id,name,organization,description,image,type,hours',
+                'dualProjectReports.diplomas:id,name,organization,description,image,type,hours',
                 'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
                 'dualProjectStudents.student.institution:id,name',
                 'dualProjectStudents.student.career:id,name',
@@ -142,6 +144,7 @@ class DualProjectController extends Controller
                     $organizationData = $orgRelation->organization;
                 }
 
+                // Datos base para todos los proyectos
                 $data = [
                     'id' => $project->id,
                     'has_report' => $project->has_report,
@@ -156,19 +159,56 @@ class DualProjectController extends Controller
                     'organization_type' => $organizationData->type->name ?? 'Por definir',
                 ];
 
+                // Si tiene reporte, agregar información adicional
                 if ($project->has_report && $project->dualProjectReports) {
                     $reportData = $project->dualProjectReports;
 
+                    // Obtener certificaciones
                     $certifications = $reportData->certifications ?? collect();
-                    $microCredentials = $reportData->micro_credentials ?? collect();
+                    $formattedCertifications = $certifications->map(function ($cert) {
+                        return [
+                            'id' => $cert->id,
+                            'name' => $cert->name ?? 'Sin nombre',
+                            'type' => 'Certificación',
+                            'organization' => $cert->organization ?? 'Sin organización',
+                            'description' => $cert->description ?? '',
+                            'image' => $cert->image ?? null,
+                            'credential_type' => $cert->type ?? 'Certificación',
+                            'hours' => $cert->hours ?? 0,
+                        ];
+                    })->toArray();
+
+                    // Obtener microcredenciales
+                    $microCredentials = $reportData->microCredentials ?? collect();
+                    $formattedMicroCredentials = $microCredentials->map(function ($micro) {
+                        return [
+                            'id' => $micro->id,
+                            'name' => $micro->name ?? 'Sin nombre',
+                            'type' => 'Microcredencial',
+                            'organization' => $micro->organization ?? 'Sin organización',
+                            'description' => $micro->description ?? '',
+                            'image' => $micro->image ?? null,
+                            'credential_type' => $micro->type ?? 'Microcredencial',
+                            'hours' => $micro->hours ?? 0,
+                        ];
+                    })->toArray();
+
+                    // Obtener diplomas/certificados
                     $diplomas = $reportData->diplomas ?? collect();
+                    $formattedCertificates = $diplomas->map(function ($diploma) {
+                        return [
+                            'id' => $diploma->id,
+                            'name' => $diploma->name ?? 'Sin nombre',
+                            'type' => 'Diploma',
+                            'organization' => $diploma->organization ?? 'Sin organización',
+                            'description' => $diploma->description ?? '',
+                            'image' => $diploma->image ?? null,
+                            'credential_type' => $diploma->type ?? 'Diploma',
+                            'hours' => $diploma->hours ?? 0,
+                        ];
+                    })->toArray();
 
-                    $allCredentials = array_merge(
-                        $certifications->map(fn($c) => [...$c->toArray(), 'type' => 'Certificación'])->toArray(),
-                        $microCredentials->map(fn($m) => [...$m->toArray(), 'type' => 'Microcredencial'])->toArray(),
-                        $diplomas->map(fn($d) => [...$d->toArray(), 'type' => 'Diploma'])->toArray()
-                    );
-
+                    // Obtener información de estudiantes
                     $studentNames = '';
                     $rawStudents = [];
 
@@ -192,6 +232,7 @@ class DualProjectController extends Controller
                         })->toArray();
                     }
 
+                    // Agregar datos del reporte
                     $data = array_merge($data, [
                         'project_name' => $reportData->name ?? 'Por definir',
                         'area' => $reportData->dualArea->name ?? 'Por definir',
@@ -199,12 +240,15 @@ class DualProjectController extends Controller
                         'agreement' => $reportData->statusDocument->name ?? 'Por definir',
                         'project_status' => $reportData->is_concluded == 1 ? 'Concluido' : 'En progreso',
                         'grade' => $reportData->qualification ?? 'N/A',
-                        'certifications' => $allCredentials,
+                        'certifications' => $formattedCertifications,
+                        'microcredentials' => $formattedMicroCredentials,
+                        'certificates' => $formattedCertificates,
                         'status_document' => $reportData->statusDocument->name ?? 'Por definir',
                         'student_name' => $studentNames,
                         'raw_students' => $rawStudents,
                     ]);
                 } else {
+                    // Si no tiene reporte, valores por defecto
                     $data = array_merge($data, [
                         'project_name' => 'Por definir',
                         'area' => 'Por definir',
@@ -213,6 +257,8 @@ class DualProjectController extends Controller
                         'project_status' => 'Por definir',
                         'grade' => 'N/A',
                         'certifications' => [],
+                        'microcredentials' => [],
+                        'certificates' => [],
                         'status_document' => 'Por definir',
                         'student_name' => '',
                         'raw_students' => [],
@@ -222,15 +268,53 @@ class DualProjectController extends Controller
                 return $data;
             });
 
+            // Aplicar filtros del frontend en memoria
+            $filteredData = collect($transformedData);
+
+            if (!empty($filters)) {
+                foreach ($filters as $field => $value) {
+                    if (!empty($value) && in_array($field, [
+                            'project_name', 'agreement', 'project_status', 'grade',
+                            'education_type', 'area', 'certifications', 'microcredentials', 'certificates'
+                        ])) {
+                        $filterValueStr = strtolower(trim($value));
+                        $filteredData = $filteredData->filter(function ($project) use ($field, $filterValueStr) {
+                            $projectValue = $project[$field] ?? '';
+
+                            if (is_array($projectValue)) {
+                                // Para arrays (certificaciones, microcredenciales, certificados)
+                                // Buscar en los nombres de los elementos del array
+                                foreach ($projectValue as $item) {
+                                    $itemName = strtolower($item['name'] ?? '');
+                                    if (str_contains($itemName, $filterValueStr)) {
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            } else {
+                                // Para valores simples
+                                $projectValueStr = strtolower((string)$projectValue);
+                                return str_contains($projectValueStr, $filterValueStr);
+                            }
+                        });
+                    }
+                }
+            }
+
+            // Recalcular paginación
+            $total = $filteredData->count();
+            $offset = ($page - 1) * $perPage;
+            $paginatedData = $filteredData->slice($offset, $perPage)->values();
+
             return response()->json([
-                'data' => $transformedData,
+                'data' => $paginatedData,
                 'meta' => [
-                    'current_page' => $paginator->currentPage(),
-                    'last_page' => $paginator->lastPage(),
-                    'per_page' => $paginator->perPage(),
-                    'total' => $paginator->total(),
-                    'from' => $paginator->firstItem(),
-                    'to' => $paginator->lastItem(),
+                    'current_page' => (int)$page,
+                    'last_page' => $perPage > 0 ? ceil($total / $perPage) : 1,
+                    'per_page' => (int)$perPage,
+                    'total' => $total,
+                    'from' => $total > 0 ? $offset + 1 : 0,
+                    'to' => min($offset + $perPage, $total),
                 ]
             ], Response::HTTP_OK);
 
