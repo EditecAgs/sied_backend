@@ -45,7 +45,7 @@ class OrganizationSeeder extends Seeder
                 'postal_code' => '12345',
                 'id_state' => 1,
                 'id_municipality' => 1,
-                'scope' => 'Nacional',
+                'scope' => 'Federal',
             ],
         );
         Organization::updateOrCreate(
