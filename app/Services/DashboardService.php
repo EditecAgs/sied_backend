@@ -57,7 +57,6 @@ class DashboardService
         return $q->count();
     }
 
-
     public function countRegisteredStudents($idState = null, $idInstitution = null)
     {
         $q = Student::query();
@@ -136,309 +135,454 @@ class DashboardService
 
     public function countProjectsByArea($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
     {
-        $query = DualArea::query();
+        // Obtener todas las áreas primero
+        $areas = DualArea::all();
 
-        $query->whereHas('dualProjectReports.dualProject', function ($q) use ($idInstitution, $idState) {
-            $q->where('has_report', 1);
-            if (!empty($idInstitution)) {
-                $q->where('id_institution', $idInstitution);
-            }
-            if (!empty($idState)) {
-                $q->whereHas('institution', function ($qq) use ($idState) {
-                    $qq->where('id_state', $idState);
-                });
-            }
-        });
-
-        $results = $query->leftJoin('dual_project_reports', 'dual_areas.id', '=', 'dual_project_reports.id_dual_area')
-            ->leftJoin('dual_projects', function ($join) {
-                $join->on('dual_projects.id', '=', 'dual_project_reports.dual_project_id')
-                    ->where('dual_projects.has_report', 1);
-            })
-            ->select(
-                'dual_areas.id',
-                'dual_areas.name as area_name',
-                DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
-            )
-            ->groupBy('dual_areas.id', 'dual_areas.name')
-            ->orderByDesc('project_count')
-            ->paginate($perPage, ['*'], 'page', $page);
-
-        return [
-            'data' => $results->items(),
-            'pagination' => [
-                'total' => $results->total(),
-                'per_page' => $results->perPage(),
-                'current_page' => $results->currentPage(),
-                'last_page' => $results->lastPage()
-            ]
-        ];
-    }
-
-    public function countProjectsBySector($idState = null, $idInstitution = null, $perPage = 11, $page = 1)
-    {
-        $totalProjectsQ = DualProject::where('has_report', 1);
-        if (!empty($idInstitution)) {
-            $totalProjectsQ->where('id_institution', $idInstitution);
-        }
-        if (!empty($idState)) {
-            $totalProjectsQ->whereHas('institution', function ($qq) use ($idState) {
-                $qq->where('id_state', $idState);
-            });
-        }
-        $totalProjects = $totalProjectsQ->count();
-
-        $query = Sector::query()
-            ->where('plan_mexico', 1)
-            ->withCount(['organizations as project_count' => function ($q) use ($idState, $idInstitution) {
-                $q->whereHas('organizationDualProjects.dualProject', function ($qp) use ($idState, $idInstitution) {
-                    $qp->where('has_report', 1);
-
-                    if (!empty($idInstitution)) {
-                        $qp->where('id_institution', $idInstitution);
-                    }
-
-                    if (!empty($idState)) {
-                        $qp->whereHas('institution', function ($qi) use ($idState) {
-                            $qi->where('id_state', $idState);
-                        });
-                    }
-                });
-            }]);
-
-        $results = $query->orderByDesc('project_count')->paginate($perPage, ['*'], 'page', $page);
-
-
-        $collection = $results->getCollection()->map(function ($sector) use ($totalProjects) {
-            $sector->percentage = $totalProjects > 0 ? round(($sector->project_count * 100) / $totalProjects, 2) : 0;
-            return $sector;
-        })->values();
-
-        return [
-            'data' => $collection->toArray(),
-            'pagination' => [
-                'total' => $results->total(),
-                'per_page' => $results->perPage(),
-                'current_page' => $results->currentPage(),
-                'last_page' => $results->lastPage()
-            ]
-        ];
-    }
-
-
-    public function countProjectsBySectorPlanMexico($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
-    {
-        $totalProjects = DualProject::where('has_report', 1)->count();
-
-        $query = Sector::query()
-            ->select(
-                'sectors.id',
-                'sectors.name as sector_name',
-                'sectors.plan_mexico',
-                DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'),
-                DB::raw('CASE WHEN ' . $totalProjects . ' > 0 THEN ROUND(COUNT(DISTINCT dual_projects.id) * 100.0 / ' . $totalProjects . ', 2) ELSE 0 END as percentage')
-            )
-            ->leftJoin('organizations', 'sectors.id', '=', 'organizations.id_sector')
-            ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
-            ->leftJoin('dual_projects', function ($join) {
-                $join->on('dual_projects.id', '=', 'organizations_dual_projects.id_dual_project')
-                    ->where('dual_projects.has_report', 1);
-            });
-
-        if (!empty($idState)) {
-            $query->where('organizations.id_state', $idState);
-        }
+        // Construir consulta para contar proyectos con filtros
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
 
         if (!empty($idInstitution)) {
-            $query->where('dual_projects.id_institution', $idInstitution);
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
         }
 
-        $results = $query->where('sectors.plan_mexico', 1)
-            ->groupBy('sectors.id', 'sectors.name', 'sectors.plan_mexico')
-            ->orderByDesc('project_count')
-            ->paginate($perPage, ['*'], 'page', $page);
+        if (!empty($idState)) {
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
+        }
+
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
+
+        // Para cada área, contar proyectos filtrados
+        $results = $areas->map(function ($area) use ($filteredProjectIds) {
+            $projectCount = DB::table('dual_project_reports')
+                ->where('id_dual_area', $area->id)
+                ->whereIn('dual_project_id', $filteredProjectIds)
+                ->count(DB::raw('DISTINCT dual_project_id'));
+
+            return [
+                'id' => $area->id,
+                'area_name' => $area->name,
+                'project_count' => $projectCount
+            ];
+        })->sortByDesc('project_count')->values();
+
+        // Paginación manual
+        $total = $results->count();
+        $perPage = $perPage ?: 10;
+        $currentPage = $page ?: 1;
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedResults = $results->slice($offset, $perPage)->values();
 
         return [
-            'data' => $results->items(),
+            'data' => $paginatedResults->toArray(),
             'pagination' => [
-                'total' => $results->total(),
-                'per_page' => $results->perPage(),
-                'current_page' => $results->currentPage(),
-                'last_page' => $results->lastPage()
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $currentPage,
+                'last_page' => ceil($total / $perPage)
             ]
         ];
     }
 
+    public function countProjectsBySector($idState = null, $idInstitution = null, $perPage = 30, $page = 1)
+    {
+        // Obtener todos los sectores
+        $sectors = Sector::all();
+
+        // Construir consulta para contar proyectos con filtros
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
+
+        if (!empty($idInstitution)) {
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
+        }
+
+        if (!empty($idState)) {
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
+        }
+
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
+
+        // Total de proyectos filtrados para calcular porcentajes
+        $totalFilteredProjects = count($filteredProjectIds);
+
+        // Para cada sector, contar proyectos filtrados
+        $results = $sectors->map(function ($sector) use ($filteredProjectIds, $totalFilteredProjects) {
+            $projectCount = DB::table('organizations')
+                ->join('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
+                ->where('organizations.id_sector', $sector->id)
+                ->whereIn('organizations_dual_projects.id_dual_project', $filteredProjectIds)
+                ->count(DB::raw('DISTINCT organizations_dual_projects.id_dual_project'));
+
+            $percentage = $totalFilteredProjects > 0 ? round(($projectCount * 100) / $totalFilteredProjects, 2) : 0;
+
+            return [
+                'id' => $sector->id,
+                'name' => $sector->name,
+                'sector_name' => $sector->name,
+                'project_count' => $projectCount,
+                'percentage' => $percentage
+            ];
+        })->sortByDesc('project_count')->values();
+
+        // Paginación manual
+        $total = $results->count();
+        $perPage = $perPage ?: 30;
+        $currentPage = $page ?: 1;
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedResults = $results->slice($offset, $perPage)->values();
+
+        return [
+            'data' => $paginatedResults->toArray(),
+            'pagination' => [
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $currentPage,
+                'last_page' => ceil($total / $perPage)
+            ]
+        ];
+    }
+
+    public function countProjectsBySectorPlanMexico($idState = null, $idInstitution = null, $perPage = 11, $page = 1)
+    {
+        // Obtener todos los sectores con plan_mexico = 1
+        $sectors = Sector::where('plan_mexico', 1)->get();
+
+        // Construir consulta para contar proyectos con filtros
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
+
+        if (!empty($idInstitution)) {
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
+        }
+
+        if (!empty($idState)) {
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
+        }
+
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
+
+        // Total de proyectos filtrados para calcular porcentajes
+        $totalFilteredProjects = count($filteredProjectIds);
+
+        // Para cada sector, contar proyectos filtrados
+        $results = $sectors->map(function ($sector) use ($filteredProjectIds, $totalFilteredProjects) {
+            $projectCount = DB::table('organizations')
+                ->join('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
+                ->where('organizations.id_sector', $sector->id)
+                ->whereIn('organizations_dual_projects.id_dual_project', $filteredProjectIds)
+                ->count(DB::raw('DISTINCT organizations_dual_projects.id_dual_project'));
+
+            $percentage = $totalFilteredProjects > 0 ? round(($projectCount * 100) / $totalFilteredProjects, 2) : 0;
+
+            return [
+                'id' => $sector->id,
+                'sector_name' => $sector->name,
+                'plan_mexico' => $sector->plan_mexico,
+                'project_count' => $projectCount,
+                'percentage' => $percentage
+            ];
+        })->sortByDesc('project_count')->values();
+
+        // Paginación manual
+        $total = $results->count();
+        $perPage = $perPage ?: 11;
+        $currentPage = $page ?: 1;
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedResults = $results->slice($offset, $perPage)->values();
+
+        return [
+            'data' => $paginatedResults->toArray(),
+            'pagination' => [
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $currentPage,
+                'last_page' => ceil($total / $perPage)
+            ]
+        ];
+    }
 
     public function countProjectsByEconomicSupport($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
     {
-        $query = EconomicSupport::query()
-            ->leftJoin('dual_project_reports', 'economic_supports.id', '=', 'dual_project_reports.economic_support')
-            ->leftJoin('dual_projects', 'dual_projects.id', '=', 'dual_project_reports.dual_project_id')
-            ->leftJoin('institutions', 'institutions.id', '=', 'dual_projects.id_institution');
+        // Obtener todos los apoyos económicos
+        $economicSupports = EconomicSupport::all();
+
+        // Construir consulta para contar proyectos con filtros
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
 
         if (!empty($idInstitution)) {
-            $query->where('institutions.id', $idInstitution);
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
         }
 
         if (!empty($idState)) {
-            $query->where('institutions.id_state', $idState);
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
         }
 
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
 
-        $results = $query->select(
-            'economic_supports.id',
-            'economic_supports.name as support_name',
-            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'),
-            DB::raw('CASE WHEN ' . $totalProjects . ' > 0 THEN ROUND(COUNT(DISTINCT dual_projects.id) * 100.0 / ' . $totalProjects . ', 2) ELSE 0 END as percentage')
-        )
-            ->where('dual_projects.has_report', 1)
-            ->groupBy('economic_supports.id', 'economic_supports.name')
-            ->orderByDesc('project_count')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Total de proyectos filtrados para calcular porcentajes
+        $totalFilteredProjects = count($filteredProjectIds);
+
+        // Para cada apoyo económico, contar proyectos filtrados
+        $results = $economicSupports->map(function ($support) use ($filteredProjectIds, $totalFilteredProjects) {
+            $projectCount = DB::table('dual_project_reports')
+                ->where('economic_support', $support->id)
+                ->whereIn('dual_project_id', $filteredProjectIds)
+                ->count(DB::raw('DISTINCT dual_project_id'));
+
+            $percentage = $totalFilteredProjects > 0 ? round(($projectCount * 100) / $totalFilteredProjects, 2) : 0;
+
+            return [
+                'id' => $support->id,
+                'support_name' => $support->name,
+                'project_count' => $projectCount,
+                'percentage' => $percentage
+            ];
+        })->sortByDesc('project_count')->values();
+
+        // Asegurarse de que se muestren todos, incluso con 0 proyectos
+        // (ya lo hace por cómo está estructurado el código)
+
+        // Paginación manual
+        $total = $results->count();
+        $perPage = $perPage ?: 10;
+        $currentPage = $page ?: 1;
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedResults = $results->slice($offset, $perPage)->values();
 
         return [
-            'data' => $results->items(),
+            'data' => $paginatedResults->toArray(),
             'pagination' => [
-                'total' => $results->total(),
-                'per_page' => $results->perPage(),
-                'current_page' => $results->currentPage(),
-                'last_page' => $results->lastPage()
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $currentPage,
+                'last_page' => ceil($total / $perPage)
             ]
         ];
     }
-
 
     public function averageAmountByEconomicSupport($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
     {
-        $query = EconomicSupport::query()
-            ->leftJoin('dual_project_reports', 'economic_supports.id', '=', 'dual_project_reports.economic_support')
-            ->leftJoin('dual_projects', 'dual_projects.id', '=', 'dual_project_reports.dual_project_id')
-            ->leftJoin('institutions', 'institutions.id', '=', 'dual_projects.id_institution');
+        // Obtener todos los apoyos económicos
+        $economicSupports = EconomicSupport::all();
+
+        // Construir consulta para proyectos filtrados
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
 
         if (!empty($idInstitution)) {
-            $query->where('institutions.id', $idInstitution);
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
         }
 
         if (!empty($idState)) {
-            $query->where('institutions.id_state', $idState);
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
         }
 
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
 
-        $results = $query->select(
-            'economic_supports.id',
-            'economic_supports.name as support_name',
-            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'),
-            DB::raw('ROUND(AVG(dual_project_reports.amount), 2) as average_amount'),
-            DB::raw('CASE WHEN ' . $totalProjects . ' > 0 THEN ROUND(COUNT(DISTINCT dual_projects.id) * 100.0 / ' . $totalProjects . ', 2) ELSE 0 END as percentage')
-        )
-            ->where('dual_projects.has_report', 1)
-            ->groupBy('economic_supports.id', 'economic_supports.name')
-            ->orderByDesc('average_amount')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Total de proyectos filtrados para calcular porcentajes
+        $totalFilteredProjects = count($filteredProjectIds);
+
+        // Para cada apoyo económico, calcular promedio y contar proyectos
+        $results = $economicSupports->map(function ($support) use ($filteredProjectIds, $totalFilteredProjects) {
+            // Contar proyectos con este apoyo económico
+            $projectCount = DB::table('dual_project_reports')
+                ->where('economic_support', $support->id)
+                ->whereIn('dual_project_id', $filteredProjectIds)
+                ->count(DB::raw('DISTINCT dual_project_id'));
+
+            // Calcular promedio de amount (solo si hay proyectos)
+            $averageAmount = 0;
+            if ($projectCount > 0) {
+                $averageAmount = DB::table('dual_project_reports')
+                    ->where('economic_support', $support->id)
+                    ->whereIn('dual_project_id', $filteredProjectIds)
+                    ->avg('amount');
+            }
+
+            $percentage = $totalFilteredProjects > 0 ? round(($projectCount * 100) / $totalFilteredProjects, 2) : 0;
+
+            return [
+                'id' => $support->id,
+                'support_name' => $support->name,
+                'project_count' => $projectCount,
+                'average_amount' => $averageAmount ? round($averageAmount, 2) : 0,
+                'percentage' => $percentage
+            ];
+        })->sortByDesc('average_amount')->values();
+
+        // Asegurarse de que se muestren todos, incluso con 0 proyectos y promedio 0
+
+        // Paginación manual
+        $total = $results->count();
+        $perPage = $perPage ?: 10;
+        $currentPage = $page ?: 1;
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedResults = $results->slice($offset, $perPage)->values();
 
         return [
-            'data' => $results->items(),
+            'data' => $paginatedResults->toArray(),
             'pagination' => [
-                'total' => $results->total(),
-                'per_page' => $results->perPage(),
-                'current_page' => $results->currentPage(),
-                'last_page' => $results->lastPage()
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $currentPage,
+                'last_page' => ceil($total / $perPage)
             ]
         ];
     }
-
 
     public function getInstitutionProjectPercentage($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
     {
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        // Obtener todas las instituciones
+        $institutionsQuery = Institution::query();
 
-        $query = Institution::query()
-            ->leftJoin('dual_projects', function ($join) {
-                $join->on('institutions.id', '=', 'dual_projects.id_institution')
-                    ->where('dual_projects.has_report', 1);
-            });
+        if (!empty($idState)) {
+            $institutionsQuery->where('id_state', $idState);
+        }
+
+        $institutions = $institutionsQuery->get();
+
+        // Construir consulta para proyectos filtrados
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
 
         if (!empty($idInstitution)) {
-            $query->where('institutions.id', $idInstitution);
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
         }
 
         if (!empty($idState)) {
-            $query->where('institutions.id_state', $idState);
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
         }
 
-        $results = $query->select(
-            'institutions.id',
-            'institutions.name as institution_name',
-            'institutions.image',
-            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'),
-            DB::raw('CASE WHEN ' . $totalProjects . ' > 0 THEN ROUND(COUNT(DISTINCT dual_projects.id) * 100.0 / ' . $totalProjects . ', 2) ELSE 0 END as percentage')
-        )
-            ->groupBy('institutions.id', 'institutions.name', 'institutions.image')
-            ->orderByDesc('percentage')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
+
+        // Total de proyectos filtrados para calcular porcentajes
+        $totalFilteredProjects = count($filteredProjectIds);
+
+        // Para cada institución, contar proyectos filtrados
+        $results = $institutions->map(function ($institution) use ($filteredProjectIds, $totalFilteredProjects, $idInstitution) {
+            // Si hay filtro por institución, solo contar si es la institución filtrada
+            if (!empty($idInstitution) && $institution->id != $idInstitution) {
+                $projectCount = 0;
+            } else {
+                $projectCount = count(array_filter($filteredProjectIds, function ($projectId) use ($institution) {
+                    $project = DualProject::find($projectId);
+                    return $project && $project->id_institution == $institution->id;
+                }));
+            }
+
+            $percentage = $totalFilteredProjects > 0 ? round(($projectCount * 100) / $totalFilteredProjects, 2) : 0;
+
+            return [
+                'id' => $institution->id,
+                'institution_name' => $institution->name,
+                'image' => $institution->image,
+                'project_count' => $projectCount,
+                'percentage' => $percentage
+            ];
+        })->sortByDesc('percentage')->values();
+
+        // Paginación manual
+        $total = $results->count();
+        $perPage = $perPage ?: 10;
+        $currentPage = $page ?: 1;
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedResults = $results->slice($offset, $perPage)->values();
 
         return [
-            'data' => $results->items(),
+            'data' => $paginatedResults->toArray(),
             'pagination' => [
-                'total' => $results->total(),
-                'per_page' => $results->perPage(),
-                'current_page' => $results->currentPage(),
-                'last_page' => $results->lastPage()
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $currentPage,
+                'last_page' => ceil($total / $perPage)
             ]
         ];
     }
-
 
     public function countProjectsByDualType($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
     {
-        $query = DualType::query()
-            ->leftJoin('dual_project_reports', 'dual_types.id', '=', 'dual_project_reports.dual_type_id')
-            ->leftJoin('dual_projects', function ($join) {
-                $join->on('dual_projects.id', '=', 'dual_project_reports.dual_project_id')
-                    ->where('dual_projects.has_report', 1);
-            })
-            ->leftJoin('institutions', 'institutions.id', '=', 'dual_projects.id_institution');
+        // Obtener todos los tipos duales
+        $dualTypes = DualType::all();
+
+        // Construir consulta para proyectos filtrados
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
 
         if (!empty($idInstitution)) {
-            $query->where('institutions.id', $idInstitution);
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
         }
 
         if (!empty($idState)) {
-            $query->where('institutions.id_state', $idState);
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
         }
 
-        $results = $query->select(
-            'dual_types.id',
-            'dual_types.name as dual_type',
-            DB::raw('COUNT(DISTINCT dual_projects.id) as total')
-        )
-            ->groupBy('dual_types.id', 'dual_types.name')
-            ->orderByDesc('total')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
+
+        // Total de proyectos filtrados para calcular porcentajes
+        $totalFilteredProjects = count($filteredProjectIds);
+
+        // Para cada tipo dual, contar proyectos filtrados
+        $results = $dualTypes->map(function ($dualType) use ($filteredProjectIds, $totalFilteredProjects) {
+            $projectCount = DB::table('dual_project_reports')
+                ->where('dual_type_id', $dualType->id)
+                ->whereIn('dual_project_id', $filteredProjectIds)
+                ->count(DB::raw('DISTINCT dual_project_id'));
+
+            $percentage = $totalFilteredProjects > 0 ? round(($projectCount * 100) / $totalFilteredProjects, 2) : 0;
+
+            return [
+                'id' => $dualType->id,
+                'dual_type' => $dualType->name,
+                'total' => $projectCount,
+                'percentage' => $percentage  // Agregar porcentaje para consistencia
+            ];
+        })->sortByDesc('total')->values();
+
+        // Paginación manual
+        $total = $results->count();
+        $perPage = $perPage ?: 10;
+        $currentPage = $page ?: 1;
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedResults = $results->slice($offset, $perPage)->values();
 
         return [
-            'data' => $results->items(),
+            'data' => $paginatedResults->toArray(),
             'pagination' => [
-                'total' => $results->total(),
-                'per_page' => $results->perPage(),
-                'current_page' => $results->currentPage(),
-                'last_page' => $results->lastPage()
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $currentPage,
+                'last_page' => ceil($total / $perPage)
             ]
         ];
     }
 
-
     public function countOrganizationsByCluster($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
     {
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        // Obtener todos los clusters nacionales
+        $nacionalClusters = Cluster::where('type', 'Nacional')->get();
+        $localClusters = Cluster::where('type', 'Local')->get();
 
-        $baseQuery = Cluster::query();
+        // Construir consulta para organizaciones filtradas
+        $filteredOrgsQuery = Organization::query();
 
         if (!empty($idInstitution) || !empty($idState)) {
-            $baseQuery->whereHas('organizations.organizationDualProjects.dualProject.institution', function ($q) use ($idInstitution, $idState) {
+            $filteredOrgsQuery->whereHas('organizationDualProjects.dualProject.institution', function ($q) use ($idInstitution, $idState) {
                 if (!empty($idInstitution)) {
                     $q->where('id', $idInstitution);
                 }
@@ -448,128 +592,150 @@ class DashboardService
             });
         }
 
-        $nacionales = (clone $baseQuery)
-            ->select(
-                'clusters.id',
-                'clusters.name as cluster_name',
-                'clusters.type',
-                DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'),
-                DB::raw('CASE WHEN ' . $totalProjects . ' > 0 THEN ROUND(COUNT(DISTINCT dual_projects.id) * 100.0 / ' . $totalProjects . ', 2) ELSE 0 END as percentage')
-            )
-            ->leftJoin('organizations', function ($join) {
-                $join->on('clusters.id', '=', 'organizations.id_cluster')
-                    ->where('clusters.type', 'Nacional');
-            })
-            ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
-            ->leftJoin('dual_projects', function ($join) {
-                $join->on('dual_projects.id', '=', 'organizations_dual_projects.id_dual_project')
-                    ->where('dual_projects.has_report', 1);
-            })
-            ->where('clusters.type', 'Nacional')
-            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
-            ->orderByDesc('project_count')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Obtener IDs de organizaciones filtradas
+        $filteredOrgIds = $filteredOrgsQuery->pluck('id')->toArray();
 
-        $locales = (clone $baseQuery)
-            ->select(
-                'clusters.id',
-                'clusters.name as cluster_name',
-                'clusters.type',
-                DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'),
-                DB::raw('CASE WHEN ' . $totalProjects . ' > 0 THEN ROUND(COUNT(DISTINCT dual_projects.id) * 100.0 / ' . $totalProjects . ', 2) ELSE 0 END as percentage')
-            )
-            ->leftJoin('organizations', function ($join) {
-                $join->on('clusters.id', '=', 'organizations.id_cluster_local')
-                    ->where('clusters.type', 'Local');
-            })
-            ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
-            ->leftJoin('dual_projects', function ($join) {
-                $join->on('dual_projects.id', '=', 'organizations_dual_projects.id_dual_project')
-                    ->where('dual_projects.has_report', 1);
-            })
-            ->where('clusters.type', 'Local')
-            ->groupBy('clusters.id', 'clusters.name', 'clusters.type')
-            ->orderByDesc('project_count')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Para clusters nacionales
+        $nacionales = $nacionalClusters->map(function ($cluster) use ($filteredOrgIds) {
+            $orgCount = count(array_filter($filteredOrgIds, function ($orgId) use ($cluster) {
+                $org = Organization::find($orgId);
+                return $org && $org->id_cluster == $cluster->id;
+            }));
+
+            return [
+                'id' => $cluster->id,
+                'cluster_name' => $cluster->name,
+                'type' => $cluster->type,
+                'organization_count' => $orgCount
+            ];
+        })->sortByDesc('organization_count')->values();
+
+        // Para clusters locales
+        $locales = $localClusters->map(function ($cluster) use ($filteredOrgIds) {
+            $orgCount = count(array_filter($filteredOrgIds, function ($orgId) use ($cluster) {
+                $org = Organization::find($orgId);
+                return $org && $org->id_cluster_local == $cluster->id;
+            }));
+
+            return [
+                'id' => $cluster->id,
+                'cluster_name' => $cluster->name,
+                'type' => $cluster->type,
+                'organization_count' => $orgCount
+            ];
+        })->sortByDesc('organization_count')->values();
+
+        // Paginación manual para nacionales
+        $totalNacionales = $nacionales->count();
+        $perPageNacionales = $perPage ?: 10;
+        $currentPageNacionales = $page ?: 1;
+        $offsetNacionales = ($currentPageNacionales - 1) * $perPageNacionales;
+        $paginatedNacionales = $nacionales->slice($offsetNacionales, $perPageNacionales)->values();
+
+        // Paginación manual para locales
+        $totalLocales = $locales->count();
+        $perPageLocales = $perPage ?: 10;
+        $currentPageLocales = $page ?: 1;
+        $offsetLocales = ($currentPageLocales - 1) * $perPageLocales;
+        $paginatedLocales = $locales->slice($offsetLocales, $perPageLocales)->values();
 
         return [
             'data' => [
-                'nacionales' => $nacionales->items(),
-                'locales' => $locales->items()
+                'nacionales' => $paginatedNacionales->toArray(),
+                'locales' => $paginatedLocales->toArray()
             ],
             'pagination' => [
                 'nacionales' => [
-                    'total' => $nacionales->total(),
-                    'per_page' => $nacionales->perPage(),
-                    'current_page' => $nacionales->currentPage(),
-                    'last_page' => $nacionales->lastPage()
+                    'total' => $totalNacionales,
+                    'per_page' => $perPageNacionales,
+                    'current_page' => $currentPageNacionales,
+                    'last_page' => ceil($totalNacionales / $perPageNacionales)
                 ],
                 'locales' => [
-                    'total' => $locales->total(),
-                    'per_page' => $locales->perPage(),
-                    'current_page' => $locales->currentPage(),
-                    'last_page' => $locales->lastPage()
+                    'total' => $totalLocales,
+                    'per_page' => $perPageLocales,
+                    'current_page' => $currentPageLocales,
+                    'last_page' => ceil($totalLocales / $perPageLocales)
                 ]
             ]
         ];
     }
 
-
     public function countProjectsByCluster($idState = null, $idInstitution = null, $perPage = 10, $page = 1)
     {
-        $buildQuery = function ($type, $clusterColumn) use ($idState, $idInstitution) {
-            $q = Cluster::query()
-                ->where('clusters.type', $type)
-                ->leftJoin('organizations', "organizations.$clusterColumn", '=', 'clusters.id')
-                ->leftJoin('organizations_dual_projects', 'organizations_dual_projects.id_organization', '=', 'organizations.id')
-                ->leftJoin('dual_projects', function ($join) {
-                    $join->on('dual_projects.id', '=', 'organizations_dual_projects.id_dual_project')
-                        ->where('dual_projects.has_report', 1);
-                })
-                ->leftJoin('institutions', 'institutions.id', '=', 'dual_projects.id_institution');
+        // Obtener todos los clusters
+        $nacionalClusters = Cluster::where('type', 'Nacional')->get();
+        $localClusters = Cluster::where('type', 'Local')->get();
 
-            if (!empty($idInstitution)) {
-                $q->where('institutions.id', $idInstitution);
-            }
+        // Construir consulta para proyectos filtrados
+        $filteredProjectsQuery = DualProject::where('has_report', 1);
 
-            if (!empty($idState)) {
-                $q->where('institutions.id_state', $idState);
-            }
+        if (!empty($idInstitution)) {
+            $filteredProjectsQuery->where('id_institution', $idInstitution);
+        }
 
-            return $q->groupBy('clusters.id', 'clusters.name', 'clusters.type')
-                ->select(
-                    'clusters.id',
-                    'clusters.name as cluster_name',
-                    'clusters.type',
-                    DB::raw('COUNT(DISTINCT dual_projects.id) AS project_count')
-                );
+        if (!empty($idState)) {
+            $filteredProjectsQuery->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
+        }
+
+        // Obtener IDs de proyectos filtrados
+        $filteredProjectIds = $filteredProjectsQuery->pluck('id')->toArray();
+
+        // Función para contar proyectos por cluster
+        $countProjectsForClusters = function ($clusters, $clusterColumn) use ($filteredProjectIds) {
+            return $clusters->map(function ($cluster) use ($clusterColumn, $filteredProjectIds) {
+                $projectCount = DB::table('organizations')
+                    ->join('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
+                    ->where('organizations.' . $clusterColumn, $cluster->id)
+                    ->whereIn('organizations_dual_projects.id_dual_project', $filteredProjectIds)
+                    ->count(DB::raw('DISTINCT organizations_dual_projects.id_dual_project'));
+
+                return [
+                    'id' => $cluster->id,
+                    'cluster_name' => $cluster->name,
+                    'type' => $cluster->type,
+                    'project_count' => $projectCount
+                ];
+            })->sortByDesc('project_count')->values();
         };
 
-        $nacionales = $buildQuery('Nacional', 'id_cluster')
-            ->orderByDesc('project_count')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Contar proyectos para clusters nacionales y locales
+        $nacionales = $countProjectsForClusters($nacionalClusters, 'id_cluster');
+        $locales = $countProjectsForClusters($localClusters, 'id_cluster_local');
 
-        $locales = $buildQuery('Local', 'id_cluster_local')
-            ->orderByDesc('project_count')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Paginación manual para nacionales
+        $totalNacionales = $nacionales->count();
+        $perPageNacionales = $perPage ?: 10;
+        $currentPageNacionales = $page ?: 1;
+        $offsetNacionales = ($currentPageNacionales - 1) * $perPageNacionales;
+        $paginatedNacionales = $nacionales->slice($offsetNacionales, $perPageNacionales)->values();
+
+        // Paginación manual para locales
+        $totalLocales = $locales->count();
+        $perPageLocales = $perPage ?: 10;
+        $currentPageLocales = $page ?: 1;
+        $offsetLocales = ($currentPageLocales - 1) * $perPageLocales;
+        $paginatedLocales = $locales->slice($offsetLocales, $perPageLocales)->values();
 
         return [
             'data' => [
-                'nacionales' => $nacionales->items(),
-                'locales' => $locales->items()
+                'nacionales' => $paginatedNacionales->toArray(),
+                'locales' => $paginatedLocales->toArray()
             ],
             'pagination' => [
                 'nacionales' => [
-                    'total' => $nacionales->total(),
-                    'per_page' => $nacionales->perPage(),
-                    'current_page' => $nacionales->currentPage(),
-                    'last_page' => $nacionales->lastPage()
+                    'total' => $totalNacionales,
+                    'per_page' => $perPageNacionales,
+                    'current_page' => $currentPageNacionales,
+                    'last_page' => ceil($totalNacionales / $perPageNacionales)
                 ],
                 'locales' => [
-                    'total' => $locales->total(),
-                    'per_page' => $locales->perPage(),
-                    'current_page' => $locales->currentPage(),
-                    'last_page' => $locales->lastPage()
+                    'total' => $totalLocales,
+                    'per_page' => $perPageLocales,
+                    'current_page' => $currentPageLocales,
+                    'last_page' => ceil($totalLocales / $perPageLocales)
                 ]
             ]
         ];

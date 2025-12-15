@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Institution;
 use App\Models\State;
 use App\Services\DashboardService;
-use Illuminate\Foundation\Bus\Dispatchable; 
-use Illuminate\Queue\InteractsWithQueue; 
-use Illuminate\Queue\SerializesModels; 
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 
 class GenerateDashboardCacheJob implements ShouldQueue
@@ -39,15 +39,15 @@ class GenerateDashboardCacheJob implements ShouldQueue
         ];
 
         foreach (Institution::all() as $inst) {
-            $cache["institutions"][$inst->id] = 
+            $cache["institutions"][$inst->id] =
                 $service->getAllMetrics(null, $inst->id);
         }
 
         foreach (State::all() as $state) {
-            $cache["states"][$state->id] = 
+            $cache["states"][$state->id] =
                 $service->getAllMetrics($state->id, null);
         }
-        
-        Cache::put("dashboard_cache", $cache, now()->addMinutes(2));
+
+        Cache::put("dashboard_cache", $cache, now()->addMinutes(120));
     }
 }
