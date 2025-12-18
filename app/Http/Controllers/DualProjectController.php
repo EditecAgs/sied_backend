@@ -106,7 +106,7 @@ class DualProjectController extends Controller
             $paginator->load([
                 'institution:id,name,city,id_state',
                 'institution.state:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification,economic_benefit,time_benefit,economic_benefit_note,time_benefit_note',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -337,7 +337,7 @@ public function getUnreportedDualProjects()
             $reports = DualProject::with([
                 'institution:id,name,city,id_state',
                 'institution.state:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification,economic_benefit,time_benefit,economic_benefit_note,time_benefit_note',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -375,7 +375,7 @@ public function getUnreportedDualProjects()
 
             $project = DualProject::with([
                 'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification,economic_benefit,time_benefit,economic_benefit_note,time_benefit_note',
                 'dualProjectReports.dualArea:id,name',
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
@@ -574,6 +574,10 @@ public function deleteDualProject($id)
             'internal_advisor_qualification' => $data['internal_advisor_qualification'] ?? null,
             'external_advisor_name' => $data['external_advisor_name'] ?? null,
             'external_advisor_qualification' => $data['external_advisor_qualification'] ?? null,
+            'economic_benefit' => $data['economic_benefit'] ?? null,
+            'economic_benefit_note' => $data['economic_benefit_note'] ?? null,
+            'time_benefit' => $data['time_benefit'] ?? null,
+            'time_benefit_note' => $data['time_benefit_note'] ?? null,
         ]);
     }
 
@@ -638,6 +642,10 @@ public function deleteDualProject($id)
                 'internal_advisor_qualification' => $data['internal_advisor_qualification'] ?? null,
                 'external_advisor_name' => $data['external_advisor_name'] ?? null,
                 'external_advisor_qualification' => $data['external_advisor_qualification'] ?? null,
+                'economic_benefit' => $data['economic_benefit'] ?? null,
+                'economic_benefit_note' => $data['economic_benefit_note'] ?? null,
+                'time_benefit' => $data['time_benefit'] ?? null,
+                'time_benefit_note' => $data['time_benefit_note'] ?? null,
             ]
         );
     }
