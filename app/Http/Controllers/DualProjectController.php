@@ -103,7 +103,6 @@ class DualProjectController extends Controller
             $query->orderBy('id', 'desc');
             $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
-            // Cargar relaciones con todas las columnas existentes
             $paginator->load([
                 'institution:id,name,city,id_state',
                 'institution.state:id,name',
@@ -112,7 +111,6 @@ class DualProjectController extends Controller
                 'dualProjectReports.dualType:id,name',
                 'dualProjectReports.statusDocument:id,name',
                 'dualProjectReports.economicSupport:id,name',
-                // Cargar todas las columnas de cada tabla
                 'dualProjectReports.microCredentials:id,name,organization,description,image,type,hours',
                 'dualProjectReports.certifications:id,name,organization,description,image,type,hours',
                 'dualProjectReports.diplomas:id,name,organization,description,image,type,hours',
@@ -144,7 +142,6 @@ class DualProjectController extends Controller
                     $organizationData = $orgRelation->organization;
                 }
 
-                // Datos base para todos los proyectos
                 $data = [
                     'id' => $project->id,
                     'has_report' => $project->has_report,
@@ -159,11 +156,9 @@ class DualProjectController extends Controller
                     'organization_type' => $organizationData->type->name ?? 'Por definir',
                 ];
 
-                // Si tiene reporte, agregar información adicional
                 if ($project->has_report && $project->dualProjectReports) {
                     $reportData = $project->dualProjectReports;
 
-                    // Obtener certificaciones
                     $certifications = $reportData->certifications ?? collect();
                     $formattedCertifications = $certifications->map(function ($cert) {
                         return [
@@ -178,7 +173,6 @@ class DualProjectController extends Controller
                         ];
                     })->toArray();
 
-                    // Obtener microcredenciales
                     $microCredentials = $reportData->microCredentials ?? collect();
                     $formattedMicroCredentials = $microCredentials->map(function ($micro) {
                         return [
@@ -193,7 +187,6 @@ class DualProjectController extends Controller
                         ];
                     })->toArray();
 
-                    // Obtener diplomas/certificados
                     $diplomas = $reportData->diplomas ?? collect();
                     $formattedCertificates = $diplomas->map(function ($diploma) {
                         return [
@@ -208,7 +201,6 @@ class DualProjectController extends Controller
                         ];
                     })->toArray();
 
-                    // Obtener información de estudiantes
                     $studentNames = '';
                     $rawStudents = [];
 
@@ -232,7 +224,6 @@ class DualProjectController extends Controller
                         })->toArray();
                     }
 
-                    // Agregar datos del reporte
                     $data = array_merge($data, [
                         'project_name' => $reportData->name ?? 'Por definir',
                         'area' => $reportData->dualArea->name ?? 'Por definir',
@@ -248,7 +239,7 @@ class DualProjectController extends Controller
                         'raw_students' => $rawStudents,
                     ]);
                 } else {
-                    // Si no tiene reporte, valores por defecto
+
                     $data = array_merge($data, [
                         'project_name' => 'Por definir',
                         'area' => 'Por definir',
