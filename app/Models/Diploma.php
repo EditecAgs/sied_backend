@@ -22,6 +22,7 @@ class Diploma extends Model
         'description',
         'image',
         'type',
+        'hours',
     ];
 
     public function dualProjectReportDiplomas()
@@ -42,7 +43,7 @@ class Diploma extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'organization', 'description', 'image'])
+            ->logOnly(['name', 'organization', 'description', 'image', 'hours'])
             ->logOnlyDirty()
             ->useLogName('diploma');
     }

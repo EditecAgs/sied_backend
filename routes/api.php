@@ -242,22 +242,27 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::delete('students/{id}', [StudentController::class, 'deleteStudent']);
     Route::patch('students/{id}/restore', [StudentController::class, 'restoreStudent']);
 
+    Route::get('dual-projects/all', [DualProjectController::class, 'getAllDualProjects'])
+        ->name('dual-projects-all');
     Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects'])
         ->name('dual-projects-unreported');
     Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject'])
         ->name('dual-projects-reported');
+
     Route::get('dual-projects/{id}', [DualProjectController::class, 'getDualProjectById']);
     Route::post('dual-projects', [DualProjectController::class, 'createDualProject'])
         ->name('dual-projects-create');
-    Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-update');
-    Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-delete');
+    Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-delete');
+    Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-update');
 
+    Route::get('dashboard/cache', [DashboardController::class, 'showFullCache']);
     Route::get('dual-projects/completed/count', [DashboardController::class, 'countDualProjectCompleted']);
     Route::get('students/registered/count', [DashboardController::class, 'countRegisteredStudents']);
     Route::get('projects/by-month', [DashboardController::class, 'countProjectsByMonth']);
     Route::get('projects/dual-area', [DashboardController::class, 'countProjectsByArea']);
     Route::get('projects/dual-type', [DashboardController::class, 'countProjectsByDualType']);
     Route::get('projects/sectors', [DashboardController::class, 'countProjectsBySector']);
+    Route::get('projects/cluster/count', [DashboardController::class, 'countProjectsByCluster']);
     Route::get('dual-projects/percetange/institutions', [DashboardController::class, 'getInstitutionProjectPercentage']);
     Route::get('organizations/registered/count', [DashboardController::class, 'countRegisteredOrganizations']);
     Route::get('organizations/scope/count', [DashboardController::class, 'countOrganizationsByScope']);

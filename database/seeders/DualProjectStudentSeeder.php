@@ -26,6 +26,7 @@ class DualProjectStudentSeeder extends Seeder
                 'id_student' => 2,
                 'id_dual_project' => 1,
             ],
+        
         );
     }
 }

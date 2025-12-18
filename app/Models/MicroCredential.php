@@ -19,6 +19,7 @@ class MicroCredential extends Model
         'description',
         'image',
         'type',
+        'hours',
     ];
 
     public function dualProjectReportMicroCredentials()
@@ -38,7 +39,7 @@ class MicroCredential extends Model
         public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'organization', 'description', 'image', 'type'])
+            ->logOnly(['name', 'organization', 'description', 'image', 'type', 'hours'])
             ->logOnlyDirty()
             ->useLogName('micro_credential');
     }

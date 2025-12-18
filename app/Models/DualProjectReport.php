@@ -31,7 +31,11 @@ class DualProjectReport extends Model
         'internal_advisor_name',
         'internal_advisor_qualification',
         'external_advisor_name',
-        'external_advisor_qualification'
+        'external_advisor_qualification',
+        'economic_benefit',
+        'economic_benefit_note',
+        'time_benefit',
+        'time_benefit_note'
     ];
 
     public function microCredentials()
