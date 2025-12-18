@@ -12,8 +12,13 @@ Artisan::command('inspire', function () {
 
 Schedule::job(new GenerateDashboardCacheJob)
     ->name('Dashboard Cache Update')
-    ->description('Actualiza cache del dashboard cada 2 minutos')
-    ->everyTwoMinutes();
+    ->description('Actualiza job todos los días a la medianoche')
+    ->dailyAt('00:00'); 
+
+// Schedule::job(new GenerateDashboardCacheJob)
+//     ->name('Dashboard Cache Update')
+//     ->description('Actualiza cache del dashboard cada 2 minutos')
+//     ->everyTwoMinutes();
 
 
 // Opción B: Cada hora

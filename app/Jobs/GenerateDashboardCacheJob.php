@@ -48,6 +48,6 @@ class GenerateDashboardCacheJob implements ShouldQueue
                 $service->getAllMetrics($state->id, null);
         }
 
-        Cache::put("dashboard_cache", $cache, now()->addMinutes(120));
+        Cache::put("dashboard_cache", $cache, now()->addDay());
     }
 }
