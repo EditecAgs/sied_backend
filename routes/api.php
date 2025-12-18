@@ -252,9 +252,10 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('dual-projects/{id}', [DualProjectController::class, 'getDualProjectById']);
     Route::post('dual-projects', [DualProjectController::class, 'createDualProject'])
         ->name('dual-projects-create');
-    Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-update');
-    Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-delete');
+    Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-delete');
+    Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-update');
 
+    Route::get('dashboard/cache', [DashboardController::class, 'showFullCache']);
     Route::get('dual-projects/completed/count', [DashboardController::class, 'countDualProjectCompleted']);
     Route::get('students/registered/count', [DashboardController::class, 'countRegisteredStudents']);
     Route::get('projects/by-month', [DashboardController::class, 'countProjectsByMonth']);
