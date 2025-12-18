@@ -259,7 +259,6 @@ class DualProjectController extends Controller
                 return $data;
             });
 
-            // Aplicar filtros del frontend en memoria
             $filteredData = collect($transformedData);
 
             if (!empty($filters)) {
@@ -273,8 +272,6 @@ class DualProjectController extends Controller
                             $projectValue = $project[$field] ?? '';
 
                             if (is_array($projectValue)) {
-                                // Para arrays (certificaciones, microcredenciales, certificados)
-                                // Buscar en los nombres de los elementos del array
                                 foreach ($projectValue as $item) {
                                     $itemName = strtolower($item['name'] ?? '');
                                     if (str_contains($itemName, $filterValueStr)) {
@@ -283,7 +280,6 @@ class DualProjectController extends Controller
                                 }
                                 return false;
                             } else {
-                                // Para valores simples
                                 $projectValueStr = strtolower((string)$projectValue);
                                 return str_contains($projectValueStr, $filterValueStr);
                             }
@@ -292,7 +288,6 @@ class DualProjectController extends Controller
                 }
             }
 
-            // Recalcular paginación
             $total = $filteredData->count();
             $offset = ($page - 1) * $perPage;
             $paginatedData = $filteredData->slice($offset, $perPage)->values();
@@ -500,46 +495,45 @@ public function getUnreportedDualProjects()
         }
     }
 
-public function deleteDualProject($id)
-{
-    DB::beginTransaction();
+    public function deleteDualProject($id)
+    {
+        DB::beginTransaction();
 
-    try {
-        $dualProject = DualProject::with([
-            'dualProjectReports.microCredentials',
-            'dualProjectReports.certifications',
-            'dualProjectReports.diplomas',
-            'dualProjectStudents',
-            'organizationDualProjects'
-        ])->findOrFail($id);
+        try {
+            $dualProject = DualProject::findOrFail($id);
 
-        collect($dualProject->dualProjectStudents)->each(fn($student) => $student->delete());
+            DualProjectStudent::where('id_dual_project', $id)->delete();
+            OrganizationDualProject::where('id_dual_project', $id)->delete();
 
-        collect($dualProject->organizationDualProjects)->each(fn($org) => $org->delete());
+            $report = DualProjectReport::where('dual_project_id', $id)->first();
 
-        collect($dualProject->dualProjectReports)->each(function($report) {
-            $report->microCredentials()->detach();
-            $report->certifications()->detach();
-            $report->diplomas()->detach();
-            $report->delete();
-        });
+            if ($report) {
+                $report->microCredentials()->detach();
+                $report->certifications()->detach();
+                $report->diplomas()->detach();
 
-        $dualProject->delete();
+                $report->delete();
+            }
 
-        DB::commit();
+            $dualProject->delete();
 
-        return response()->json(['message' => 'Proyecto eliminado correctamente'], 200);
+            DB::commit();
 
-    } catch (Exception $e) {
-        DB::rollBack();
+            return response()->json([
+                'message' => 'Proyecto eliminado correctamente'
+            ], 200);
 
+        } catch (\Throwable $e) {
+            DB::rollBack();
 
-        return response()->json([
-            'message' => 'Error al eliminar proyecto',
-            'error' => $e->getMessage()
-        ], 500);
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+            ], 500);
+        }
     }
-}
+
 
 
     protected function handleException(Exception $e, $message = 'Error interno')
