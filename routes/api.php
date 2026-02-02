@@ -22,6 +22,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BenefitTypeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\BitacoraAccesoController;
@@ -113,6 +114,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/profile', [UserController::class, 'updateProfile']);
 });
 
+
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('users', [UserController::class, 'getUsers']);
     Route::get('users/{id}', [UserController::class, 'getUsersById']);
@@ -130,6 +132,12 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::delete('institutions/{id}', [InstitutionController::class, 'deleteInstitution']);
 
     Route::get('profile', [UserController::class, 'getProfile']);
+
+    Route::get('benefit-types', [BenefitTypeController::class, 'getBenefitTypes']);
+    Route::get('benefit-types/{id}', [BenefitTypeController::class, 'getBenefitTypeById']);
+    Route::post('benefit-types', [BenefitTypeController::class, 'createBenefitType']);
+    Route::put('benefit-types/{id}', [BenefitTypeController::class, 'updateBenefitType']);
+    Route::delete('benefit-types/{id}', [BenefitTypeController::class, 'deleteBenefitType']);
 
     Route::get('subsystems', [SubsystemController::class, 'getSubsystems']);
     Route::get('subsystems/{id}', [SubsystemController::class, 'getSubsystemById']);

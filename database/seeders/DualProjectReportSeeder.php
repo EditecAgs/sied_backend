@@ -34,10 +34,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -63,10 +59,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -92,10 +84,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -121,10 +109,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -150,10 +134,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null, 
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -178,11 +158,7 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_name' => null,
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
-                'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,    
+                'external_advisor_qualification' => null,  
             ]
         );
 
@@ -208,10 +184,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -237,10 +209,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -266,10 +234,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
 
@@ -295,10 +259,6 @@ class DualProjectReportSeeder extends Seeder
                 'internal_advisor_qualification' => null,
                 'external_advisor_name' => null,
                 'external_advisor_qualification' => null,
-                'economic_benefit' => null,
-                'economic_benefit_note' => null,
-                'time_benefit' => null,
-                'time_benefit_note' => null,
             ]
         );
     }
