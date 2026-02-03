@@ -278,6 +278,7 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('projects/sectors/mexico', [DashboardController::class, 'countProjectsBySectorPlanMexico']);
     Route::get('projects/economic-support', [DashboardController::class, 'countProjectsByEconomicSupport']);
     Route::get('projects/economic-support/average', [DashboardController::class, 'averageAmountByEconomicSupport']);
+    Route::get('project/benefit-type', [DashboardController::class, 'statsByBenefitType']);
     Route::get('logs', [LogController::class, 'index']);
     Route::get('logs/{id}', [LogController::class, 'show']);
     Route::get('bitacora-accesos', [BitacoraAccesoController::class, 'index']);

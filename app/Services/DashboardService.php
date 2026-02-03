@@ -32,6 +32,7 @@ class DashboardService
             'countProjectsByDualType' => $this->countProjectsByDualType($idState, $idInstitution),
             'countOrganizationsByCluster' => $this->countOrganizationsByCluster($idState, $idInstitution),
             'countProjectsByCluster' => $this->countProjectsByCluster($idState, $idInstitution),
+            'statsByBenefitType' => $this->statsByBenefitType($idState, $idInstitution),
         ];
     }
 
@@ -561,5 +562,50 @@ class DashboardService
             'nacionales' => $nacionales->toArray(),
             'locales' => $locales->toArray()
         ];
+    }
+
+    public function statsByBenefitType($idState = null, $idInstitution = null)
+    {
+        $query = DB::table('benefit_types as bt')
+            ->leftJoin(
+                'benefit_type_dual_project_report as btdpr',
+                function ($join) {
+                    $join->on('bt.id', '=', 'btdpr.id_benefit_type')
+                        ->whereNull('btdpr.deleted_at');
+                }
+            )
+            ->leftJoin(
+                'dual_project_reports as dpr',
+                'dpr.id',
+                '=',
+                'btdpr.id_dual_project_report'
+            )
+            ->leftJoin('dual_projects as dp', function ($join) {
+                $join->on('dp.id', '=', 'dpr.dual_project_id')
+                ->where('dp.has_report', 1);
+            })
+            ->leftJoin('institutions as i', 'i.id', '=', 'dp.id_institution')
+            ->whereNull('bt.deleted_at');
+
+        if (!empty($idInstitution)) {
+            $query->where('i.id', $idInstitution);
+        }
+
+        if (!empty($idState)) {
+            $query->where('i.id_state', $idState);
+        }
+
+        $results = $query
+            ->groupBy('bt.id', 'bt.name')
+            ->select(
+                'bt.id',
+                'bt.name as benefit_type_name',
+                DB::raw('COUNT(DISTINCT dp.id) as project_count'),
+                DB::raw('COALESCE(AVG(btdpr.quantity), 0) as avg_quantity')
+            )
+            ->orderByDesc('project_count')
+            ->get();
+
+        return $results->toArray();
     }
 }

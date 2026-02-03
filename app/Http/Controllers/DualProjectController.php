@@ -428,12 +428,12 @@ public function getUnreportedDualProjects()
 
     try {
         $data = $request->validated();
-        
+
         // LOG DE DEPURACIÓN
         \Log::info('=== CREANDO DUAL PROJECT ===');
         \Log::info('Datos recibidos:', $data);
         \Log::info('Benefit types recibidos:', ['benefit_types' => $data['benefit_types'] ?? 'No recibido']);
-        
+
         $numberOfStudents = isset($data['students']) && is_array($data['students'])
             ? count($data['students'])
             : 0;
@@ -452,22 +452,22 @@ public function getUnreportedDualProjects()
             $this->createStudents($data, $dualProject->id);
 
             \Log::info('Report creado ID: ' . $report->id);
-            
+
             if (! empty($data['micro_credentials'])) {
                 $report->microCredentials()->sync($data['micro_credentials']);
                 \Log::info('Microcredenciales sincronizadas');
             }
-            
+
             if (! empty($data['diplomas'])) {
                 $report->diplomas()->sync($data['diplomas']);
                 \Log::info('Diplomas sincronizados');
             }
-            
+
             if (! empty($data['certifications'])) {
                 $report->certifications()->sync($data['certifications']);
                 \Log::info('Certificaciones sincronizadas');
             }
-            
+
             if (! empty($data['benefit_types'])) {
             \Log::info('Sincronizando benefit_types:', $data['benefit_types']);
 
@@ -496,11 +496,11 @@ public function getUnreportedDualProjects()
         return response()->json($dualProject, Response::HTTP_CREATED);
     } catch (Exception $e) {
         DB::rollBack();
-        
+
         // LOG DEL ERROR
         \Log::error('Error al crear el proyecto dual: ' . $e->getMessage());
         \Log::error('Trace: ' . $e->getTraceAsString());
-        
+
         return $this->handleException($e, 'Error al crear el proyecto dual');
     }
 }
@@ -552,12 +552,12 @@ public function getUnreportedDualProjects()
                 If (! empty($data['benefit_types'])) {
                     // TRANSFORMAR EL ARRAY PARA QUE SEA COMPATIBLE CON sync()
                     $benefitTypesSync = [];
-                    
+
                     foreach ($data['benefit_types'] as $benefit) {
                         $benefitTypesSync[$benefit['id']] = ['quantity' => $benefit['quantity']];
                     }
-                    
-                    $report->benefitTypes()->sync($benefitTypesSync);
+
+                    $report->benefiqtTypes()->sync($benefitTypesSync);
                 } else {
                     $report->benefitTypes()->detach();
                 }

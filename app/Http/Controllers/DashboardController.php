@@ -103,26 +103,31 @@ class DashboardController extends Controller
         return $this->fetchFromCache('countProjectsByCluster');
     }
 
-    
+    public function statsByBenefitType()
+    {
+        return $this->fetchFromCache('statsByBenefitType');
+    }
+
+
     public function showFullCache()
     {
         $cache = $this->getCache();
-        
+
         if (!$cache) {
             return response()->json([
                 'error' => 'Cache not ready',
                 'timestamp' => now()->toDateTimeString()
             ], Response::HTTP_SERVICE_UNAVAILABLE);
         }
-        
+
         $institutionKeys = array_keys($cache['institutions'] ?? []);
         $stateKeys = array_keys($cache['states'] ?? []);
-        
+
         $sampleInstitutionKeys = array_slice($institutionKeys, 0, 5);
         $sampleStateKeys = array_slice($stateKeys, 0, 5);
 
         $availableMetrics = isset($cache['global']) ? array_keys($cache['global']) : [];
-        
+
         return response()->json([
             'timestamp' => now()->toDateTimeString(),
             'cache_ttl' => '2 minutes',
