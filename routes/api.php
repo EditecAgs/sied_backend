@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\ClusterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardExportController;
 use App\Http\Controllers\DocumentStatusController;
 use App\Http\Controllers\DualAreaController;
 use App\Http\Controllers\DualProjectController;
@@ -112,6 +113,7 @@ Route::get('/reset-password/{token}', function($token, Request $request) {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/profile', [UserController::class, 'getProfile']);
     Route::put('/profile', [UserController::class, 'updateProfile']);
+    Route::get('/dashboard/export-pdf', [DashboardExportController::class, 'export']);
 });
 
 
