@@ -9,9 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('municipalities', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary(); 
             $table->string('name');
-            $table->foreignId('id_state')->constrained('states')->onDelete('cascade');
+
+            $table->uuid('id_state');
+            $table->foreign('id_state')
+                ->references('id')
+                ->on('states')
+                ->cascadeOnDelete();
+
             $table->timestamps();
         });
     }

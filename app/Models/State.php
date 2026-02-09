@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class State extends Model
 {
-    use LogsActivity;
+    use LogsActivity, HasUuids;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $table = 'states';
 
     protected $fillable = [
-        'id',
         'name',
     ];
 

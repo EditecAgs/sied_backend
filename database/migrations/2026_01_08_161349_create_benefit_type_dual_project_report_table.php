@@ -12,19 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('benefit_type_dual_project_report', function (Blueprint $table) {
-            $table->id();
+            $table->foreignUuid('id_dual_project_report');
+            $table->foreignUuid('id_benefit_type');
 
-            $table->foreignId('id_dual_project_report')
-                ->constrained('dual_project_reports')
-                ->cascadeOnDelete();
-
-            $table->foreignId('id_benefit_type')
-                ->constrained('benefit_types')
-                ->cascadeOnDelete();
+            $table->uuid('id')->primary();
 
             $table->decimal('quantity', 10, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('id_dual_project_report')
+                  ->references('id')
+                  ->on('dual_project_reports')
+                  ->cascadeOnDelete();
+
+            $table->foreign('id_benefit_type')
+                  ->references('id')
+                  ->on('benefit_types')
+                  ->cascadeOnDelete();
         });
     }
 
