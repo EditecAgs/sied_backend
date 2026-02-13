@@ -4,15 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class OrganizationDualProject extends Model
 {
-    use SoftDeletes, HasUuids;
-    protected $keyType = 'string';
-    public $incrementing = false;
+    use SoftDeletes;
     protected $table = 'organizations_dual_projects';
     protected $fillable = [
+        'id',
         'id_organization',
         'id_dual_project',
     ];

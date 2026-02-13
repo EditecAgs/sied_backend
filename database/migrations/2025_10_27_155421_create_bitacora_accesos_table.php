@@ -9,18 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('bitacora_accesos', function (Blueprint $table) {
-            $table->uuid('id')->primary(); 
-            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->enum('accion', ['login', 'logout']);
-            $table->string('ip')->nullable();
-            $table->string('navegador')->nullable();
-            $table->timestamp('fecha_hora')->useCurrent();
-            $table->timestamps();
-        });
-    }
+public function up(): void
+{
+    Schema::create('bitacora_accesos', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('user_id');
+        $table->enum('accion', ['login', 'logout']);
+        $table->string('ip')->nullable();
+        $table->string('navegador')->nullable();
+        $table->timestamp('fecha_hora')->useCurrent();
+        $table->timestamps();
+
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+    });
+}
+
 
     /**
      * Reverse the migrations.

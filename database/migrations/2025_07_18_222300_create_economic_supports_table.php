@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('economic_supports', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('name')->unique();
             $table->string('description')->nullable();
             $table->softDeletes();

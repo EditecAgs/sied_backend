@@ -9,20 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('dual_project_report_micro_credential', function (Blueprint $table) {
-
-        $table->uuid('id')->primary();
-        $table->foreignUuid('id_micro_credential')
-            ->constrained('micro_credentials')
-            ->restrictOnDelete()
-            ->name('fk_dp_micro');
-
-        $table->foreignUuid('id_dual_project_report')
-            ->constrained('dual_project_reports')
-            ->restrictOnDelete()
-            ->name('fk_dp_report'); 
-
-
-
+            $table->id();
+            $table->foreignId('id_micro_credential')->constrained('micro_credentials')->onDelete('restrict')->name('fk_micro_credential');
+            $table->foreignId('id_dual_project_report')->constrained('dual_project_reports')->onDelete('restrict')->name('fk_dual_project_report');
             $table->timestamps();
             $table->softDeletes();
         });

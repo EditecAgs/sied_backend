@@ -6,14 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-
 
 class Cluster extends Model
 {
-    use LogsActivity, SoftDeletes, HasUuids;
-    public $incrementing = false;
-    protected $keyType = 'string';
+    use LogsActivity;
+    use SoftDeletes;
     protected $table = 'clusters';
     protected $fillable = [
         'id',
