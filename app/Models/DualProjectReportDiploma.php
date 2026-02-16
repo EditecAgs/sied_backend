@@ -4,17 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class DualProjectReportDiploma extends Model
 {
-    use SoftDeletes, HasUuids;
-    protected $keyType = 'string';
-    public $incrementing = false;
+    use SoftDeletes;
 
     protected $table = 'dual_project_report_diploma';
 
     protected $fillable = [
+        'id',
         'id_diploma',
         'id_dual_project_report',
     ];

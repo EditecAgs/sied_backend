@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::table('dual_project_reports', function (Blueprint $table) {
 
-            $table->foreignUuid('dual_type_id')
-                  ->constrained('dual_types')
-                  ->restrictOnDelete();
+            $table->foreignId('dual_type_id')
+                ->constrained('dual_types')
+                ->onDelete('restrict');
         });
     }
 

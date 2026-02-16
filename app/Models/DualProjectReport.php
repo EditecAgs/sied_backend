@@ -5,16 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 
 class DualProjectReport extends Model
 {
-    use LogsActivity, HasUuids;
-    protected $keyType = 'string';
-    public $incrementing = false;
-    protected $table = 'dual_project_reports';
-    
+    use LogsActivity;
     protected $fillable = [
         'name',
         'dual_project_id',

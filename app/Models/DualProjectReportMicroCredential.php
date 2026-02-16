@@ -4,17 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class DualProjectReportMicroCredential extends Model
 {
-    use SoftDeletes, HasUuids;
-    protected $keyType = 'string';
-    public $incrementing = false;
+    use SoftDeletes;
 
     protected $table = 'dual_project_report_micro_credential';
 
     protected $fillable = [
+        'id',
         'id_micro_credential',
         'id_dual_project_report',
     ];

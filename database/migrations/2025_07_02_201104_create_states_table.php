@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('states', function (Blueprint $table) {
-            $table->uuid('id')->primary(); 
+            $table->id();
             $table->string('name');
             $table->timestamps();
         });

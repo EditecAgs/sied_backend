@@ -9,11 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('students', function (Blueprint $table) {
-
-            $table->foreignUuid('id_dual_project')
-                ->after('id_specialty')
-                ->constrained('dual_projects')
-                ->restrictOnDelete();
+            $table->unsignedBigInteger('id_dual_project')->after('id_specialty');
+            $table->foreign('id_dual_project')->references('id')->on('dual_projects')->onDelete('restrict');
         });
     }
 
@@ -21,7 +18,7 @@ return new class extends Migration
     {
         Schema::table('students', function (Blueprint $table) {
             $table->dropForeign(['id_dual_project']);
-            $table->dropColumn('id_dual_project');
+            $table->dropColumn(['id_dual_project']);
         });
     }
 };

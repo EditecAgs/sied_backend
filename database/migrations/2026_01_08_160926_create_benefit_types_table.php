@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('benefit_types', function (Blueprint $table) {
-            $table->uuid('id')->primary(); 
+            $table->id();
             $table->string('name');
             $table->softDeletes();
             $table->timestamps();
