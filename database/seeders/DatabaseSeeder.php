@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             AcademicPeriodSeeder::class,
             TypeSeeder::class,
             SectorSeeder::class,
-            ClusterSeeder::class,
+             ClusterSeeder::class,
             DualAreaSeeder::class,
             DocumentStatusSeeder::class,
             DualTypesSeeder::class,

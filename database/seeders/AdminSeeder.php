@@ -15,12 +15,11 @@ class UsersSeeder extends Seeder
     {
         // Usuario administrador
         User::updateOrCreate(
-            ['id' => 1],
+            ['email' => 'admin@aguascalientes.tecnm.mx'], // clave única
             [
                 'name' => 'Admin',
                 'lastname' => 'User',
-                'email' => 'admin@aguascalientes.tecnm.mx',
-                'password' => Hash::make('9yYMN1mWCF1yJco'),
+                'password' => Hash::make(env('ADMIN_PASSWORD', '9yYMN1mWCF1yJco')),
                 'id_institution' => 1,
                 'type' => 0, // 0 = administrador
             ]

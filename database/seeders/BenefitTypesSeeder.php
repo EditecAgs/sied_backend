@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\BenefitType;
 
@@ -13,18 +12,22 @@ class BenefitTypesSeeder extends Seeder
      */
     public function run(): void
     {
-        BenefitType::updateOrCreate(
-            ['id' => 1],
+        $benefitTypes = [
             [
                 'name' => 'Beneficio Económico',
-            ]
-        );
-
-        BenefitType::updateOrCreate(
-            ['id' => 2],
+            ],
             [
                 'name' => 'Ahorro de Tiempo',
-            ]
-        );
+            ],
+        ];
+
+        foreach ($benefitTypes as $benefitType) {
+            BenefitType::updateOrCreate(
+                ['name' => $benefitType['name']],
+                $benefitType
+            );
+        }
+
+        $this->command->info('Tipos de beneficio creados/actualizados correctamente');
     }
 }

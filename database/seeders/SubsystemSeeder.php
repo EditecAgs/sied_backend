@@ -7,25 +7,23 @@ use Illuminate\Database\Seeder;
 
 class SubsystemSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $subsytems = [
-            ['id' => 1, 'name' => 'Tecnológico Nacional de México'],
-            ['id' => 2, 'name' => 'Universidad Politécnica'],
-            ['id' => 3, 'name' => 'Universidad Tecnológica'],
-            ['id' => 4, 'name' => 'Universidad Autónoma'],
-            ['id' => 5, 'name' => 'Universidad Rosario Castellanos'],
-            ['id' => 6, 'name' => 'Instituto Politecnico Nacional'],
-            ['id' => 7, 'name' => 'Centro de Investigación'],
-            ['id' => 8, 'name' => 'Universidad Privada'],
+        $subsystems = [
+            ['name' => 'Tecnológico Nacional de México'],
+            ['name' => 'Universidad Politécnica'],
+            ['name' => 'Universidad Tecnológica'],
+            ['name' => 'Universidad Autónoma'],
+            ['name' => 'Universidad Rosario Castellanos'],
+            ['name' => 'Instituto Politécnico Nacional'],
+            ['name' => 'Centro de Investigación'],
+            ['name' => 'Universidad Privada'],
         ];
-        foreach ($subsytems as $subsystem) {
+
+        foreach ($subsystems as $subsystem) {
             Subsystem::updateOrCreate(
-                ['id' => $subsystem['id']],
                 ['name' => $subsystem['name']],
+                $subsystem
             );
         }
     }

@@ -1,8 +1,10 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\Diploma;
 use Illuminate\Database\Seeder;
+
 class DiplomaSeeder extends Seeder
 {
     /**
@@ -10,8 +12,7 @@ class DiplomaSeeder extends Seeder
      */
     public function run(): void
     {
-        Diploma::updateOrCreate(
-            ['id' => 1],
+        $diplomas = [
             [
                 'name' => 'Diplomado en Desarrollo Web Full Stack',
                 'organization' => 'Platzi',
@@ -19,11 +20,7 @@ class DiplomaSeeder extends Seeder
                 'type' => 'academic',
                 'image' => null,
                 'hours' => 40,
-            ]
-        );
-
-        Diploma::updateOrCreate(
-            ['id' => 2],
+            ],
             [
                 'name' => 'Diplomado en Ciencia de Datos y Machine Learning',
                 'organization' => 'Coursera',
@@ -31,11 +28,7 @@ class DiplomaSeeder extends Seeder
                 'type' => 'academic',
                 'image' => null,
                 'hours' => 50,
-            ]
-        );
-
-        Diploma::updateOrCreate(
-            ['id' => 3],
+            ],
             [
                 'name' => 'Diplomado en Gestión de Proyectos Ágiles',
                 'organization' => 'edX',
@@ -43,7 +36,19 @@ class DiplomaSeeder extends Seeder
                 'type' => 'no_academic',
                 'image' => null,
                 'hours' => 30,
-            ]
-        );
+            ],
+        ];
+
+        foreach ($diplomas as $diploma) {
+            Diploma::updateOrCreate(
+                [
+                    'name' => $diploma['name'],
+                    'organization' => $diploma['organization']
+                ],
+                $diploma
+            );
+        }
+
+        $this->command->info('Diplomas creados/actualizados correctamente');
     }
 }

@@ -176,42 +176,50 @@ class DashboardService
         return $results->toArray();
     }
 
-    public function countProjectsBySector($idState = null, $idInstitution = null)
-    {
-        $totalProjectsQ = DualProject::where('has_report', 1);
-        if (!empty($idInstitution)) {
-            $totalProjectsQ->where('id_institution', $idInstitution);
-        }
-        if (!empty($idState)) {
-            $totalProjectsQ->whereHas('institution', function ($qq) use ($idState) {
-                $qq->where('id_state', $idState);
-            });
-        }
-        $totalProjects = $totalProjectsQ->count();
-
-        $query = Sector::query()
-            ->select([
-                'sectors.*',
-                DB::raw('(SELECT COUNT(DISTINCT dp.id)
-                      FROM organizations o
-                      LEFT JOIN organizations_dual_projects odp ON o.id = odp.id_organization
-                      LEFT JOIN dual_projects dp ON dp.id = odp.id_dual_project
-                          AND dp.has_report = 1
-                      WHERE o.id_sector = sectors.id
-                      ' . (!empty($idInstitution) ? ' AND dp.id_institution = ' . $idInstitution : '') . '
-                      ' . (!empty($idState) ? ' AND EXISTS (SELECT 1 FROM institutions i WHERE i.id = dp.id_institution AND i.id_state = ' . $idState . ')' : '') . '
-                     ) as project_count')
-            ]);
-
-        $results = $query->orderByDesc('project_count')->get();
-
-        $collection = $results->map(function ($sector) use ($totalProjects) {
-            $sector->percentage = $totalProjects > 0 ? round(($sector->project_count * 100) / $totalProjects, 2) : 0;
-            return $sector;
-        })->values();
-
-        return $collection->toArray();
+public function countProjectsBySector($idState = null, $idInstitution = null)
+{
+    $totalProjectsQ = DualProject::where('has_report', 1);
+    if (!empty($idInstitution)) {
+        $totalProjectsQ->where('id_institution', $idInstitution);
     }
+    if (!empty($idState)) {
+        $totalProjectsQ->whereHas('institution', function ($qq) use ($idState) {
+            $qq->where('id_state', $idState);
+        });
+    }
+    $totalProjects = $totalProjectsQ->count();
+
+    $query = Sector::query()
+        ->select([
+            'sectors.*',
+            DB::raw('(SELECT COUNT(DISTINCT dp.id)
+                  FROM organizations o
+                  LEFT JOIN organizations_dual_projects odp ON o.id = odp.id_organization
+                  LEFT JOIN dual_projects dp ON dp.id = odp.id_dual_project
+                      AND dp.has_report = 1
+                  WHERE o.id_sector = sectors.id
+                  ' . (!empty($idInstitution) ? ' AND dp.id_institution = ?' : '') . '
+                  ' . (!empty($idState) ? ' AND EXISTS (SELECT 1 FROM institutions i WHERE i.id = dp.id_institution AND i.id_state = ?)' : '') . '
+                 ) as project_count')
+        ]);
+
+    // Agregar los bindings manualmente
+    if (!empty($idInstitution)) {
+        $query->addBinding($idInstitution, 'select');
+    }
+    if (!empty($idState)) {
+        $query->addBinding($idState, 'select');
+    }
+
+    $results = $query->orderByDesc('project_count')->get();
+
+    $collection = $results->map(function ($sector) use ($totalProjects) {
+        $sector->percentage = $totalProjects > 0 ? round(($sector->project_count * 100) / $totalProjects, 2) : 0;
+        return $sector;
+    })->values();
+
+    return $collection->toArray();
+}
 
     public function countProjectsBySectorPlanMexico($idState = null, $idInstitution = null)
     {
