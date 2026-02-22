@@ -11,6 +11,11 @@ use App\Models\Organization;
 use App\Models\Sector;
 use App\Models\Student;
 use App\Models\Cluster;
+use App\Models\DocumentStatus;
+use App\Models\DualProjectReport;
+use App\Models\DualProjectReportMicroCredential;
+use App\Models\DualProjectReportCertification;
+use App\Models\DualProjectReportDiploma;
 use Illuminate\Support\Facades\DB;
 
 class DashboardService
@@ -33,6 +38,12 @@ class DashboardService
             'countOrganizationsByCluster' => $this->countOrganizationsByCluster($idState, $idInstitution),
             'countProjectsByCluster' => $this->countProjectsByCluster($idState, $idInstitution),
             'statsByBenefitType' => $this->statsByBenefitType($idState, $idInstitution),
+            'countProjectsByDocumentStatus' => $this->countProjectsByDocumentStatus($idState, $idInstitution),
+            'countProjectsByStatus' => $this->countProjectsByStatus($idState, $idInstitution),
+            'getMicroCredentialsStats' => $this->getMicroCredentialsStats(),
+            'getCertificationsStats' => $this->getCertificationsStats(),
+            'getDiplomasStats' => $this->getDiplomasStats(),
+            'getDualAreasStats' => $this->getDualAreasStats(),
         ];
     }
 
@@ -203,7 +214,6 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
                  ) as project_count')
         ]);
 
-    // Agregar los bindings manualmente
     if (!empty($idInstitution)) {
         $query->addBinding($idInstitution, 'select');
     }
@@ -615,5 +625,297 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             ->get();
 
         return $results->toArray();
+    }
+
+    public function countProjectsByDocumentStatus($idState = null, $idInstitution = null)
+    {
+        $totalProjects = DualProject::where('has_report', 1)->count();
+
+        $whereConditions = [];
+        if (!empty($idInstitution)) {
+            $whereConditions[] = "i.id = " . (int)$idInstitution;
+        }
+        if (!empty($idState)) {
+            $whereConditions[] = "i.id_state = " . (int)$idState;
+        }
+
+        $whereSQL = !empty($whereConditions) ? "AND " . implode(" AND ", $whereConditions) : "";
+        $joinInstitution = (!empty($idInstitution) || !empty($idState)) ? "INNER JOIN institutions i ON dp.id_institution = i.id" : "";
+
+        $results = DocumentStatus::select(
+            'document_statuses.id',
+            'document_statuses.name as status_name',
+            DB::raw("(
+            SELECT COUNT(DISTINCT dp.id)
+            FROM dual_project_reports dpr
+            INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
+                AND dp.has_report = 1
+            {$joinInstitution}
+            WHERE dpr.status_document = document_statuses.id
+            {$whereSQL}
+        ) as project_count"),
+            DB::raw("CASE WHEN {$totalProjects} > 0
+            THEN ROUND((
+                SELECT COUNT(DISTINCT dp.id)
+                FROM dual_project_reports dpr
+                INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
+                    AND dp.has_report = 1
+                {$joinInstitution}
+                WHERE dpr.status_document = document_statuses.id
+                {$whereSQL}
+            ) * 100.0 / {$totalProjects}, 2)
+            ELSE 0
+            END as percentage")
+        )
+            ->orderByDesc('project_count')
+            ->get();
+
+        return $results->toArray();
+    }
+
+    public function countProjectsByStatus($idState = null, $idInstitution = null)
+    {
+        $query = DualProject::select(
+            'dual_project_reports.is_concluded',
+            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
+        )
+            ->where('dual_projects.has_report', 1)
+            ->join('dual_project_reports', 'dual_projects.id', '=', 'dual_project_reports.dual_project_id');
+
+        if (!empty($idInstitution)) {
+            $query->where('dual_projects.id_institution', $idInstitution);
+        }
+
+        if (!empty($idState)) {
+            $query->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
+        }
+
+        $results = $query->groupBy('dual_project_reports.is_concluded')
+            ->get()
+            ->keyBy('is_concluded');
+
+        $concluded = $results[1]->project_count ?? 0;
+        $inProgress = $results[0]->project_count ?? 0;
+        $total = $concluded + $inProgress;
+
+        return [
+            [
+                'status' => 'Concluidos',
+                'status_key' => 'concluded',
+                'is_concluded' => 1,
+                'count' => $concluded,
+                'percentage' => $total > 0 ? round(($concluded * 100) / $total, 2) : 0,
+            ],
+            [
+                'status' => 'En proceso',
+                'status_key' => 'in_progress',
+                'is_concluded' => 0,
+                'count' => $inProgress,
+                'percentage' => $total > 0 ? round(($inProgress * 100) / $total, 2) : 0,
+            ]
+        ];
+    }
+    public function getMicroCredentialsStats($idState = null, $idInstitution = null)
+    {
+        $projectsQuery = DualProject::where('has_report', 1);
+        $this->applySimpleFilters($projectsQuery, $idState, $idInstitution);
+
+        $projectIds = $projectsQuery->pluck('id')->toArray();
+
+        if (empty($projectIds)) {
+            return [
+                'total_micro_credentials' => 0,
+                'total_projects' => 0,
+                'projects_with_micro_credentials' => 0,
+                'projects_without_micro_credentials' => 0,
+                'average_per_project' => 0,
+                'average_per_project_with_micro' => 0,
+                'micro_credentials_by_project' => []
+            ];
+        }
+
+        $totalMicroCredentials = DualProjectReportMicroCredential::whereIn(
+            'id_dual_project_report',
+            function ($query) use ($projectIds) {
+                $query->select('id')
+                    ->from('dual_project_reports')
+                    ->whereIn('dual_project_id', $projectIds);
+            }
+        )->count();
+
+        $totalProjects = count($projectIds);
+
+        $projectsWithMicro = DualProjectReport::whereIn('dual_project_id', $projectIds)
+            ->whereHas('microCredentials')
+            ->count(DB::raw('DISTINCT dual_project_id'));
+
+        $averagePerProject = $totalProjects > 0
+            ? round($totalMicroCredentials / $totalProjects, 2)
+            : 0;
+
+        $averagePerProjectWithMicro = $projectsWithMicro > 0
+            ? round($totalMicroCredentials / $projectsWithMicro, 2)
+            : 0;
+
+        return [
+            'total_micro_credentials' => $totalMicroCredentials,
+            'total_projects' => $totalProjects,
+            'projects_with_micro_credentials' => $projectsWithMicro,
+            'projects_without_micro_credentials' => $totalProjects - $projectsWithMicro,
+            'average_per_project' => $averagePerProject,
+            'average_per_project_with_micro' => $averagePerProjectWithMicro,
+        ];
+    }
+
+    public function getCertificationsStats($idState = null, $idInstitution = null)
+    {
+        $projectsQuery = DualProject::where('has_report', 1);
+        $this->applySimpleFilters($projectsQuery, $idState, $idInstitution);
+
+        $projectIds = $projectsQuery->pluck('id')->toArray();
+
+        if (empty($projectIds)) {
+            return [
+                'total_certifications' => 0,
+                'total_projects' => 0,
+                'projects_with_certifications' => 0,
+                'projects_without_certifications' => 0,
+                'average_per_project' => 0,
+                'average_per_project_with_certifications' => 0,
+            ];
+        }
+
+        $totalCertifications = DualProjectReportCertification::whereIn(
+            'id_dual_project_report',
+            function ($query) use ($projectIds) {
+                $query->select('id')
+                    ->from('dual_project_reports')
+                    ->whereIn('dual_project_id', $projectIds);
+            }
+        )->count();
+
+        $totalProjects = count($projectIds);
+
+        $projectsWithCertifications = DualProjectReport::whereIn('dual_project_id', $projectIds)
+            ->whereHas('certifications')
+            ->count(DB::raw('DISTINCT dual_project_id'));
+
+        $averagePerProject = $totalProjects > 0
+            ? round($totalCertifications / $totalProjects, 2)
+            : 0;
+
+        $averagePerProjectWithCertifications = $projectsWithCertifications > 0
+            ? round($totalCertifications / $projectsWithCertifications, 2)
+            : 0;
+
+        return [
+            'total_certifications' => $totalCertifications,
+            'total_projects' => $totalProjects,
+            'projects_with_certifications' => $projectsWithCertifications,
+            'projects_without_certifications' => $totalProjects - $projectsWithCertifications,
+            'average_per_project' => $averagePerProject,
+            'average_per_project_with_certifications' => $averagePerProjectWithCertifications,
+        ];
+    }
+
+    public function getDiplomasStats($idState = null, $idInstitution = null)
+    {
+        $projectsQuery = DualProject::where('has_report', 1);
+        $this->applySimpleFilters($projectsQuery, $idState, $idInstitution);
+
+        $projectIds = $projectsQuery->pluck('id')->toArray();
+
+        if (empty($projectIds)) {
+            return [
+                'total_diplomas' => 0,
+                'total_projects' => 0,
+                'projects_with_diplomas' => 0,
+                'projects_without_diplomas' => 0,
+                'average_per_project' => 0,
+                'average_per_project_with_diplomas' => 0,
+            ];
+        }
+
+        $totalDiplomas = DualProjectReportDiploma::whereIn(
+            'id_dual_project_report',
+            function ($query) use ($projectIds) {
+                $query->select('id')
+                    ->from('dual_project_reports')
+                    ->whereIn('dual_project_id', $projectIds);
+            }
+        )->count();
+
+        $totalProjects = count($projectIds);
+
+        $projectsWithDiplomas = DualProjectReport::whereIn('dual_project_id', $projectIds)
+            ->whereHas('diplomas')
+            ->count(DB::raw('DISTINCT dual_project_id'));
+
+        $averagePerProject = $totalProjects > 0
+            ? round($totalDiplomas / $totalProjects, 2)
+            : 0;
+
+        $averagePerProjectWithDiplomas = $projectsWithDiplomas > 0
+            ? round($totalDiplomas / $projectsWithDiplomas, 2)
+            : 0;
+
+        return [
+            'total_diplomas' => $totalDiplomas,
+            'total_projects' => $totalProjects,
+            'projects_with_diplomas' => $projectsWithDiplomas,
+            'projects_without_diplomas' => $totalProjects - $projectsWithDiplomas,
+            'average_per_project' => $averagePerProject,
+            'average_per_project_with_diplomas' => $averagePerProjectWithDiplomas,
+        ];
+    }
+
+    public function getDualAreasStats($idState = null, $idInstitution = null)
+    {
+        $areas = DualArea::all();
+
+        $projectsBaseQuery = DualProject::where('has_report', 1);
+        $this->applySimpleFilters($projectsBaseQuery, $idState, $idInstitution);
+
+        $validProjectIds = $projectsBaseQuery->pluck('id')->toArray();
+        $totalProjects = count($validProjectIds);
+
+        if ($totalProjects === 0) {
+            return $areas->map(function ($area) {
+                return [
+                    'id' => $area->id,
+                    'name' => $area->name,
+                    'project_count' => 0,
+                    'percentage' => 0,
+                ];
+            })->toArray();
+        }
+
+        $areaCounts = DB::table('dual_projects')
+            ->join('dual_project_reports', 'dual_projects.id', '=', 'dual_project_reports.dual_project_id')
+            ->where('dual_projects.has_report', 1)
+            ->whereIn('dual_projects.id', $validProjectIds)
+            ->select('dual_project_reports.id_dual_area', DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'))
+            ->groupBy('dual_project_reports.id_dual_area')
+            ->pluck('project_count', 'id_dual_area')
+            ->toArray();
+
+        $results = [];
+        foreach ($areas as $area) {
+            $count = $areaCounts[$area->id] ?? 0;
+            $results[] = [
+                'id' => $area->id,
+                'name' => $area->name,
+                'project_count' => $count,
+                'percentage' => round(($count * 100) / $totalProjects, 2),
+            ];
+        }
+
+        usort($results, function ($a, $b) {
+            return $b['project_count'] - $a['project_count'];
+        });
+
+        return $results;
     }
 }

@@ -282,6 +282,12 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('projects/economic-support', [DashboardController::class, 'countProjectsByEconomicSupport']);
     Route::get('projects/economic-support/average', [DashboardController::class, 'averageAmountByEconomicSupport']);
     Route::get('project/benefit-type', [DashboardController::class, 'statsByBenefitType']);
+    Route::get('project/document-status', [DashboardController::class, 'countProjectsByDocumentStatus']);
+    Route::get('project/project-status', [DashboardController::class, 'countProjectsByStatus']);
+    Route::get('project/project-MicroCredential', [DashboardController::class, 'getMicroCredentialsStats']);
+    Route::get('project/project-Certification', [DashboardController::class, 'getCertificationsStats']);
+    Route::get('project/project-Diplomas', [DashboardController::class, 'getDiplomasStats']);
+    Route::get('project/project-DualAreas', [DashboardController::class, 'getDualAreasStats']);
     Route::get('logs', [LogController::class, 'index']);
     Route::get('logs/{id}', [LogController::class, 'show']);
     Route::get('bitacora-accesos', [BitacoraAccesoController::class, 'index']);

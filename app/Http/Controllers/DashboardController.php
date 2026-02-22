@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpIllegalArrayKeyTypeInspection */
 
 namespace App\Http\Controllers;
 
@@ -107,8 +107,30 @@ class DashboardController extends Controller
     {
         return $this->fetchFromCache('statsByBenefitType');
     }
-
-
+    public function countProjectsByDocumentStatus()
+    {
+        return $this->fetchFromCache('countProjectsByDocumentStatus');
+    }
+    public function countProjectsByStatus()
+    {
+        return $this->fetchFromCache('countProjectsByStatus');
+    }
+    public function getMicroCredentialsStats()
+    {
+        return $this->fetchFromCache('getMicroCredentialsStats');
+    }
+    public function getCertificationsStats()
+    {
+        return $this->fetchFromCache('getCertificationsStats');
+    }
+    public function getDiplomasStats()
+    {
+        return $this->fetchFromCache('getDiplomasStats');
+    }
+    public function getDualAreasStats()
+    {
+        return $this->fetchFromCache('getDualAreasStats');
+    }
     public function showFullCache()
     {
         $cache = $this->getCache();
@@ -142,4 +164,5 @@ class DashboardController extends Controller
             'cache' => $cache
         ]);
     }
+
 }
