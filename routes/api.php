@@ -115,6 +115,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/profile', [UserController::class, 'updateProfile']);
     Route::get('/dashboard/export-pdf', [DashboardExportController::class, 'export']);
     Route::get('/dashboard/export-simple-pdf', [DashboardExportController::class, 'exportSimple']);
+    Route::get('/dashboard/export-excel', [DashboardExportController::class, 'exportExcel']);
 });
 
 

@@ -9,9 +9,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DashboardExcelExport;
 
 class DashboardExportController extends Controller
 {
+
+    // CRIS esto es para los filtro que se aplican en el cache
+    private function resolveFilteredData(array $cache, $idState, $idInstitution): array
+{
+    if (!empty($idInstitution) && isset($cache['institutions'][$idInstitution])) {
+        return $cache['institutions'][$idInstitution];
+    }
+
+    if (!empty($idState) && isset($cache['states'][$idState])) {
+        return $cache['states'][$idState];
+    }
+
+    return $cache['global'] ?? [];
+}
+
     public function export(Request $request)
     {
         try {
@@ -40,7 +57,7 @@ class DashboardExportController extends Controller
                 Cache::put('dashboard_cache_updated_at', now(), 300);
             }
 
-            $data = $cache['global'] ?? [];
+            $data = $this->resolveFilteredData($cache, $idState, $idInstitution);
 
             /* =====================================================
              |  MAPA DE GRÁFICAS
@@ -220,6 +237,40 @@ class DashboardExportController extends Controller
             return response()->json([
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        try {
+
+            $idState = $request->query('id_state');
+            $idInstitution = $request->query('id_institution');
+
+            $cache = Cache::get('dashboard_cache');
+
+            if (!$cache) {
+                return response()->json([
+                    'error' => 'Cache not ready'
+                ], 503);
+            }
+
+            $data = $this->resolveFilteredData($cache, $idState, $idInstitution);
+
+            return Excel::download(
+                new DashboardExcelExport($data),
+                'dashboard_reporte_' . now()->format('Y-m-d_H-i') . '.xlsx'
+            );
+
+        } catch (\Throwable $e) {
+
+            Log::error('Error exportando Excel', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Error generando Excel'
             ], 500);
         }
     }
