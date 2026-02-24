@@ -631,16 +631,21 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
     {
         $totalProjects = DualProject::where('has_report', 1)->count();
 
+        $joinInstitution = "";
         $whereConditions = [];
-        if (!empty($idInstitution)) {
-            $whereConditions[] = "i.id = " . (int)$idInstitution;
-        }
-        if (!empty($idState)) {
-            $whereConditions[] = "i.id_state = " . (int)$idState;
+
+        if (!empty($idInstitution) || !empty($idState)) {
+            $joinInstitution = "INNER JOIN institutions i ON dp.id_institution = i.id";
+
+            if (!empty($idInstitution)) {
+                $whereConditions[] = "i.id = " . (int)$idInstitution;
+            }
+            if (!empty($idState)) {
+                $whereConditions[] = "i.id_state = " . (int)$idState;
+            }
         }
 
         $whereSQL = !empty($whereConditions) ? "AND " . implode(" AND ", $whereConditions) : "";
-        $joinInstitution = (!empty($idInstitution) || !empty($idState)) ? "INNER JOIN institutions i ON dp.id_institution = i.id" : "";
 
         $results = DocumentStatus::select(
             'document_statuses.id',

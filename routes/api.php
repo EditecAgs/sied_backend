@@ -268,6 +268,8 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-update');
 
     Route::get('dashboard/cache', [DashboardController::class, 'showFullCache']);
+    Route::post('refresh-cache', [DashboardController::class, 'refreshCache'])->name('dashboard.refresh-cache');
+    Route::get('cache-status', [DashboardController::class, 'checkCacheStatus'])->name('dashboard.cache-status');
     Route::get('dual-projects/completed/count', [DashboardController::class, 'countDualProjectCompleted']);
     Route::get('students/registered/count', [DashboardController::class, 'countRegisteredStudents']);
     Route::get('projects/by-month', [DashboardController::class, 'countProjectsByMonth']);
