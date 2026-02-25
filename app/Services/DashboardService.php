@@ -20,9 +20,6 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
-    /**
-     * BASE QUERY GLOBAL - Todos los métodos que necesiten proyectos usarán esta base
-     */
     private function baseProjectQuery($idState = null, $idInstitution = null)
     {
         $q = DualProject::query()
@@ -155,9 +152,6 @@ class DashboardService
         return $results->toArray();
     }
 
-    /**
-     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
-     */
     public function countProjectsByArea($idState = null, $idInstitution = null)
     {
         $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
@@ -260,9 +254,6 @@ class DashboardService
         return $results;
     }
 
-    /**
-     * ✅ CORREGIDO - Usa base query
-     */
     public function countProjectsByEconomicSupport($idState = null, $idInstitution = null)
     {
         $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
@@ -292,9 +283,6 @@ class DashboardService
         })->toArray();
     }
 
-    /**
-     * ✅ CORREGIDO - Usa base query
-     */
     public function averageAmountByEconomicSupport($idState = null, $idInstitution = null)
     {
         $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
@@ -326,9 +314,6 @@ class DashboardService
         })->toArray();
     }
 
-    /**
-     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
-     */
     public function getInstitutionProjectPercentage($idState = null, $idInstitution = null)
     {
         $totalProjects = $this->baseProjectQuery($idState, $idInstitution)->count();
@@ -370,9 +355,6 @@ class DashboardService
         })->toArray();
     }
 
-    /**
-     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
-     */
     public function countProjectsByDualType($idState = null, $idInstitution = null)
     {
         $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
@@ -580,9 +562,6 @@ class DashboardService
         return $results->toArray();
     }
 
-    /**
-     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
-     */
     public function countProjectsByDocumentStatus($idState = null, $idInstitution = null)
     {
         $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
