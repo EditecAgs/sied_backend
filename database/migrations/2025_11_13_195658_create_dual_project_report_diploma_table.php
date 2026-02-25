@@ -12,17 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('dual_project_report_diploma', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_diploma')
-                  ->constrained('diplomas')
-                  ->onDelete('restrict')
-                  ->name('fk_diploma');
-            $table->foreignId('id_dual_project_report')
-                  ->constrained('dual_project_reports')
-                  ->onDelete('restrict')
-                  ->name('fk_dual_project_report');
+            $table->foreignUuid('id_diploma');
+            $table->foreignUuid('id_dual_project_report');
+            
+            $table->uuid('id')->primary();
+
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('id_diploma')
+                  ->references('id')
+                  ->on('diplomas')
+                  ->onDelete('restrict');
+
+            $table->foreign('id_dual_project_report')
+                  ->references('id')
+                  ->on('dual_project_reports')
+                  ->onDelete('restrict');
         });
     }
 

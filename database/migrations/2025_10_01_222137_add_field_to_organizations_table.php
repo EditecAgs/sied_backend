@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('organizations', function (Blueprint $table) {
-            $table->foreignId('id_cluster_local')->constrained('clusters')->onDelete('restrict')->after('id_cluster');
 
+            $table->foreignUuid('id_cluster_local')
+                  ->nullable()
+                  ->after('id_cluster')
+                  ->constrained('clusters')
+                  ->restrictOnDelete();
         });
     }
 

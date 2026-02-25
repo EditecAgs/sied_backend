@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\ClusterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardExportController;
 use App\Http\Controllers\DocumentStatusController;
 use App\Http\Controllers\DualAreaController;
 use App\Http\Controllers\DualProjectController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubsystemController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BenefitTypeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\BitacoraAccesoController;
@@ -111,7 +113,11 @@ Route::get('/reset-password/{token}', function($token, Request $request) {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/profile', [UserController::class, 'getProfile']);
     Route::put('/profile', [UserController::class, 'updateProfile']);
+    Route::get('/dashboard/export-pdf', [DashboardExportController::class, 'export']);
+    Route::get('/dashboard/export-simple-pdf', [DashboardExportController::class, 'exportSimple']);
+    Route::get('/dashboard/export-excel', [DashboardExportController::class, 'exportExcel']);
 });
+
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('users', [UserController::class, 'getUsers']);
@@ -130,6 +136,12 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::delete('institutions/{id}', [InstitutionController::class, 'deleteInstitution']);
 
     Route::get('profile', [UserController::class, 'getProfile']);
+
+    Route::get('benefit-types', [BenefitTypeController::class, 'getBenefitTypes']);
+    Route::get('benefit-types/{id}', [BenefitTypeController::class, 'getBenefitTypeById']);
+    Route::post('benefit-types', [BenefitTypeController::class, 'createBenefitType']);
+    Route::put('benefit-types/{id}', [BenefitTypeController::class, 'updateBenefitType']);
+    Route::delete('benefit-types/{id}', [BenefitTypeController::class, 'deleteBenefitType']);
 
     Route::get('subsystems', [SubsystemController::class, 'getSubsystems']);
     Route::get('subsystems/{id}', [SubsystemController::class, 'getSubsystemById']);
@@ -256,6 +268,8 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-update');
 
     Route::get('dashboard/cache', [DashboardController::class, 'showFullCache']);
+    Route::post('refresh-cache', [DashboardController::class, 'refreshCache'])->name('dashboard.refresh-cache');
+    Route::get('cache-status', [DashboardController::class, 'checkCacheStatus'])->name('dashboard.cache-status');
     Route::get('dual-projects/completed/count', [DashboardController::class, 'countDualProjectCompleted']);
     Route::get('students/registered/count', [DashboardController::class, 'countRegisteredStudents']);
     Route::get('projects/by-month', [DashboardController::class, 'countProjectsByMonth']);
@@ -270,6 +284,13 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('projects/sectors/mexico', [DashboardController::class, 'countProjectsBySectorPlanMexico']);
     Route::get('projects/economic-support', [DashboardController::class, 'countProjectsByEconomicSupport']);
     Route::get('projects/economic-support/average', [DashboardController::class, 'averageAmountByEconomicSupport']);
+    Route::get('project/benefit-type', [DashboardController::class, 'statsByBenefitType']);
+    Route::get('project/document-status', [DashboardController::class, 'countProjectsByDocumentStatus']);
+    Route::get('project/project-status', [DashboardController::class, 'countProjectsByStatus']);
+    Route::get('project/project-MicroCredential', [DashboardController::class, 'getMicroCredentialsStats']);
+    Route::get('project/project-Certification', [DashboardController::class, 'getCertificationsStats']);
+    Route::get('project/project-Diplomas', [DashboardController::class, 'getDiplomasStats']);
+    Route::get('project/project-DualAreas', [DashboardController::class, 'getDualAreasStats']);
     Route::get('logs', [LogController::class, 'index']);
     Route::get('logs/{id}', [LogController::class, 'show']);
     Route::get('bitacora-accesos', [BitacoraAccesoController::class, 'index']);

@@ -12,39 +12,23 @@ class DualTypesSeeder extends Seeder
      */
     public function run(): void
     {
-        DualType::updateOrCreate(
-            ['id' => 1],
-            ['name' => 'Desarrollo de Proyecto']
-        );
+        $dualTypes = [
+            ['name' => 'Desarrollo de Proyecto'],
+            ['name' => 'Rotación de Puestos'],
+            ['name' => 'Prácticas Profesionales'],
+            ['name' => 'Práctica en Área'],
+            ['name' => 'Estadías'],
+            ['name' => 'Becarios'],
+            ['name' => 'Internado'],
+        ];
 
-        DualType::updateOrCreate(
-            ['id' => 2],
-            ['name' => 'Rotación de Puestos']
-        );
+        foreach ($dualTypes as $type) {
+            DualType::updateOrCreate(
+                ['name' => $type['name']],
+                $type
+            );
+        }
 
-        DualType::updateOrCreate(
-            ['id' => 3],
-            ['name' => 'Prácticas Profesionales']
-        );
-
-        DualType::updateOrCreate(
-            ['id' => 4],
-            ['name' => 'Práctica en Área']
-        );
-
-        DualType::updateOrCreate(
-            ['id' => 5],
-            ['name' => 'Estadías']
-        );
-
-        DualType::updateOrCreate(
-            ['id' => 6],
-            ['name' => 'Becarios']
-        );
-
-        DualType::updateOrCreate(
-            ['id' => 7],
-            ['name' => 'Internado']
-        );
+        $this->command->info('Tipos duales creados/actualizados correctamente');
     }
 }

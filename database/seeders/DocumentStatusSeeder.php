@@ -13,14 +13,17 @@ class DocumentStatusSeeder extends Seeder
     public function run(): void
     {
         $statuses = [
-            ['id' => 1, 'name' => 'Convenio Dual Firmado'],
-            ['id' => 2, 'name' => 'Convenio Dual en Trámite'],
+            ['name' => 'Convenio Dual Firmado'],
+            ['name' => 'Convenio Dual en Trámite'],
         ];
+
         foreach ($statuses as $status) {
             DocumentStatus::updateOrCreate(
-                ['id' => $status['id']],
-                ['name' => $status['name']]
+                ['name' => $status['name']],
+                $status
             );
         }
+
+        $this->command->info('Estados de documento creados/actualizados correctamente');
     }
 }

@@ -11,6 +11,7 @@ use App\Services\DashboardService;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 
 class GenerateDashboardCacheJob implements ShouldQueue
@@ -30,24 +31,50 @@ class GenerateDashboardCacheJob implements ShouldQueue
      */
     public function handle(): void
     {
-                $service = new DashboardService();
+        try {
+            Log::info('Iniciando GenerateDashboardCacheJob');
 
-        $cache = [
-            "global" => $service->getAllMetrics(null, null),
-            "institutions" => [],
-            "states" => []
-        ];
+            $service = new DashboardService();
 
-        foreach (Institution::all() as $inst) {
-            $cache["institutions"][$inst->id] =
-                $service->getAllMetrics(null, $inst->id);
+            $cache = [
+                "global" => $service->getAllMetrics(null, null),
+                "institutions" => [],
+                "states" => []
+            ];
+
+            foreach (Institution::all() as $inst) {
+                $cache["institutions"][$inst->id] =
+                    $service->getAllMetrics(null, $inst->id);
+            }
+
+            foreach (State::all() as $state) {
+                $cache["states"][$state->id] =
+                    $service->getAllMetrics($state->id, null);
+            }
+
+            Cache::put("dashboard_cache", $cache, now()->addDay());
+            Cache::put("dashboard_cache_generated_at", now(), now()->addDay());
+
+            Log::info('GenerateDashboardCacheJob completado exitosamente');
+
+        } catch (\Exception $e) {
+            Log::error('Error en GenerateDashboardCacheJob: ' . $e->getMessage());
+            throw $e;
+        } finally {
+            Cache::forget('dashboard_cache_refreshing');
+            Cache::forget('dashboard_cache_refreshing_at');
+            Log::info('Locks liberados del dashboard_cache');
         }
+    }
 
-        foreach (State::all() as $state) {
-            $cache["states"][$state->id] =
-                $service->getAllMetrics($state->id, null);
-        }
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Cache::forget('dashboard_cache_refreshing');
+        Cache::forget('dashboard_cache_refreshing_at');
 
-        Cache::put("dashboard_cache", $cache, now()->addDay());
+        Log::error('GenerateDashboardCacheJob falló: ' . $exception->getMessage());
     }
 }

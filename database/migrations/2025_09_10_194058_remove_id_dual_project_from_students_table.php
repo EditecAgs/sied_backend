@@ -17,8 +17,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('students', function (Blueprint $table) {
-            $table->unsignedBigInteger('id_dual_project')->nullable()->after('id_specialty');
-            $table->foreign('id_dual_project')->references('id')->on('dual_projects')->onDelete('restrict');
+            $table->foreignUuid('id_dual_project')
+                  ->nullable()
+                  ->after('id_specialty')
+                  ->constrained('dual_projects')
+                  ->restrictOnDelete();
         });
     }
 };
