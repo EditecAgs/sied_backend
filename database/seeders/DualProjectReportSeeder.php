@@ -15,7 +15,6 @@ class DualProjectReportSeeder extends Seeder
 {
     public function run(): void
     {
-        // Buscar instituciones
         $instituciones = [
             'institutoAgs' => Institution::where('name', 'Instituto Tecnológico de Aguascalientes')->first(),
             'universidadAgs' => Institution::where('name', 'Universidad Autónoma de Aguascalientes')->first(),
@@ -24,7 +23,6 @@ class DualProjectReportSeeder extends Seeder
             'sanLuis' => Institution::where('name', 'Instituto Tecnológico de San Luis Potosí')->first(),
         ];
 
-        // Buscar tipos y áreas
         $tipos = [
             'desarrollo' => DualType::where('name', 'Desarrollo de Proyecto')->first(),
             'rotacion' => DualType::where('name', 'Rotación de Puestos')->first(),
@@ -46,26 +44,22 @@ class DualProjectReportSeeder extends Seeder
         $statusFirmado = DocumentStatus::where('name', 'Convenio Dual Firmado')->first();
         $apoyoEconomico = EconomicSupport::where('name', 'Apoyo Económico')->first();
 
-        // Validar datos necesarios
         if (!$instituciones['institutoAgs'] || !$tipos['desarrollo'] || !$areas['software'] || !$statusFirmado || !$apoyoEconomico) {
             $this->command->error('Faltan datos referenciados. Ejecuta primero DualProjectSeeder, DualTypesSeeder, DualAreaSeeder, DocumentStatusSeeder y EconomicSupportSeeder');
             return;
         }
 
-        // Mapear proyectos por institución
         $dualProjects = [];
         foreach ($instituciones as $key => $inst) {
             if ($inst) {
                 $dualProjects[$key] = DualProject::where('id_institution', $inst->id)->get();
             } else {
-                $dualProjects[$key] = collect(); // colección vacía si no existe
+                $dualProjects[$key] = collect();
             }
         }
 
-        // Crear reportes dinámicamente
         $reports = [];
 
-        // Por ejemplo, proyectos de Aguascalientes
         $projectsAgs = $dualProjects['institutoAgs'];
         foreach ($projectsAgs as $index => $project) {
             $reports[] = [
@@ -85,12 +79,11 @@ class DualProjectReportSeeder extends Seeder
             ];
         }
 
-        // Aquí puedes hacer lo mismo con otras instituciones, verificando si hay proyectos
         foreach ($dualProjects as $projects) {
             foreach ($projects as $project) {
                 DualProjectReport::updateOrCreate(
                     ['dual_project_id' => $project->id, 'name' => 'Reporte ' . $project->id],
-                    $reports[0] ?? [] // adaptas los datos según necesites
+                    $reports[0] ?? []
                 );
             }
         }

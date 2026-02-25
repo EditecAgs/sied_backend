@@ -20,6 +20,34 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
+    /**
+     * BASE QUERY GLOBAL - Todos los métodos que necesiten proyectos usarán esta base
+     */
+    private function baseProjectQuery($idState = null, $idInstitution = null)
+    {
+        $q = DualProject::query()
+            ->where('has_report', 1);
+
+        $this->applySimpleFilters($q, $idState, $idInstitution);
+
+        return $q;
+    }
+
+    private function applySimpleFilters($query, $idState, $idInstitution)
+    {
+        if (!empty($idInstitution)) {
+            $query->where('id_institution', $idInstitution);
+        }
+
+        if (!empty($idState)) {
+            $query->whereHas('institution', function ($q) use ($idState) {
+                $q->where('id_state', $idState);
+            });
+        }
+
+        return $query;
+    }
+
     public function getAllMetrics($idState = null, $idInstitution = null)
     {
         return [
@@ -40,33 +68,16 @@ class DashboardService
             'statsByBenefitType' => $this->statsByBenefitType($idState, $idInstitution),
             'countProjectsByDocumentStatus' => $this->countProjectsByDocumentStatus($idState, $idInstitution),
             'countProjectsByStatus' => $this->countProjectsByStatus($idState, $idInstitution),
-            'getMicroCredentialsStats' => $this->getMicroCredentialsStats(),
-            'getCertificationsStats' => $this->getCertificationsStats(),
-            'getDiplomasStats' => $this->getDiplomasStats(),
-            'getDualAreasStats' => $this->getDualAreasStats(),
+            'getMicroCredentialsStats' => $this->getMicroCredentialsStats($idState, $idInstitution),
+            'getCertificationsStats' => $this->getCertificationsStats($idState, $idInstitution),
+            'getDiplomasStats' => $this->getDiplomasStats($idState, $idInstitution),
+            'getDualAreasStats' => $this->getDualAreasStats($idState, $idInstitution),
         ];
-    }
-
-    private function applySimpleFilters($query, $idState, $idInstitution)
-    {
-        if (!empty($idInstitution)) {
-            $query->where('id_institution', $idInstitution);
-        }
-
-        if (!empty($idState)) {
-            $query->whereHas('institution', function ($q) use ($idState) {
-                $q->where('id_state', $idState);
-            });
-        }
-
-        return $query;
     }
 
     public function countDualProjectCompleted($idState = null, $idInstitution = null)
     {
-        $q = DualProject::query()->where('has_report', 1);
-        $this->applySimpleFilters($q, $idState, $idInstitution);
-        return $q->count();
+        return $this->baseProjectQuery($idState, $idInstitution)->count();
     }
 
     public function countRegisteredStudents($idState = null, $idInstitution = null)
@@ -126,8 +137,7 @@ class DashboardService
 
     public function countProjectsByMonth($idState = null, $idInstitution = null)
     {
-        $q = DualProject::query()->where('has_report', 1);
-        $this->applySimpleFilters($q, $idState, $idInstitution);
+        $q = $this->baseProjectQuery($idState, $idInstitution);
 
         $results = $q->join('dual_project_reports', 'dual_projects.id', '=', 'dual_project_reports.dual_project_id')
             ->select(
@@ -145,91 +155,72 @@ class DashboardService
         return $results->toArray();
     }
 
+    /**
+     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
+     */
     public function countProjectsByArea($idState = null, $idInstitution = null)
     {
-        $whereClauses = [];
-        $bindings = [];
+        $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
 
-        if (!empty($idInstitution)) {
-            $whereClauses[] = 'dp.id_institution = ?';
-            $bindings[] = $idInstitution;
-        }
-
-        if (!empty($idState)) {
-            $whereClauses[] = 'i.id_state = ?';
-            $bindings[] = $idState;
-        }
-
-        $whereSQL = !empty($whereClauses) ? 'AND ' . implode(' AND ', $whereClauses) : '';
-        $joinInstitution = !empty($idState) ? 'LEFT JOIN institutions i ON dp.id_institution = i.id' : '';
-
-        $results = DualArea::select(
-            'dual_areas.id',
-            'dual_areas.name as area_name',
-            DB::raw("(
-                SELECT COUNT(DISTINCT dp.id)
-                FROM dual_project_reports dpr
-                INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                    AND dp.has_report = 1
-                {$joinInstitution}
-                WHERE dpr.id_dual_area = dual_areas.id
-                {$whereSQL}
-            ) as project_count")
-        )
-            ->when(!empty($bindings), function ($query) use ($bindings) {
-                foreach ($bindings as $binding) {
-                    $query->addBinding($binding);
-                }
-            })
+        $results = DB::table('dual_areas')
+            ->leftJoin('dual_project_reports', 'dual_areas.id', '=', 'dual_project_reports.id_dual_area')
+            ->whereIn('dual_project_reports.dual_project_id', $projectIds)
+            ->select(
+                'dual_areas.id',
+                'dual_areas.name as area_name',
+                DB::raw('COUNT(DISTINCT dual_project_reports.dual_project_id) as project_count')
+            )
+            ->groupBy('dual_areas.id', 'dual_areas.name')
+            ->having('project_count', '>', 0)
             ->orderByDesc('project_count')
             ->get();
 
         return $results->toArray();
     }
 
-public function countProjectsBySector($idState = null, $idInstitution = null)
-{
-    $totalProjectsQ = DualProject::where('has_report', 1);
-    if (!empty($idInstitution)) {
-        $totalProjectsQ->where('id_institution', $idInstitution);
-    }
-    if (!empty($idState)) {
-        $totalProjectsQ->whereHas('institution', function ($qq) use ($idState) {
-            $qq->where('id_state', $idState);
-        });
-    }
-    $totalProjects = $totalProjectsQ->count();
+    public function countProjectsBySector($idState = null, $idInstitution = null)
+    {
+        $totalProjectsQ = DualProject::where('has_report', 1);
+        if (!empty($idInstitution)) {
+            $totalProjectsQ->where('id_institution', $idInstitution);
+        }
+        if (!empty($idState)) {
+            $totalProjectsQ->whereHas('institution', function ($qq) use ($idState) {
+                $qq->where('id_state', $idState);
+            });
+        }
+        $totalProjects = $totalProjectsQ->count();
 
-    $query = Sector::query()
-        ->select([
-            'sectors.*',
-            DB::raw('(SELECT COUNT(DISTINCT dp.id)
+        $query = Sector::query()
+            ->select([
+                'sectors.*',
+                DB::raw('(SELECT COUNT(DISTINCT dp.id)
                   FROM organizations o
                   LEFT JOIN organizations_dual_projects odp ON o.id = odp.id_organization
                   LEFT JOIN dual_projects dp ON dp.id = odp.id_dual_project
-                      AND dp.has_report = 1
+                      AND dp.has_report = 1 AND dp.deleted_at IS NULL
                   WHERE o.id_sector = sectors.id
                   ' . (!empty($idInstitution) ? ' AND dp.id_institution = ?' : '') . '
                   ' . (!empty($idState) ? ' AND EXISTS (SELECT 1 FROM institutions i WHERE i.id = dp.id_institution AND i.id_state = ?)' : '') . '
                  ) as project_count')
-        ]);
+            ]);
 
-    if (!empty($idInstitution)) {
-        $query->addBinding($idInstitution, 'select');
+        if (!empty($idInstitution)) {
+            $query->addBinding($idInstitution, 'select');
+        }
+        if (!empty($idState)) {
+            $query->addBinding($idState, 'select');
+        }
+
+        $results = $query->orderByDesc('project_count')->get();
+
+        $collection = $results->map(function ($sector) use ($totalProjects) {
+            $sector->percentage = $totalProjects > 0 ? round(($sector->project_count * 100) / $totalProjects, 2) : 0;
+            return $sector;
+        })->values();
+
+        return $collection->toArray();
     }
-    if (!empty($idState)) {
-        $query->addBinding($idState, 'select');
-    }
-
-    $results = $query->orderByDesc('project_count')->get();
-
-    $collection = $results->map(function ($sector) use ($totalProjects) {
-        $sector->percentage = $totalProjects > 0 ? round(($sector->project_count * 100) / $totalProjects, 2) : 0;
-        return $sector;
-    })->values();
-
-    return $collection->toArray();
-}
 
     public function countProjectsBySectorPlanMexico($idState = null, $idInstitution = null)
     {
@@ -241,7 +232,7 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
                     ->leftJoin('organizations_dual_projects', 'organizations.id', '=', 'organizations_dual_projects.id_organization')
                     ->leftJoin('dual_projects', function ($join) {
                         $join->on('organizations_dual_projects.id_dual_project', '=', 'dual_projects.id')
-                            ->where('dual_projects.has_report', 1);
+                            ->where('dual_projects.has_report', 1) ->whereNull('dual_projects.deleted_at');
                     })
                     ->when(!empty($idState), function ($q) use ($idState) {
                         $q->where('organizations.id_state', $idState);
@@ -269,122 +260,84 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
         return $results;
     }
 
+    /**
+     * ✅ CORREGIDO - Usa base query
+     */
     public function countProjectsByEconomicSupport($idState = null, $idInstitution = null)
     {
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
 
-        $whereConditions = [];
-        if (!empty($idInstitution)) {
-            $whereConditions[] = "i.id = " . (int)$idInstitution;
-        }
-        if (!empty($idState)) {
-            $whereConditions[] = "i.id_state = " . (int)$idState;
-        }
-
-        $whereSQL = !empty($whereConditions) ? "AND " . implode(" AND ", $whereConditions) : "";
-        $joinInstitution = (!empty($idInstitution) || !empty($idState)) ? "INNER JOIN institutions i ON dp.id_institution = i.id" : "";
-
-        $results = EconomicSupport::select(
-            'economic_supports.id',
-            'economic_supports.name as support_name',
-            DB::raw("(
-                SELECT COUNT(DISTINCT dp.id)
-                FROM dual_project_reports dpr
-                INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                    AND dp.has_report = 1
-                {$joinInstitution}
-                WHERE dpr.economic_support = economic_supports.id
-                {$whereSQL}
-            ) as project_count"),
-            DB::raw("CASE WHEN {$totalProjects} > 0
-                THEN ROUND((
-                    SELECT COUNT(DISTINCT dp.id)
-                    FROM dual_project_reports dpr
-                    INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                        AND dp.has_report = 1
-                    {$joinInstitution}
-                    WHERE dpr.economic_support = economic_supports.id
-                    {$whereSQL}
-                ) * 100.0 / {$totalProjects}, 2)
-                ELSE 0
-                END as percentage")
-        )
+        $results = DB::table('economic_supports as es')
+            ->leftJoin('dual_project_reports as dpr', 'es.id', '=', 'dpr.economic_support')
+            ->whereIn('dpr.dual_project_id', $projectIds)
+            ->select(
+                'es.id',
+                'es.name as support_name',
+                DB::raw('COUNT(DISTINCT dpr.dual_project_id) as project_count')
+            )
+            ->groupBy('es.id', 'es.name')
+            ->having('project_count', '>', 0)
             ->orderByDesc('project_count')
             ->get();
 
-        return $results->toArray();
+        $totalProjects = $results->sum('project_count');
+
+        return $results->map(function ($item) use ($totalProjects) {
+            return (object) [
+                'id' => $item->id,
+                'support_name' => $item->support_name,
+                'project_count' => $item->project_count,
+                'percentage' => $totalProjects > 0 ? round(($item->project_count * 100) / $totalProjects, 2) : 0,
+            ];
+        })->toArray();
     }
 
+    /**
+     * ✅ CORREGIDO - Usa base query
+     */
     public function averageAmountByEconomicSupport($idState = null, $idInstitution = null)
     {
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
 
-        $whereConditions = [];
-        if (!empty($idInstitution)) {
-            $whereConditions[] = "i.id = " . (int)$idInstitution;
-        }
-        if (!empty($idState)) {
-            $whereConditions[] = "i.id_state = " . (int)$idState;
-        }
-
-        $whereSQL = !empty($whereConditions) ? "AND " . implode(" AND ", $whereConditions) : "";
-        $joinInstitution = (!empty($idInstitution) || !empty($idState)) ? "INNER JOIN institutions i ON dp.id_institution = i.id" : "";
-
-        $results = EconomicSupport::select(
-            'economic_supports.id',
-            'economic_supports.name as support_name',
-            DB::raw("(
-            SELECT COUNT(DISTINCT dp.id)
-            FROM dual_project_reports dpr
-            INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                AND dp.has_report = 1
-            {$joinInstitution}
-            WHERE dpr.economic_support = economic_supports.id
-            {$whereSQL}
-        ) as project_count"),
-            DB::raw("CASE
-            WHEN economic_supports.id = 1 THEN 0  -- Sin Apoyo Económico siempre es 0
-            ELSE (
-                SELECT ROUND(AVG(dpr2.amount), 2)
-                FROM dual_project_reports dpr2
-                INNER JOIN dual_projects dp2 ON dpr2.dual_project_id = dp2.id
-                    AND dp2.has_report = 1
-                " . (!empty($idInstitution) || !empty($idState) ? "INNER JOIN institutions i2 ON dp2.id_institution = i2.id" : "") . "
-                WHERE dpr2.economic_support = economic_supports.id
-                " . (!empty($whereConditions) ? "AND " . implode(" AND ", array_map(function($cond) {
-                        return str_replace('i.', 'i2.', $cond);
-                    }, $whereConditions)) : "") . "
-                AND dpr2.amount IS NOT NULL
-                AND dpr2.amount > 0
+        $results = DB::table('economic_supports as es')
+            ->leftJoin('dual_project_reports as dpr', 'es.id', '=', 'dpr.economic_support')
+            ->whereIn('dpr.dual_project_id', $projectIds)
+            ->select(
+                'es.id',
+                'es.name as support_name',
+                DB::raw('COUNT(DISTINCT dpr.dual_project_id) as project_count'),
+                DB::raw('COALESCE(ROUND(AVG(NULLIF(dpr.amount, 0)), 2), 0) as average_amount')
             )
-            END as average_amount"),
-            DB::raw("CASE WHEN {$totalProjects} > 0
-            THEN ROUND((
-                SELECT COUNT(DISTINCT dp.id)
-                FROM dual_project_reports dpr
-                INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                    AND dp.has_report = 1
-                {$joinInstitution}
-                WHERE dpr.economic_support = economic_supports.id
-                {$whereSQL}
-            ) * 100.0 / {$totalProjects}, 2)
-            ELSE 0
-            END as percentage")
-        )
+            ->groupBy('es.id', 'es.name')
+            ->having('project_count', '>', 0)
             ->orderByDesc('project_count')
             ->get();
 
-        return $results->toArray();
+        $totalProjects = $results->sum('project_count');
+
+        return $results->map(function ($item) use ($totalProjects) {
+            return (object) [
+                'id' => $item->id,
+                'support_name' => $item->support_name,
+                'project_count' => $item->project_count,
+                'average_amount' => $item->average_amount,
+                'percentage' => $totalProjects > 0 ? round(($item->project_count * 100) / $totalProjects, 2) : 0,
+            ];
+        })->toArray();
     }
 
+    /**
+     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
+     */
     public function getInstitutionProjectPercentage($idState = null, $idInstitution = null)
     {
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        $totalProjects = $this->baseProjectQuery($idState, $idInstitution)->count();
 
-        $query = Institution::query()
+        $query = DB::table('institutions')
             ->leftJoin('dual_projects', function ($join) {
                 $join->on('institutions.id', '=', 'dual_projects.id_institution')
-                    ->where('dual_projects.has_report', 1);
+                    ->where('dual_projects.has_report', 1)
+                    ->whereNull('dual_projects.deleted_at');
             });
 
         if (!empty($idInstitution)) {
@@ -399,42 +352,41 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             'institutions.id',
             'institutions.name as institution_name',
             'institutions.image',
-            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'),
-            DB::raw('CASE WHEN ' . $totalProjects . ' > 0 THEN ROUND(COUNT(DISTINCT dual_projects.id) * 100.0 / ' . $totalProjects . ', 2) ELSE 0 END as percentage')
+            DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
         )
             ->groupBy('institutions.id', 'institutions.name', 'institutions.image')
-            ->orderByDesc('percentage')
+            ->having('project_count', '>', 0)
+            ->orderByDesc('project_count')
             ->get();
 
-        return $results->toArray();
+        return $results->map(function ($item) use ($totalProjects) {
+            return (object) [
+                'id' => $item->id,
+                'institution_name' => $item->institution_name,
+                'image' => $item->image,
+                'project_count' => $item->project_count,
+                'percentage' => $totalProjects > 0 ? round(($item->project_count * 100) / $totalProjects, 2) : 0,
+            ];
+        })->toArray();
     }
 
+    /**
+     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
+     */
     public function countProjectsByDualType($idState = null, $idInstitution = null)
     {
-        $whereConditions = [];
-        if (!empty($idInstitution)) {
-            $whereConditions[] = "i.id = " . (int)$idInstitution;
-        }
-        if (!empty($idState)) {
-            $whereConditions[] = "i.id_state = " . (int)$idState;
-        }
+        $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
 
-        $whereSQL = !empty($whereConditions) ? "AND " . implode(" AND ", $whereConditions) : "";
-        $joinInstitution = (!empty($idInstitution) || !empty($idState)) ? "INNER JOIN institutions i ON dp.id_institution = i.id" : "";
-
-        $results = DualType::select(
-            'dual_types.id',
-            'dual_types.name as dual_type',
-            DB::raw("(
-                SELECT COUNT(DISTINCT dp.id)
-                FROM dual_project_reports dpr
-                INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                    AND dp.has_report = 1
-                {$joinInstitution}
-                WHERE dpr.dual_type_id = dual_types.id
-                {$whereSQL}
-            ) as total")
-        )
+        $results = DB::table('dual_types')
+            ->leftJoin('dual_project_reports', 'dual_types.id', '=', 'dual_project_reports.dual_type_id')
+            ->whereIn('dual_project_reports.dual_project_id', $projectIds)
+            ->select(
+                'dual_types.id',
+                'dual_types.name as dual_type',
+                DB::raw('COUNT(DISTINCT dual_project_reports.dual_project_id) as total')
+            )
+            ->groupBy('dual_types.id', 'dual_types.name')
+            ->having('total', '>', 0)
             ->orderByDesc('total')
             ->get();
 
@@ -477,7 +429,7 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             SELECT COUNT(DISTINCT o.id)
             FROM organizations o
             INNER JOIN organizations_dual_projects odp ON o.id = odp.id_organization
-            INNER JOIN dual_projects dp ON odp.id_dual_project = dp.id
+            INNER JOIN dual_projects dp ON odp.id_dual_project = dp.id AND dp.has_report = 1 AND dp.deleted_at IS NULL
             INNER JOIN institutions i ON dp.id_institution = i.id
             WHERE o.id_cluster = clusters.id
             {$filterString}
@@ -487,7 +439,7 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             SELECT COUNT(DISTINCT o.id)
             FROM organizations o
             INNER JOIN organizations_dual_projects odp ON o.id = odp.id_organization
-            INNER JOIN dual_projects dp ON odp.id_dual_project = dp.id
+            INNER JOIN dual_projects dp ON odp.id_dual_project = dp.id AND dp.has_report = 1 AND dp.deleted_at IS NULL
             INNER JOIN institutions i ON dp.id_institution = i.id
             WHERE o.id_cluster_local = clusters.id
             {$filterString}
@@ -547,7 +499,8 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
                 ->leftJoin('organizations_dual_projects', 'organizations_dual_projects.id_organization', '=', 'organizations.id')
                 ->leftJoin('dual_projects', function ($join) {
                     $join->on('dual_projects.id', '=', 'organizations_dual_projects.id_dual_project')
-                        ->where('dual_projects.has_report', 1);
+                        ->where('dual_projects.has_report', 1)
+                        ->whereNull('dual_projects.deleted_at');
                 })
                 ->leftJoin('institutions', 'institutions.id', '=', 'dual_projects.id_institution');
 
@@ -600,7 +553,7 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             )
             ->leftJoin('dual_projects as dp', function ($join) {
                 $join->on('dp.id', '=', 'dpr.dual_project_id')
-                ->where('dp.has_report', 1);
+                    ->where('dp.has_report', 1) ->whereNull('dp.deleted_at');
             })
             ->leftJoin('institutions as i', 'i.id', '=', 'dp.id_institution')
             ->whereNull('bt.deleted_at');
@@ -627,55 +580,35 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
         return $results->toArray();
     }
 
+    /**
+     * ✅ CORREGIDO - Usa Query Builder en lugar de relaciones
+     */
     public function countProjectsByDocumentStatus($idState = null, $idInstitution = null)
     {
-        $totalProjects = DualProject::where('has_report', 1)->count();
+        $projectIds = $this->baseProjectQuery($idState, $idInstitution)->pluck('id');
+        $totalProjects = count($projectIds);
 
-        $joinInstitution = "";
-        $whereConditions = [];
-
-        if (!empty($idInstitution) || !empty($idState)) {
-            $joinInstitution = "INNER JOIN institutions i ON dp.id_institution = i.id";
-
-            if (!empty($idInstitution)) {
-                $whereConditions[] = "i.id = " . (int)$idInstitution;
-            }
-            if (!empty($idState)) {
-                $whereConditions[] = "i.id_state = " . (int)$idState;
-            }
-        }
-
-        $whereSQL = !empty($whereConditions) ? "AND " . implode(" AND ", $whereConditions) : "";
-
-        $results = DocumentStatus::select(
-            'document_statuses.id',
-            'document_statuses.name as status_name',
-            DB::raw("(
-            SELECT COUNT(DISTINCT dp.id)
-            FROM dual_project_reports dpr
-            INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                AND dp.has_report = 1
-            {$joinInstitution}
-            WHERE dpr.status_document = document_statuses.id
-            {$whereSQL}
-        ) as project_count"),
-            DB::raw("CASE WHEN {$totalProjects} > 0
-            THEN ROUND((
-                SELECT COUNT(DISTINCT dp.id)
-                FROM dual_project_reports dpr
-                INNER JOIN dual_projects dp ON dpr.dual_project_id = dp.id
-                    AND dp.has_report = 1
-                {$joinInstitution}
-                WHERE dpr.status_document = document_statuses.id
-                {$whereSQL}
-            ) * 100.0 / {$totalProjects}, 2)
-            ELSE 0
-            END as percentage")
-        )
+        $results = DB::table('document_statuses')
+            ->leftJoin('dual_project_reports', 'document_statuses.id', '=', 'dual_project_reports.status_document')
+            ->whereIn('dual_project_reports.dual_project_id', $projectIds)
+            ->select(
+                'document_statuses.id',
+                'document_statuses.name as status_name',
+                DB::raw('COUNT(DISTINCT dual_project_reports.dual_project_id) as project_count')
+            )
+            ->groupBy('document_statuses.id', 'document_statuses.name')
+            ->having('project_count', '>', 0)
             ->orderByDesc('project_count')
             ->get();
 
-        return $results->toArray();
+        return $results->map(function ($item) use ($totalProjects) {
+            return (object) [
+                'id' => $item->id,
+                'status_name' => $item->status_name,
+                'project_count' => $item->project_count,
+                'percentage' => $totalProjects > 0 ? round(($item->project_count * 100) / $totalProjects, 2) : 0,
+            ];
+        })->toArray();
     }
 
     public function countProjectsByStatus($idState = null, $idInstitution = null)
@@ -722,6 +655,7 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             ]
         ];
     }
+
     public function getMicroCredentialsStats($idState = null, $idInstitution = null)
     {
         $projectsQuery = DualProject::where('has_report', 1);
@@ -880,11 +814,12 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
     {
         $areas = DualArea::all();
 
-        $projectsBaseQuery = DualProject::where('has_report', 1);
-        $this->applySimpleFilters($projectsBaseQuery, $idState, $idInstitution);
+        $projectsQuery = $this->baseProjectQuery($idState, $idInstitution)
+            ->join('dual_project_reports', 'dual_projects.id', '=', 'dual_project_reports.dual_project_id');
 
-        $validProjectIds = $projectsBaseQuery->pluck('id')->toArray();
-        $totalProjects = count($validProjectIds);
+        $totalProjects = (clone $projectsQuery)
+            ->distinct('dual_projects.id')
+            ->count('dual_projects.id');
 
         if ($totalProjects === 0) {
             return $areas->map(function ($area) {
@@ -897,18 +832,20 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             })->toArray();
         }
 
-        $areaCounts = DB::table('dual_projects')
-            ->join('dual_project_reports', 'dual_projects.id', '=', 'dual_project_reports.dual_project_id')
-            ->where('dual_projects.has_report', 1)
-            ->whereIn('dual_projects.id', $validProjectIds)
-            ->select('dual_project_reports.id_dual_area', DB::raw('COUNT(DISTINCT dual_projects.id) as project_count'))
+        $areaCounts = $projectsQuery
+            ->select(
+                'dual_project_reports.id_dual_area',
+                DB::raw('COUNT(DISTINCT dual_projects.id) as project_count')
+            )
             ->groupBy('dual_project_reports.id_dual_area')
-            ->pluck('project_count', 'id_dual_area')
+            ->pluck('project_count', 'dual_project_reports.id_dual_area')
             ->toArray();
 
         $results = [];
+
         foreach ($areas as $area) {
             $count = $areaCounts[$area->id] ?? 0;
+
             $results[] = [
                 'id' => $area->id,
                 'name' => $area->name,
@@ -917,9 +854,7 @@ public function countProjectsBySector($idState = null, $idInstitution = null)
             ];
         }
 
-        usort($results, function ($a, $b) {
-            return $b['project_count'] - $a['project_count'];
-        });
+        usort($results, fn($a, $b) => $b['project_count'] <=> $a['project_count']);
 
         return $results;
     }

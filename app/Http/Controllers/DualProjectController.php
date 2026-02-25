@@ -105,7 +105,6 @@ class DualProjectController extends Controller
         $query->orderBy('id', 'desc');
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
-        // CORRECCIÓN: Agregar withPivot('quantity') en benefitTypes
         $paginator->load([
             'institution:id,name,city,id_state',
             'institution.state:id,name',
@@ -401,7 +400,6 @@ public function getUnreportedDualProjects()
             'dualProjectReports.microCredentials:id,name,organization,description,image',
             'dualProjectReports.certifications',
             'dualProjectReports.diplomas',
-            // CORRECCIÓN: Agregar withPivot('quantity') en benefitTypes
             'dualProjectReports.benefitTypes' => function($query) {
                 $query->withPivot('quantity')->select('benefit_types.id', 'benefit_types.name');
             },
@@ -435,20 +433,17 @@ public function createDualProject(DualProjectRequest $request)
             ? count($data['students'])
             : 0;
 
-        // Crear el proyecto dual
         $dualProject = DualProject::create([
             'has_report' => $data['has_report'],
             'id_institution' => $data['id_institution'],
             'number_student' => $numberOfStudents,
         ]);
 
-        // Si tiene reporte
         if ($data['has_report'] == 1) {
             $report = $this->createDualProjectReport($data, $dualProject->id);
             $this->createOrganizationDualProject($data, $dualProject->id);
             $this->createStudents($data, $dualProject->id);
 
-            // --- MICRO CREDENTIALS ---
             if (!empty($data['micro_credentials'])) {
                 $report->microCredentials()->detach();
                 foreach ($data['micro_credentials'] as $microId) {
@@ -462,7 +457,6 @@ public function createDualProject(DualProjectRequest $request)
                 }
             }
 
-            // --- DIPLOMAS ---
             if (!empty($data['diplomas'])) {
                 $report->diplomas()->detach();
                 foreach ($data['diplomas'] as $diplomaId) {
@@ -476,7 +470,6 @@ public function createDualProject(DualProjectRequest $request)
                 }
             }
 
-            // --- CERTIFICATIONS ---
             if (!empty($data['certifications'])) {
                 $report->certifications()->detach();
                 foreach ($data['certifications'] as $certId) {
@@ -490,7 +483,6 @@ public function createDualProject(DualProjectRequest $request)
                 }
             }
 
-            // --- BENEFIT TYPES ---
             if (!empty($data['benefit_types'])) {
                 $report->benefitTypes()->detach();
                 foreach ($data['benefit_types'] as $benefit) {
@@ -551,11 +543,8 @@ public function updateDualProject(DualProjectRequest $request, $id)
                 $this->updateOrCreateStudents($data, $dualProject->id);
             }
 
-            // --- MICRO CREDENTIALS - CORREGIDO igual que en create ---
             if (!empty($data['micro_credentials'])) {
-                // Eliminar todas las relaciones existentes
                 $report->microCredentials()->detach();
-                // Crear nuevas relaciones con UUID explícito
                 foreach ($data['micro_credentials'] as $microId) {
                     $report->microCredentials()->attach([
                         $microId => [
@@ -568,8 +557,7 @@ public function updateDualProject(DualProjectRequest $request, $id)
             } else {
                 $report->microCredentials()->detach();
             }
-            
-            // --- DIPLOMAS - CORREGIDO igual que en create ---
+
             if (!empty($data['diplomas'])) {
                 $report->diplomas()->detach();
                 foreach ($data['diplomas'] as $diplomaId) {
@@ -584,8 +572,7 @@ public function updateDualProject(DualProjectRequest $request, $id)
             } else {
                 $report->diplomas()->detach();
             }
-            
-            // --- CERTIFICATIONS - CORREGIDO igual que en create ---
+
             if (!empty($data['certifications'])) {
                 $report->certifications()->detach();
                 foreach ($data['certifications'] as $certId) {
@@ -600,8 +587,7 @@ public function updateDualProject(DualProjectRequest $request, $id)
             } else {
                 $report->certifications()->detach();
             }
-            
-            // --- BENEFIT TYPES - CORREGIDO igual que en create ---
+
             if (!empty($data['benefit_types'])) {
                 $report->benefitTypes()->detach();
                 foreach ($data['benefit_types'] as $benefit) {
@@ -618,7 +604,6 @@ public function updateDualProject(DualProjectRequest $request, $id)
                 $report->benefitTypes()->detach();
             }
         } else {
-            // Si has_report es 0, eliminar relaciones existentes
             $report = DualProjectReport::where('dual_project_id', $dualProject->id)->first();
             if ($report) {
                 $report->microCredentials()->detach();
@@ -627,7 +612,7 @@ public function updateDualProject(DualProjectRequest $request, $id)
                 $report->benefitTypes()->detach();
                 $report->delete();
             }
-            
+
             OrganizationDualProject::where('id_dual_project', $dualProject->id)->delete();
             DualProjectStudent::where('id_dual_project', $dualProject->id)->delete();
         }
@@ -660,13 +645,13 @@ public function updateDualProject(DualProjectRequest $request, $id)
             'message' => 'Proyecto dual actualizado exitosamente',
             'data' => $dualProject
         ], Response::HTTP_OK);
-        
+
     } catch (Exception $e) {
         DB::rollBack();
-        
+
         \Log::error('Error al actualizar el proyecto dual: ' . $e->getMessage());
         \Log::error('Trace: ' . $e->getTraceAsString());
-        
+
         return $this->handleException($e, 'Error al actualizar el proyecto dual');
     }
 }
@@ -726,7 +711,7 @@ protected function createDualProjectReport(array $data, string $dualProjectId)
 {
     return DualProjectReport::create([
         'name' => $data['name_report'],
-        'dual_project_id' => $dualProjectId, // Esto ya es string
+        'dual_project_id' => $dualProjectId,
         'id_dual_area' => $data['id_dual_area'],
         'dual_type_id' => $data['dual_type_id'],
         'description' => $data['description'] ?? '',
