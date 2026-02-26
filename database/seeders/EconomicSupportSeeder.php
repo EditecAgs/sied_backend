@@ -13,18 +13,35 @@ class EconomicSupportSeeder extends Seeder
     public function run(): void
     {
         $economicSupports = [
-            ['id' => 1, 'name' => 'Sin Apoyo Económico', 'description' => 'Aquellos estudiantes que no cuentan con ningún apoyo.'],
-            ['id' => 2, 'name' => 'Apoyo Económico', 'description' => 'Apoyo económico para estudiantes'],
-            ['id' => 3, 'name' => 'Apoyo de Transporte', 'description' => 'Apoyo para cubrir gastos de transporte a la unidad dual.'],
-            ['id' => 4, 'name' => 'Apoyo Alimentario', 'description' => 'Apoyo para cubrir gastos de alimentación de los estudiantes.'],
-            ['id'=> 5, 'name' => 'Otro', 'description' => 'Cualquier otro tipo de apoyo económico no especificado.'],
+            [
+                'name' => 'Sin Apoyo Económico',
+                'description' => 'Aquellos estudiantes que no cuentan con ningún apoyo.'
+            ],
+            [
+                'name' => 'Apoyo Económico',
+                'description' => 'Apoyo económico para estudiantes'
+            ],
+            [
+                'name' => 'Apoyo de Transporte',
+                'description' => 'Apoyo para cubrir gastos de transporte a la unidad dual.'
+            ],
+            [
+                'name' => 'Apoyo Alimentario',
+                'description' => 'Apoyo para cubrir gastos de alimentación de los estudiantes.'
+            ],
+            [
+                'name' => 'Otro',
+                'description' => 'Cualquier otro tipo de apoyo económico no especificado.'
+            ],
         ];
 
         foreach ($economicSupports as $economicSupport) {
             EconomicSupport::updateOrCreate(
-                ['id' => $economicSupport['id']],
+                ['name' => $economicSupport['name']],
                 $economicSupport
             );
         }
+
+        $this->command->info('Apoyos económicos creados/actualizados correctamente');
     }
 }

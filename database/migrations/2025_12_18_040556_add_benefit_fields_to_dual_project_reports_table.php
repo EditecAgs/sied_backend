@@ -25,14 +25,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('dual_project_reports', function (Blueprint $table) {
-            Schema::table('dual_project_reports', function (Blueprint $table) {
-                $table->dropColumn([
-                    'economic_benefit',
-                    'economic_benefit_note',
-                    'time_benefit',
-                    'time_benefit_note'
-                ]);
-            });
+            $table->dropColumn([
+                'economic_benefit',
+                'economic_benefit_note',
+                'time_benefit',
+                'time_benefit_note'
+            ]);
         });
     }
 };

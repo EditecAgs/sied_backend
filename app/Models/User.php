@@ -10,18 +10,21 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use App\Notifications\CustomResetPassword; // Añade esta línea
+use App\Notifications\CustomResetPassword; 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, softDeletes, LogsActivity;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, LogsActivity, HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'name',
         'lastname',

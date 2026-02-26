@@ -5,11 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 
 class DualProjectReport extends Model
 {
-    use LogsActivity;
+    use LogsActivity, HasUuids;
+    protected $keyType = 'string';
+    public $incrementing = false;
+    protected $table = 'dual_project_reports';
+    
     protected $fillable = [
         'name',
         'dual_project_id',
@@ -32,10 +37,6 @@ class DualProjectReport extends Model
         'internal_advisor_qualification',
         'external_advisor_name',
         'external_advisor_qualification',
-        'economic_benefit',
-        'economic_benefit_note',
-        'time_benefit',
-        'time_benefit_note'
     ];
 
     public function microCredentials()
@@ -65,6 +66,16 @@ class DualProjectReport extends Model
             'id_dual_project_report',
             'id_certification'
         )->withTimestamps()->withTrashed();
+    }
+
+    public function benefitTypes()
+    {
+        return $this->belongsToMany(
+            BenefitType::class,
+             'benefit_type_dual_project_report',
+              'id_dual_project_report',
+               'id_benefit_type')
+            ->withPivot('quantity');
     }
 
     public function dualArea()

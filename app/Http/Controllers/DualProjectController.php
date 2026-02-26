@@ -13,305 +13,321 @@ use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Str;
+
 
 class DualProjectController extends Controller
 {
     public function getAllDualProjects(Request $request)
-    {
-        try {
-            $perPage = $request->input('per_page', 10);
-            $page = $request->input('page', 1);
-            $filters = $request->input('filters', []);
-            $user = Auth::user();
+{
+    try {
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $filters = $request->input('filters', []);
+        $user = Auth::user();
 
-            $query = DualProject::query();
+        $query = DualProject::query();
 
-            if ($user->type != 0 && $user->id_institution) {
-                $query->where('id_institution', $user->id_institution);
-            }
-
-            if (!empty($filters)) {
-                foreach ($filters as $field => $value) {
-                    if (!empty($value)) {
-                        switch ($field) {
-                            case 'status':
-                                if (strtolower($value) === 'completado') {
-                                    $query->where('has_report', 1);
-                                } elseif (strtolower($value) === 'incompleto') {
-                                    $query->where('has_report', 0);
-                                }
-                                break;
-
-                            case 'students':
-                                $query->whereHas('dualProjectStudents.student', function ($q) use ($value) {
-                                    $q->where(function ($subQuery) use ($value) {
-                                        $subQuery->where('name', 'like', "%{$value}%")
-                                            ->orWhere('lastname', 'like', "%{$value}%");
-                                    });
-                                });
-                                break;
-
-                            case 'institution_name':
-                                $query->whereHas('institution', function ($q) use ($value) {
-                                    $q->where('name', 'like', "%{$value}%");
-                                });
-                                break;
-                            case 'institution_state':
-                                $query->whereHas('institution.state', function ($q) use ($value) {
-                                    $q->where('name', 'like', "%{$value}%");
-                                });
-                                break;
-                            case 'institution_city':
-                                $query->whereHas('institution', function ($q) use ($value) {
-                                    $q->where('city', 'like', "%{$value}%");
-                                });
-                                break;
-
-                            case 'organization_name':
-                                $query->whereHas('organizationDualProjects.organization', function ($q) use ($value) {
-                                    $q->where('name', 'like', "%{$value}%");
-                                });
-                                break;
-                            case 'organization_state':
-                                $query->whereHas('organizationDualProjects.organization.state', function ($q) use ($value) {
-                                    $q->where('name', 'like', "%{$value}%");
-                                });
-                                break;
-                            case 'organization_city':
-                                $query->whereHas('organizationDualProjects.organization', function ($q) use ($value) {
-                                    $q->where('city', 'like', "%{$value}%");
-                                });
-                                break;
-                            case 'organization_sector':
-                                $query->whereHas('organizationDualProjects.organization.sector', function ($q) use ($value) {
-                                    $q->where('name', 'like', "%{$value}%");
-                                });
-                                break;
-                            case 'organization_type':
-                                $query->whereHas('organizationDualProjects.organization.type', function ($q) use ($value) {
-                                    $q->where('name', 'like', "%{$value}%");
-                                });
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-
-            $query->orderBy('id', 'desc');
-            $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-
-            $paginator->load([
-                'institution:id,name,city,id_state',
-                'institution.state:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification,economic_benefit,time_benefit,economic_benefit_note,time_benefit_note',
-                'dualProjectReports.dualArea:id,name',
-                'dualProjectReports.dualType:id,name',
-                'dualProjectReports.statusDocument:id,name',
-                'dualProjectReports.economicSupport:id,name',
-                'dualProjectReports.microCredentials:id,name,organization,description,image,type,hours',
-                'dualProjectReports.certifications:id,name,organization,description,image,type,hours',
-                'dualProjectReports.diplomas:id,name,organization,description,image,type,hours',
-                'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
-                'dualProjectStudents.student.institution:id,name',
-                'dualProjectStudents.student.career:id,name',
-                'dualProjectStudents.student.specialty:id,name',
-            ]);
-
-            $projectIds = $paginator->pluck('id')->toArray();
-            $organizationRelations = OrganizationDualProject::whereIn('id_dual_project', $projectIds)
-                ->with([
-                    'organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
-                    'organization.type:id,name',
-                    'organization.sector:id,name',
-                    'organization.cluster:id,name',
-                    'organization.state:id,name',
-                    'organization.municipality:id,name',
-                ])
-                ->get()
-                ->groupBy('id_dual_project');
-
-            $transformedData = $paginator->map(function ($project) use ($organizationRelations) {
-                $institutionData = $project->institution;
-
-                $organizationData = null;
-                if (isset($organizationRelations[$project->id]) && $organizationRelations[$project->id]->isNotEmpty()) {
-                    $orgRelation = $organizationRelations[$project->id]->first();
-                    $organizationData = $orgRelation->organization;
-                }
-
-                $data = [
-                    'id' => $project->id,
-                    'has_report' => $project->has_report,
-                    'institution_id' => $institutionData->id ?? null,
-                    'institution_name' => $institutionData->name ?? 'Por definir',
-                    'institution_state' => $institutionData->state->name ?? 'Por definir',
-                    'institution_city' => $institutionData->city ?? 'Por definir',
-                    'organization_name' => $organizationData->name ?? 'Por definir',
-                    'organization_state' => $organizationData->state->name ?? 'Por definir',
-                    'organization_city' => $organizationData->city ?? ($organizationData->municipality->name ?? 'Por definir'),
-                    'organization_sector' => $organizationData->sector->name ?? 'Por definir',
-                    'organization_type' => $organizationData->type->name ?? 'Por definir',
-                ];
-
-                if ($project->has_report && $project->dualProjectReports) {
-                    $reportData = $project->dualProjectReports;
-
-                    $certifications = $reportData->certifications ?? collect();
-                    $formattedCertifications = $certifications->map(function ($cert) {
-                        return [
-                            'id' => $cert->id,
-                            'name' => $cert->name ?? 'Sin nombre',
-                            'type' => 'Certificación',
-                            'organization' => $cert->organization ?? 'Sin organización',
-                            'description' => $cert->description ?? '',
-                            'image' => $cert->image ?? null,
-                            'credential_type' => $cert->type ?? 'Certificación',
-                            'hours' => $cert->hours ?? 0,
-                        ];
-                    })->toArray();
-
-                    $microCredentials = $reportData->microCredentials ?? collect();
-                    $formattedMicroCredentials = $microCredentials->map(function ($micro) {
-                        return [
-                            'id' => $micro->id,
-                            'name' => $micro->name ?? 'Sin nombre',
-                            'type' => 'Microcredencial',
-                            'organization' => $micro->organization ?? 'Sin organización',
-                            'description' => $micro->description ?? '',
-                            'image' => $micro->image ?? null,
-                            'credential_type' => $micro->type ?? 'Microcredencial',
-                            'hours' => $micro->hours ?? 0,
-                        ];
-                    })->toArray();
-
-                    $diplomas = $reportData->diplomas ?? collect();
-                    $formattedCertificates = $diplomas->map(function ($diploma) {
-                        return [
-                            'id' => $diploma->id,
-                            'name' => $diploma->name ?? 'Sin nombre',
-                            'type' => 'Diploma',
-                            'organization' => $diploma->organization ?? 'Sin organización',
-                            'description' => $diploma->description ?? '',
-                            'image' => $diploma->image ?? null,
-                            'credential_type' => $diploma->type ?? 'Diploma',
-                            'hours' => $diploma->hours ?? 0,
-                        ];
-                    })->toArray();
-
-                    $studentNames = '';
-                    $rawStudents = [];
-
-                    if ($project->dualProjectStudents && $project->dualProjectStudents->isNotEmpty()) {
-                        $studentNames = $project->dualProjectStudents
-                            ->map(function ($dualStudent) {
-                                $student = $dualStudent->student;
-                                $name = trim(($student->name ?? '') . ' ' . ($student->lastname ?? ''));
-                                $career = $student->career->name ?? 'Sin carrera';
-                                $specialty = $student->specialty->name ?? 'Sin especialidad';
-                                return "{$name} – {$career} – {$specialty}";
-                            })
-                            ->join(', ');
-
-                        $rawStudents = $project->dualProjectStudents->map(function ($dualStudent) {
-                            return [
-                                'name' => trim(($dualStudent->student->name ?? '') . ' ' . ($dualStudent->student->lastname ?? '')),
-                                'career' => $dualStudent->student->career->name ?? 'Sin carrera',
-                                'specialty' => $dualStudent->student->specialty->name ?? 'Sin especialidad',
-                            ];
-                        })->toArray();
-                    }
-
-                    $data = array_merge($data, [
-                        'project_name' => $reportData->name ?? 'Por definir',
-                        'area' => $reportData->dualArea->name ?? 'Por definir',
-                        'education_type' => $reportData->dualType->name ?? 'Por definir',
-                        'agreement' => $reportData->statusDocument->name ?? 'Por definir',
-                        'project_status' => $reportData->is_concluded == 1 ? 'Concluido' : 'En progreso',
-                        'grade' => $reportData->qualification ?? 'N/A',
-                        'certifications' => $formattedCertifications,
-                        'microcredentials' => $formattedMicroCredentials,
-                        'certificates' => $formattedCertificates,
-                        'status_document' => $reportData->statusDocument->name ?? 'Por definir',
-                        'student_name' => $studentNames,
-                        'raw_students' => $rawStudents,
-                    ]);
-                } else {
-
-                    $data = array_merge($data, [
-                        'project_name' => 'Por definir',
-                        'area' => 'Por definir',
-                        'education_type' => 'Por definir',
-                        'agreement' => 'Por definir',
-                        'project_status' => 'Por definir',
-                        'grade' => 'N/A',
-                        'certifications' => [],
-                        'microcredentials' => [],
-                        'certificates' => [],
-                        'status_document' => 'Por definir',
-                        'student_name' => '',
-                        'raw_students' => [],
-                    ]);
-                }
-
-                return $data;
-            });
-
-            $filteredData = collect($transformedData);
-
-            if (!empty($filters)) {
-                foreach ($filters as $field => $value) {
-                    if (!empty($value) && in_array($field, [
-                            'project_name', 'agreement', 'project_status', 'grade',
-                            'education_type', 'area', 'certifications', 'microcredentials', 'certificates'
-                        ])) {
-                        $filterValueStr = strtolower(trim($value));
-                        $filteredData = $filteredData->filter(function ($project) use ($field, $filterValueStr) {
-                            $projectValue = $project[$field] ?? '';
-
-                            if (is_array($projectValue)) {
-                                foreach ($projectValue as $item) {
-                                    $itemName = strtolower($item['name'] ?? '');
-                                    if (str_contains($itemName, $filterValueStr)) {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            } else {
-                                $projectValueStr = strtolower((string)$projectValue);
-                                return str_contains($projectValueStr, $filterValueStr);
-                            }
-                        });
-                    }
-                }
-            }
-
-            $total = $filteredData->count();
-            $offset = ($page - 1) * $perPage;
-            $paginatedData = $filteredData->slice($offset, $perPage)->values();
-
-            return response()->json([
-                'data' => $paginatedData,
-                'meta' => [
-                    'current_page' => (int)$page,
-                    'last_page' => $perPage > 0 ? ceil($total / $perPage) : 1,
-                    'per_page' => (int)$perPage,
-                    'total' => $total,
-                    'from' => $total > 0 ? $offset + 1 : 0,
-                    'to' => min($offset + $perPage, $total),
-                ]
-            ], Response::HTTP_OK);
-
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Error al obtener proyectos duales',
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if ($user->type != 0 && $user->id_institution) {
+            $query->where('id_institution', $user->id_institution);
         }
+
+        if (!empty($filters)) {
+            foreach ($filters as $field => $value) {
+                if (!empty($value)) {
+                    switch ($field) {
+                        case 'status':
+                            if (strtolower($value) === 'completado') {
+                                $query->where('has_report', 1);
+                            } elseif (strtolower($value) === 'incompleto') {
+                                $query->where('has_report', 0);
+                            }
+                            break;
+
+                        case 'students':
+                            $query->whereHas('dualProjectStudents.student', function ($q) use ($value) {
+                                $q->where(function ($subQuery) use ($value) {
+                                    $subQuery->where('name', 'like', "%{$value}%")
+                                        ->orWhere('lastname', 'like', "%{$value}%");
+                                });
+                            });
+                            break;
+
+                        case 'institution_name':
+                            $query->whereHas('institution', function ($q) use ($value) {
+                                $q->where('name', 'like', "%{$value}%");
+                            });
+                            break;
+                        case 'institution_state':
+                            $query->whereHas('institution.state', function ($q) use ($value) {
+                                $q->where('name', 'like', "%{$value}%");
+                            });
+                            break;
+                        case 'institution_city':
+                            $query->whereHas('institution', function ($q) use ($value) {
+                                $q->where('city', 'like', "%{$value}%");
+                            });
+                            break;
+
+                        case 'organization_name':
+                            $query->whereHas('organizationDualProjects.organization', function ($q) use ($value) {
+                                $q->where('name', 'like', "%{$value}%");
+                            });
+                            break;
+                        case 'organization_state':
+                            $query->whereHas('organizationDualProjects.organization.state', function ($q) use ($value) {
+                                $q->where('name', 'like', "%{$value}%");
+                            });
+                            break;
+                        case 'organization_city':
+                            $query->whereHas('organizationDualProjects.organization', function ($q) use ($value) {
+                                $q->where('city', 'like', "%{$value}%");
+                            });
+                            break;
+                        case 'organization_sector':
+                            $query->whereHas('organizationDualProjects.organization.sector', function ($q) use ($value) {
+                                $q->where('name', 'like', "%{$value}%");
+                            });
+                            break;
+                        case 'organization_type':
+                            $query->whereHas('organizationDualProjects.organization.type', function ($q) use ($value) {
+                                $q->where('name', 'like', "%{$value}%");
+                            });
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        $query->orderBy('id', 'desc');
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+        $paginator->load([
+            'institution:id,name,city,id_state',
+            'institution.state:id,name',
+            'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+            'dualProjectReports.dualArea:id,name',
+            'dualProjectReports.dualType:id,name',
+            'dualProjectReports.statusDocument:id,name',
+            'dualProjectReports.economicSupport:id,name',
+            'dualProjectReports.microCredentials:id,name,organization,description,image,type,hours',
+            'dualProjectReports.certifications:id,name,organization,description,image,type,hours',
+            'dualProjectReports.diplomas:id,name,organization,description,image,type,hours',
+            'dualProjectReports.benefitTypes' => function($query) {
+                $query->withPivot('quantity')->select('benefit_types.id', 'benefit_types.name');
+            },
+            'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
+            'dualProjectStudents.student.institution:id,name',
+            'dualProjectStudents.student.career:id,name',
+            'dualProjectStudents.student.specialty:id,name',
+        ]);
+
+        $projectIds = $paginator->pluck('id')->toArray();
+        $organizationRelations = OrganizationDualProject::whereIn('id_dual_project', $projectIds)
+            ->with([
+                'organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
+                'organization.type:id,name',
+                'organization.sector:id,name',
+                'organization.cluster:id,name',
+                'organization.state:id,name',
+                'organization.municipality:id,name',
+            ])
+            ->get()
+            ->groupBy('id_dual_project');
+
+        $transformedData = $paginator->map(function ($project) use ($organizationRelations) {
+            $institutionData = $project->institution;
+
+            $organizationData = null;
+            if (isset($organizationRelations[$project->id]) && $organizationRelations[$project->id]->isNotEmpty()) {
+                $orgRelation = $organizationRelations[$project->id]->first();
+                $organizationData = $orgRelation->organization;
+            }
+
+            $data = [
+                'id' => $project->id,
+                'has_report' => $project->has_report,
+                'institution_id' => $institutionData->id ?? null,
+                'institution_name' => $institutionData->name ?? 'Por definir',
+                'institution_state' => $institutionData->state->name ?? 'Por definir',
+                'institution_city' => $institutionData->city ?? 'Por definir',
+                'organization_name' => $organizationData->name ?? 'Por definir',
+                'organization_state' => $organizationData->state->name ?? 'Por definir',
+                'organization_city' => $organizationData->city ?? ($organizationData->municipality->name ?? 'Por definir'),
+                'organization_sector' => $organizationData->sector->name ?? 'Por definir',
+                'organization_type' => $organizationData->type->name ?? 'Por definir',
+            ];
+
+            if ($project->has_report && $project->dualProjectReports) {
+                $reportData = $project->dualProjectReports;
+
+                $certifications = $reportData->certifications ?? collect();
+                $formattedCertifications = $certifications->map(function ($cert) {
+                    return [
+                        'id' => $cert->id,
+                        'name' => $cert->name ?? 'Sin nombre',
+                        'type' => 'Certificación',
+                        'organization' => $cert->organization ?? 'Sin organización',
+                        'description' => $cert->description ?? '',
+                        'image' => $cert->image ?? null,
+                        'credential_type' => $cert->type ?? 'Certificación',
+                        'hours' => $cert->hours ?? 0,
+                    ];
+                })->toArray();
+
+                $microCredentials = $reportData->microCredentials ?? collect();
+                $formattedMicroCredentials = $microCredentials->map(function ($micro) {
+                    return [
+                        'id' => $micro->id,
+                        'name' => $micro->name ?? 'Sin nombre',
+                        'type' => 'Microcredencial',
+                        'organization' => $micro->organization ?? 'Sin organización',
+                        'description' => $micro->description ?? '',
+                        'image' => $micro->image ?? null,
+                        'credential_type' => $micro->type ?? 'Microcredencial',
+                        'hours' => $micro->hours ?? 0,
+                    ];
+                })->toArray();
+
+                $diplomas = $reportData->diplomas ?? collect();
+                $formattedDiplomas = $diplomas->map(function ($diploma) {
+                    return [
+                        'id' => $diploma->id,
+                        'name' => $diploma->name ?? 'Sin nombre',
+                        'type' => 'Diploma',
+                        'organization' => $diploma->organization ?? 'Sin organización',
+                        'description' => $diploma->description ?? '',
+                        'image' => $diploma->image ?? null,
+                        'credential_type' => $diploma->type ?? 'Diploma',
+                        'hours' => $diploma->hours ?? 0,
+                    ];
+                })->toArray();
+
+                $benefitTypes = $reportData->benefitTypes ?? collect();
+                $formattedBenefitTypes = $benefitTypes->map(function ($benefitType) {
+                    return [
+                        'id' => $benefitType->id,
+                        'name' => $benefitType->name ?? 'Sin nombre',
+                        'quantity' => $benefitType->pivot->quantity ?? 0
+                    ];
+                })->toArray();
+
+                $studentNames = '';
+                $rawStudents = [];
+
+                if ($project->dualProjectStudents && $project->dualProjectStudents->isNotEmpty()) {
+                    $studentNames = $project->dualProjectStudents
+                        ->map(function ($dualStudent) {
+                            $student = $dualStudent->student;
+                            $name = trim(($student->name ?? '') . ' ' . ($student->lastname ?? ''));
+                            $career = $student->career->name ?? 'Sin carrera';
+                            $specialty = $student->specialty->name ?? 'Sin especialidad';
+                            return "{$name} – {$career} – {$specialty}";
+                        })
+                        ->join(', ');
+
+                    $rawStudents = $project->dualProjectStudents->map(function ($dualStudent) {
+                        return [
+                            'name' => trim(($dualStudent->student->name ?? '') . ' ' . ($dualStudent->student->lastname ?? '')),
+                            'career' => $dualStudent->student->career->name ?? 'Sin carrera',
+                            'specialty' => $dualStudent->student->specialty->name ?? 'Sin especialidad',
+                        ];
+                    })->toArray();
+                }
+
+                $data = array_merge($data, [
+                    'project_name' => $reportData->name ?? 'Por definir',
+                    'area' => $reportData->dualArea->name ?? 'Por definir',
+                    'education_type' => $reportData->dualType->name ?? 'Por definir',
+                    'agreement' => $reportData->statusDocument->name ?? 'Por definir',
+                    'project_status' => $reportData->is_concluded == 1 ? 'Concluido' : 'En progreso',
+                    'grade' => $reportData->qualification ?? 'N/A',
+                    'certifications' => $formattedCertifications,
+                    'microcredentials' => $formattedMicroCredentials,
+                    'benefit_types' => $formattedBenefitTypes,
+                    'diplomas' => $formattedDiplomas,
+                    'status_document' => $reportData->statusDocument->name ?? 'Por definir',
+                    'student_name' => $studentNames,
+                    'raw_students' => $rawStudents,
+                ]);
+            } else {
+
+                $data = array_merge($data, [
+                    'project_name' => 'Por definir',
+                    'area' => 'Por definir',
+                    'education_type' => 'Por definir',
+                    'agreement' => 'Por definir',
+                    'project_status' => 'Por definir',
+                    'grade' => 'N/A',
+                    'certifications' => [],
+                    'microcredentials' => [],
+                    'benefit_types' => [],
+                    'diplomas' => [],
+                    'status_document' => 'Por definir',
+                    'student_name' => '',
+                    'raw_students' => [],
+                ]);
+            }
+
+            return $data;
+        });
+
+        $filteredData = collect($transformedData);
+
+        if (!empty($filters)) {
+            foreach ($filters as $field => $value) {
+                if (!empty($value) && in_array($field, [
+                        'project_name', 'agreement', 'project_status', 'grade',
+                        'education_type', 'area', 'certifications', 'microcredentials', 'benefit_types', 'diplomas'
+                    ])) {
+                    $filterValueStr = strtolower(trim($value));
+                    $filteredData = $filteredData->filter(function ($project) use ($field, $filterValueStr) {
+                        $projectValue = $project[$field] ?? '';
+
+                        if (is_array($projectValue)) {
+                            foreach ($projectValue as $item) {
+                                $itemName = strtolower($item['name'] ?? '');
+                                if (str_contains($itemName, $filterValueStr)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        } else {
+                            $projectValueStr = strtolower((string)$projectValue);
+                            return str_contains($projectValueStr, $filterValueStr);
+                        }
+                    });
+                }
+            }
+        }
+
+        $total = $filteredData->count();
+        $offset = ($page - 1) * $perPage;
+        $paginatedData = $filteredData->slice($offset, $perPage)->values();
+
+        return response()->json([
+            'data' => $paginatedData,
+            'meta' => [
+                'current_page' => (int)$page,
+                'last_page' => $perPage > 0 ? ceil($total / $perPage) : 1,
+                'per_page' => (int)$perPage,
+                'total' => $total,
+                'from' => $total > 0 ? $offset + 1 : 0,
+                'to' => min($offset + $perPage, $total),
+            ]
+        ], Response::HTTP_OK);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'message' => 'Error al obtener proyectos duales',
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
 
 public function getUnreportedDualProjects()
     {
@@ -327,173 +343,318 @@ public function getUnreportedDualProjects()
     }
 
     public function getReportedDualProject()
-    {
-        try {
-            $reports = DualProject::with([
-                'institution:id,name,city,id_state',
-                'institution.state:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification,economic_benefit,time_benefit,economic_benefit_note,time_benefit_note',
-                'dualProjectReports.dualArea:id,name',
-                'dualProjectReports.dualType:id,name',
-                'dualProjectReports.statusDocument:id,name',
-                'dualProjectReports.economicSupport:id,name',
-                'dualProjectReports.microCredentials:id,name,organization,description,image',
-                'organizationDualProjects:id,id_organization,id_dual_project',
-                'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
-                'organizationDualProjects.organization.type:id,name',
-                'organizationDualProjects.organization.sector:id,name',
-                'organizationDualProjects.organization.cluster:id,name',
-                'organizationDualProjects.organization.state:id,name',
-                'organizationDualProjects.organization.municipality:id,name',
-                'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
-                'dualProjectStudents.student.institution:id,name',
-                'dualProjectStudents.student.career:id,name',
-                'dualProjectStudents.student.specialty:id,name',
-                'dualProjectReports.certifications',
-                'dualProjectReports.diplomas',
-            ])->where('has_report', 1)->get();
+{
+    try {
+        $reports = DualProject::with([
+            'institution:id,name,city,id_state',
+            'institution.state:id,name',
+            'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+            'dualProjectReports.dualArea:id,name',
+            'dualProjectReports.dualType:id,name',
+            'dualProjectReports.statusDocument:id,name',
+            'dualProjectReports.economicSupport:id,name',
+            'dualProjectReports.microCredentials:id,name,organization,description,image',
+            'dualProjectReports.certifications:id,name,organization,description,image,type,hours',
+            'dualProjectReports.diplomas:id,name,organization,description,image,type,hours',
+            // CORRECCIÓN: Agregar withPivot('quantity') en benefitTypes
+            'dualProjectReports.benefitTypes' => function($query) {
+                $query->withPivot('quantity')->select('benefit_types.id', 'benefit_types.name');
+            },
+            'organizationDualProjects:id,id_organization,id_dual_project',
+            'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
+            'organizationDualProjects.organization.type:id,name',
+            'organizationDualProjects.organization.sector:id,name',
+            'organizationDualProjects.organization.cluster:id,name',
+            'organizationDualProjects.organization.state:id,name',
+            'organizationDualProjects.organization.municipality:id,name',
+            'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
+            'dualProjectStudents.student.institution:id,name',
+            'dualProjectStudents.student.career:id,name',
+            'dualProjectStudents.student.specialty:id,name',
+            'dualProjectReports.certifications',
+            'dualProjectReports.diplomas',
+        ])->where('has_report', 1)->get();
 
-            return response()->json($reports, Response::HTTP_OK);
-        } catch (Exception $e) {
-            return $this->handleException($e, 'Error al obtener proyectos reportados');
-        }
+        return response()->json($reports, Response::HTTP_OK);
+    } catch (Exception $e) {
+        return $this->handleException($e, 'Error al obtener proyectos reportados');
     }
+}
 
     public function getDualProjectById($id)
-    {
-        try {
-            $project = DualProject::with(['institution:id,name'])->findOrFail($id);
+{
+    try {
+        $project = DualProject::with(['institution:id,name'])->findOrFail($id);
 
-            if ($project->has_report == 0) {
-                return response()->json($project, Response::HTTP_OK);
+        if ($project->has_report == 0) {
+            return response()->json($project, Response::HTTP_OK);
+        }
+
+        $project = DualProject::with([
+            'institution:id,name',
+            'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification',
+            'dualProjectReports.dualArea:id,name',
+            'dualProjectReports.dualType:id,name',
+            'dualProjectReports.statusDocument:id,name',
+            'dualProjectReports.economicSupport:id,name',
+            'dualProjectReports.microCredentials:id,name,organization,description,image',
+            'dualProjectReports.certifications',
+            'dualProjectReports.diplomas',
+            'dualProjectReports.benefitTypes' => function($query) {
+                $query->withPivot('quantity')->select('benefit_types.id', 'benefit_types.name');
+            },
+            'organizationDualProjects:id,id_organization,id_dual_project',
+            'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
+            'organizationDualProjects.organization.type:id,name',
+            'organizationDualProjects.organization.sector:id,name',
+            'organizationDualProjects.organization.cluster:id,name',
+            'organizationDualProjects.organization.state:id,name',
+            'organizationDualProjects.organization.municipality:id,name',
+            'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
+            'dualProjectStudents.student.institution:id,name',
+            'dualProjectStudents.student.career:id,name',
+            'dualProjectStudents.student.specialty:id,name',
+        ])->findOrFail($id);
+
+        return response()->json($project, Response::HTTP_OK);
+    } catch (Exception $e) {
+        return $this->handleException($e, 'Error al obtener proyecto por ID');
+    }
+}
+
+public function createDualProject(DualProjectRequest $request)
+{
+    DB::beginTransaction();
+
+    try {
+        $data = $request->validated();
+
+        $numberOfStudents = isset($data['students']) && is_array($data['students'])
+            ? count($data['students'])
+            : 0;
+
+        $dualProject = DualProject::create([
+            'has_report' => $data['has_report'],
+            'id_institution' => $data['id_institution'],
+            'number_student' => $numberOfStudents,
+        ]);
+
+        if ($data['has_report'] == 1) {
+            $report = $this->createDualProjectReport($data, $dualProject->id);
+            $this->createOrganizationDualProject($data, $dualProject->id);
+            $this->createStudents($data, $dualProject->id);
+
+            if (!empty($data['micro_credentials'])) {
+                $report->microCredentials()->detach();
+                foreach ($data['micro_credentials'] as $microId) {
+                    $report->microCredentials()->attach([
+                        $microId => [
+                            'id' => (string) Str::uuid(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                }
             }
 
-            $project = DualProject::with([
-                'institution:id,name',
-                'dualProjectReports:id,name,dual_project_id,is_concluded,is_hired,hired_observation,qualification,max_qualification,description,period_start,period_end,period_observation,amount,id_dual_area,status_document,economic_support,dual_type_id,internal_advisor_name,internal_advisor_qualification,external_advisor_name,external_advisor_qualification,economic_benefit,time_benefit,economic_benefit_note,time_benefit_note',
-                'dualProjectReports.dualArea:id,name',
-                'dualProjectReports.dualType:id,name',
-                'dualProjectReports.statusDocument:id,name',
-                'dualProjectReports.economicSupport:id,name',
-                'dualProjectReports.microCredentials:id,name,organization,description,image',
-                'dualProjectReports.certifications',
-                'dualProjectReports.diplomas',
-                'organizationDualProjects:id,id_organization,id_dual_project',
-                'organizationDualProjects.organization:id,name,id_type,id_sector,size,id_cluster,street,external_number,internal_number,neighborhood,postal_code,id_state,id_municipality,country,city,google_maps',
-                'organizationDualProjects.organization.type:id,name',
-                'organizationDualProjects.organization.sector:id,name',
-                'organizationDualProjects.organization.cluster:id,name',
-                'organizationDualProjects.organization.state:id,name',
-                'organizationDualProjects.organization.municipality:id,name',
-                'dualProjectStudents.student:id,control_number,name,lastname,gender,semester,id_institution,id_career,id_specialty',
-                'dualProjectStudents.student.institution:id,name',
-                'dualProjectStudents.student.career:id,name',
-                'dualProjectStudents.student.specialty:id,name',
-            ])->findOrFail($id);
+            if (!empty($data['diplomas'])) {
+                $report->diplomas()->detach();
+                foreach ($data['diplomas'] as $diplomaId) {
+                    $report->diplomas()->attach([
+                        $diplomaId => [
+                            'id' => (string) Str::uuid(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                }
+            }
 
-            return response()->json($project, Response::HTTP_OK);
-        } catch (Exception $e) {
-            return $this->handleException($e, 'Error al obtener proyecto por ID');
+            if (!empty($data['certifications'])) {
+                $report->certifications()->detach();
+                foreach ($data['certifications'] as $certId) {
+                    $report->certifications()->attach([
+                        $certId => [
+                            'id' => (string) Str::uuid(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                }
+            }
+
+            if (!empty($data['benefit_types'])) {
+                $report->benefitTypes()->detach();
+                foreach ($data['benefit_types'] as $benefit) {
+                    $report->benefitTypes()->attach([
+                        $benefit['id'] => [
+                            'id' => (string) Str::uuid(),
+                            'quantity' => $benefit['quantity'] ?? 1,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                }
+            }
         }
+
+        DB::commit();
+
+        return response()->json($dualProject, Response::HTTP_CREATED);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error al crear el proyecto dual: ' . $e->getMessage());
+        \Log::error($e->getTraceAsString());
+
+        return response()->json([
+            'message' => 'Error al crear el proyecto dual',
+            'error' => $e->getMessage()
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
 
-    public function createDualProject(DualProjectRequest $request)
-    {
-        DB::beginTransaction();
+public function updateDualProject(DualProjectRequest $request, $id)
+{
+    DB::beginTransaction();
 
-        try {
-            $data = $request->validated();
-            $numberOfStudents = isset($data['students']) && is_array($data['students'])
-                ? count($data['students'])
-                : 0;
+    try {
+        $data = $request->validated();
+        $dualProject = DualProject::findOrFail($id);
+        $previousHasReport = $dualProject->has_report;
+        $numberOfStudents = isset($data['students']) && is_array($data['students'])
+            ? count($data['students'])
+            : 0;
 
-            $dualProject = DualProject::create([
-                'has_report' => $data['has_report'],
-                'id_institution' => $data['id_institution'],
-                'number_student' => $numberOfStudents,
-            ]);
+        $dualProject->update([
+            'has_report' => $data['has_report'],
+            'id_institution' => $data['id_institution'],
+            'number_student' => $numberOfStudents,
+        ]);
 
-            if ($data['has_report'] == 1) {
+        if ($data['has_report'] == 1) {
+            if ($previousHasReport == 0) {
                 $report = $this->createDualProjectReport($data, $dualProject->id);
                 $this->createOrganizationDualProject($data, $dualProject->id);
                 $this->createStudents($data, $dualProject->id);
-
-                if (! empty($data['micro_credentials'])) {
-                    $report->microCredentials()->sync($data['micro_credentials']);
-                }
-                If (! empty($data['diplomas'])) {
-                    $report->diplomas()->sync($data['diplomas']);
-                }
-                If (! empty($data['certifications'])) {
-                    $report->certifications()->sync($data['certifications']);
-                }
+            } else {
+                $report = $this->updateOrCreateDualProjectReport($data, $dualProject->id);
+                $this->updateOrCreateOrganizationDualProject($data, $dualProject->id);
+                $this->updateOrCreateStudents($data, $dualProject->id);
             }
 
-            DB::commit();
-
-            return response()->json($dualProject, Response::HTTP_CREATED);
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            return $this->handleException($e, 'Error al crear el proyecto dual');
-        }
-    }
-
-    public function updateDualProject(DualProjectRequest $request, $id)
-    {
-        DB::beginTransaction();
-
-        try {
-            $data = $request->validated();
-            $dualProject = DualProject::findOrFail($id);
-            $previousHasReport = $dualProject->has_report;
-            $numberOfStudents = isset($data['students']) && is_array($data['students'])
-                ? count($data['students'])
-                : 0;
-
-            $dualProject->update([
-                'has_report' => $data['has_report'],
-                'id_institution' => $data['id_institution'],
-                'number_student' => $numberOfStudents,
-            ]);
-
-            if ($data['has_report'] == 1) {
-                if ($previousHasReport == 0) {
-                    $report = $this->createDualProjectReport($data, $dualProject->id);
-                    $this->createOrganizationDualProject($data, $dualProject->id);
-                    $this->createStudents($data, $dualProject->id);
-                } else {
-                    $report = $this->updateOrCreateDualProjectReport($data, $dualProject->id);
-                    $this->updateOrCreateOrganizationDualProject($data, $dualProject->id);
-                    $this->updateOrCreateStudents($data, $dualProject->id);
+            if (!empty($data['micro_credentials'])) {
+                $report->microCredentials()->detach();
+                foreach ($data['micro_credentials'] as $microId) {
+                    $report->microCredentials()->attach([
+                        $microId => [
+                            'id' => (string) Str::uuid(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
                 }
-
-                if (! empty($data['micro_credentials'])) {
-                    $report->microCredentials()->sync($data['micro_credentials']);
-                } else {
-                    $report->microCredentials()->detach();
-                }
-                If (! empty($data['diplomas'])) {
-                    $report->diplomas()->sync($data['diplomas']);
-                } else {
-                    $report->diplomas()->detach();
-                }
-                If (! empty($data['certifications'])) {
-                    $report->certifications()->sync($data['certifications']);
-                } else {
-                    $report->certifications()->detach();
-                }
+            } else {
+                $report->microCredentials()->detach();
             }
 
-            DB::commit();
+            if (!empty($data['diplomas'])) {
+                $report->diplomas()->detach();
+                foreach ($data['diplomas'] as $diplomaId) {
+                    $report->diplomas()->attach([
+                        $diplomaId => [
+                            'id' => (string) Str::uuid(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                }
+            } else {
+                $report->diplomas()->detach();
+            }
 
-            return response()->json($dualProject, Response::HTTP_OK);
-        } catch (Exception $e) {
-            DB::rollBack();
+            if (!empty($data['certifications'])) {
+                $report->certifications()->detach();
+                foreach ($data['certifications'] as $certId) {
+                    $report->certifications()->attach([
+                        $certId => [
+                            'id' => (string) Str::uuid(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                }
+            } else {
+                $report->certifications()->detach();
+            }
 
-            return $this->handleException($e, 'Error al actualizar el proyecto dual');
+            if (!empty($data['benefit_types'])) {
+                $report->benefitTypes()->detach();
+                foreach ($data['benefit_types'] as $benefit) {
+                    $report->benefitTypes()->attach([
+                        $benefit['id'] => [
+                            'id' => (string) Str::uuid(),
+                            'quantity' => (int) ($benefit['quantity'] ?? 1),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ]);
+                }
+            } else {
+                $report->benefitTypes()->detach();
+            }
+        } else {
+            $report = DualProjectReport::where('dual_project_id', $dualProject->id)->first();
+            if ($report) {
+                $report->microCredentials()->detach();
+                $report->diplomas()->detach();
+                $report->certifications()->detach();
+                $report->benefitTypes()->detach();
+                $report->delete();
+            }
+
+            OrganizationDualProject::where('id_dual_project', $dualProject->id)->delete();
+            DualProjectStudent::where('id_dual_project', $dualProject->id)->delete();
         }
+
+        DB::commit();
+
+        $dualProject->load([
+            'institution',
+            'dualProjectReports' => function($query) {
+                $query->with([
+                    'dualArea',
+                    'dualType',
+                    'statusDocument',
+                    'economicSupport',
+                    'microCredentials',
+                    'certifications',
+                    'diplomas',
+                    'benefitTypes' => function($q) {
+                        $q->withPivot('quantity');
+                    }
+                ]);
+            },
+            'organizationDualProjects.organization',
+            'dualProjectStudents.student.career',
+            'dualProjectStudents.student.specialty'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Proyecto dual actualizado exitosamente',
+            'data' => $dualProject
+        ], Response::HTTP_OK);
+
+    } catch (Exception $e) {
+        DB::rollBack();
+
+        \Log::error('Error al actualizar el proyecto dual: ' . $e->getMessage());
+        \Log::error('Trace: ' . $e->getTraceAsString());
+
+        return $this->handleException($e, 'Error al actualizar el proyecto dual');
     }
+}
 
     public function deleteDualProject($id)
     {
@@ -511,6 +672,7 @@ public function getUnreportedDualProjects()
                 $report->microCredentials()->detach();
                 $report->certifications()->detach();
                 $report->diplomas()->detach();
+                $report->benefitTypes()->detach();
 
                 $report->delete();
             }
@@ -545,37 +707,33 @@ public function getUnreportedDualProjects()
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
-    protected function createDualProjectReport(array $data, int $dualProjectId)
-    {
-        return DualProjectReport::create([
-            'name' => $data['name_report'],
-            'dual_project_id' => $dualProjectId,
-            'id_dual_area' => $data['id_dual_area'],
-            'dual_type_id' => $data['dual_type_id'],
-            'description' => $data['description'],
-            'period_observation' => $data['period_observation'],
-            'hired_observation' => $data ['hired_observation'],
-            'period_start' => $data['period_start'],
-            'period_end' => $data['period_end'],
-            'status_document' => $data['status_document'],
-            'economic_support' => $data['economic_support'],
-            'amount' => $data['amount'],
-            'qualification' => $data['qualification'] ?? null,
-            'is_concluded' => $data['is_concluded'] ?? false,
-            'is_hired' => $data['is_hired'] ?? false,
-            'max_qualification' => $data['max_qualification'] ?? 10,
-            'internal_advisor_name' => $data['internal_advisor_name'] ?? null,
-            'internal_advisor_qualification' => $data['internal_advisor_qualification'] ?? null,
-            'external_advisor_name' => $data['external_advisor_name'] ?? null,
-            'external_advisor_qualification' => $data['external_advisor_qualification'] ?? null,
-            'economic_benefit' => $data['economic_benefit'] ?? null,
-            'economic_benefit_note' => $data['economic_benefit_note'] ?? null,
-            'time_benefit' => $data['time_benefit'] ?? null,
-            'time_benefit_note' => $data['time_benefit_note'] ?? null,
-        ]);
-    }
+protected function createDualProjectReport(array $data, string $dualProjectId)
+{
+    return DualProjectReport::create([
+        'name' => $data['name_report'],
+        'dual_project_id' => $dualProjectId,
+        'id_dual_area' => $data['id_dual_area'],
+        'dual_type_id' => $data['dual_type_id'],
+        'description' => $data['description'] ?? '',
+        'period_observation' => $data['period_observation'] ?? '',
+        'hired_observation' => $data['hired_observation'] ?? '',
+        'period_start' => $data['period_start'],
+        'period_end' => $data['period_end'],
+        'status_document' => $data['status_document'],
+        'economic_support' => $data['economic_support'],
+        'amount' => $data['amount'],
+        'qualification' => $data['qualification'] ?? null,
+        'is_concluded' => $data['is_concluded'] ?? false,
+        'is_hired' => $data['is_hired'] ?? false,
+        'max_qualification' => $data['max_qualification'] ?? 10,
+        'internal_advisor_name' => $data['internal_advisor_name'] ?? null,
+        'internal_advisor_qualification' => $data['internal_advisor_qualification'] ?? null,
+        'external_advisor_name' => $data['external_advisor_name'] ?? null,
+        'external_advisor_qualification' => $data['external_advisor_qualification'] ?? null,
+    ]);
+}
 
-    protected function createOrganizationDualProject(array $data, int $dualProjectId)
+    protected function createOrganizationDualProject(array $data, string $dualProjectId)
     {
         return OrganizationDualProject::create([
             'id_organization' => $data['id_organization'],
@@ -583,36 +741,36 @@ public function getUnreportedDualProjects()
         ]);
     }
 
-    protected function createStudents(array $data, int $dualProjectId)
-    {
-        if (! isset($data['students']) || ! is_array($data['students'])) {
-            return;
-        }
-
-        foreach ($data['students'] as $studentData) {
-            $student = Student::updateOrCreate(
-                ['control_number' => $studentData['control_number']],
-                [
-                    'name' => $studentData['name_student'],
-                    'lastname' => $studentData['lastname'],
-                    'gender' => $studentData['gender'],
-                    'semester' => $studentData['semester'],
-                    'id_institution' => $studentData['id_institution'],
-                    'id_career' => $studentData['id_career'],
-                    'id_specialty' => $studentData['id_specialty'],
-                ]
-            );
-
-            DualProjectStudent::updateOrCreate(
-                [
-                    'id_student' => $student->id,
-                    'id_dual_project' => $dualProjectId,
-                ]
-            );
-        }
+protected function createStudents(array $data, string $dualProjectId)
+{
+    if (! isset($data['students']) || ! is_array($data['students'])) {
+        return;
     }
 
-    protected function updateOrCreateDualProjectReport(array $data, int $dualProjectId)
+    foreach ($data['students'] as $studentData) {
+        $student = Student::updateOrCreate(
+            ['control_number' => $studentData['control_number']],
+            [
+                'name' => $studentData['name_student'],
+                'lastname' => $studentData['lastname'],
+                'gender' => $studentData['gender'],
+                'semester' => $studentData['semester'],
+                'id_institution' => $studentData['id_institution'],
+                'id_career' => $studentData['id_career'],
+                'id_specialty' => $studentData['id_specialty'] ?? null,
+            ]
+        );
+
+        DualProjectStudent::updateOrCreate(
+            [
+                'id_student' => $student->id,
+                'id_dual_project' => $dualProjectId,
+            ]
+        );
+    }
+}
+
+    protected function updateOrCreateDualProjectReport(array $data, string $dualProjectId)
     {
         return DualProjectReport::updateOrCreate(
             ['dual_project_id' => $dualProjectId],
@@ -620,9 +778,9 @@ public function getUnreportedDualProjects()
                 'name' => $data['name_report'],
                 'id_dual_area' => $data['id_dual_area'],
                 'dual_type_id' => $data['dual_type_id'],
-                'description' => $data['description'],
-                'period_observation' => $data['period_observation'],
-                'hired_observation' => $data ['hired_observation'],
+                'description' => $data['description'] ?? '',
+                'period_observation' => $data['period_observation'] ?? '',
+                'hired_observation' => $data['hired_observation'] ?? '',
                 'period_start' => $data['period_start'],
                 'period_end' => $data['period_end'],
                 'status_document' => $data['status_document'],
@@ -636,15 +794,11 @@ public function getUnreportedDualProjects()
                 'internal_advisor_qualification' => $data['internal_advisor_qualification'] ?? null,
                 'external_advisor_name' => $data['external_advisor_name'] ?? null,
                 'external_advisor_qualification' => $data['external_advisor_qualification'] ?? null,
-                'economic_benefit' => $data['economic_benefit'] ?? null,
-                'economic_benefit_note' => $data['economic_benefit_note'] ?? null,
-                'time_benefit' => $data['time_benefit'] ?? null,
-                'time_benefit_note' => $data['time_benefit_note'] ?? null,
             ]
         );
     }
 
-    protected function updateOrCreateOrganizationDualProject(array $data, int $dualProjectId)
+    protected function updateOrCreateOrganizationDualProject(array $data, string $dualProjectId)
     {
         OrganizationDualProject::updateOrCreate(
             ['id_dual_project' => $dualProjectId],
@@ -652,11 +806,10 @@ public function getUnreportedDualProjects()
         );
     }
 
-    protected function updateOrCreateStudents(array $data, int $dualProjectId)
+    protected function updateOrCreateStudents(array $data, string $dualProjectId)
     {
         if (! isset($data['students']) || ! is_array($data['students'])) {
             DualProjectStudent::where('id_dual_project', $dualProjectId)->delete();
-
             return;
         }
 
@@ -672,7 +825,7 @@ public function getUnreportedDualProjects()
                     'semester' => $studentData['semester'],
                     'id_institution' => $studentData['id_institution'],
                     'id_career' => $studentData['id_career'],
-                    'id_specialty' => $studentData['id_specialty'],
+                    'id_specialty' => $studentData['id_specialty'] ?? null,
                 ]
             );
 

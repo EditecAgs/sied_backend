@@ -3,275 +3,221 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Institution;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['id' => 2],
+        $institutoAgs = Institution::where('name', 'Instituto Tecnológico de Aguascalientes')->first();
+        $institutoCuliacan = Institution::where('name', 'Instituto Tecnológico de Culiacán')->first();
+        $institutoTijuana = Institution::where('name', 'Instituto Tecnológico de Tijuana')->first();
+        $institutoCdVictoria = Institution::where('name', 'Instituto Tecnológico de Ciudad Victoria')->first();
+        $institutoSanLuis = Institution::where('name', 'Instituto Tecnológico de San Luis Potosí')->first();
+        $institutoLeon = Institution::where('name', 'Instituto Tecnológico de León')->first();
+        $institutoHuichapan = Institution::where('name', 'Instituto Tecnológico Superior de Huichapan')->first();
+        $institutoQueretaro = Institution::where('name', 'Instituto Tecnológico de Querétaro')->first();
+        $institutoOrizaba = Institution::where('name', 'Instituto Tecnológico de Orizaba')->first();
+        $institutoChetumal = Institution::where('name', 'Instituto Tecnológico de Chetumal')->first();
+        $institutoIztapalapa2 = Institution::where('name', 'Instituto Tecnológico de Iztapalapa II')->first();
+        $institutoIztapalapa = Institution::where('name', 'Instituto Tecnológico de Iztapalapa')->first();
+        $institutoCelaya = Institution::where('name', 'Instituto Tecnológico de Celaya')->first();
+
+
+        if (!$institutoAgs) {
+            $this->command->error('No se encontró el Instituto Tecnológico de Aguascalientes. Ejecuta primero InstitutionSeeder');
+            return;
+        }
+
+        $users = [
             [
                 'name' => 'Admin',
                 'lastname' => 'User',
                 'email' => 'AdminUser@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 0,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 3],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Francisca',
                 'lastname' => 'Piña Zazueta',
                 'email' => 'Culiacan@example.com',
-                'id_institution' => 6,
+                'id_institution' => $institutoCuliacan?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 4],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'José Guillermo',
                 'lastname' => 'Cárdenas López',
                 'email' => 'Tijuana@example.com',
-                'id_institution' => 7,
+                'id_institution' => $institutoTijuana?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 5],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Deysi Yesica',
                 'lastname' => 'Álvarez Vergara',
                 'email' => 'CdVictoria@example.com',
-                'id_institution' => 8,
+                'id_institution' => $institutoCdVictoria?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 6],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'José Diego',
                 'lastname' => 'Barcenas Torres',
                 'email' => 'SanLuisPotosi@example.com',
-                'id_institution' => 9,
+                'id_institution' => $institutoSanLuis?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 7],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Ma. De Lourdes',
                 'lastname' => 'Almaguer Sánchez',
                 'email' => 'Leon@example.com',
-                'id_institution' => 10,
+                'id_institution' => $institutoLeon?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 8],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'José Luis',
                 'lastname' => 'Gil Vázquez',
                 'email' => 'Aguascalientes@example.com',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 9],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Imelda',
-                'lastname' => 'Pérez Espinoza ',
-                'email' => 'e SuperiorHuichapan@example.com',
-                'id_institution' => 11,
+                'lastname' => 'Pérez Espinoza',
+                'email' => 'SuperiorHuichapan@example.com',
+                'id_institution' => $institutoHuichapan?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 10],
+                'password' => 'Prueba123$'
+            ],
             [
-                'name' => 'Ramón ',
+                'name' => 'Ramón',
                 'lastname' => 'Soto Arreola',
-                'email' => 'Querétaro@example.com',
-                'id_institution' => 12,
+                'email' => 'Queretaro@example.com',
+                'id_institution' => $institutoQueretaro?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 11],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Maricela',
                 'lastname' => 'Gallardo Córdova',
                 'email' => 'Orizaba@example.com',
-                'id_institution' => 13,
+                'id_institution' => $institutoOrizaba?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 12],
+                'password' => 'Prueba123$'
+            ],
             [
-                'name' => 'Mario Vicente ',
+                'name' => 'Mario Vicente',
                 'lastname' => 'González Robles',
                 'email' => 'Chetumal@example.com',
-                'id_institution' => 14,
+                'id_institution' => $institutoChetumal?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['id' => 13],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Atziri Yeraldin',
                 'lastname' => 'Merlo Rodríguez',
                 'email' => 'Iztapalapa2@example.com',
-                'id_institution' => 15,
+                'id_institution' => $institutoIztapalapa2?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 14],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'José Nino',
                 'lastname' => 'Hernández Magdaleno',
                 'email' => 'Iztapalapa@example.com',
-                'id_institution' => 16,
+                'id_institution' => $institutoIztapalapa?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 14],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'User',
                 'lastname' => 'Celaya',
                 'email' => 'Celaya@example.com',
-                'id_institution' => 17,
+                'id_institution' => $institutoCelaya?->id ?? $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 15],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Jorge',
                 'lastname' => 'Mondragón',
                 'email' => 'sistemas@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 16],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Irvin',
                 'lastname' => 'Covarrubias',
                 'email' => 'industrial@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 17],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Francisco',
                 'lastname' => 'Louvier',
                 'email' => 'jefatura.depi@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 18],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Agustin',
                 'lastname' => 'Jaime',
                 'email' => 'mecanica@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 19],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Juan',
                 'lastname' => 'Carlos',
                 'email' => 'electrica_electronica@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 20],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Ulises',
                 'lastname' => 'Aguascalientes',
                 'email' => 'quimica@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
-        User::updateOrCreate(
-            ['id' => 21],
+                'password' => 'Prueba123$'
+            ],
             [
                 'name' => 'Salvador',
                 'lastname' => 'Barba Macias',
                 'email' => 'salvador.bm@aguascalientes.tecnm.mx',
-                'id_institution' => 1,
+                'id_institution' => $institutoAgs->id,
                 'type' => 1,
-                'email_verified_at' => now(),
-                'password' => Hash::make('Prueba123$'),
-            ]
-        );
+                'password' => 'Prueba123$'
+            ],
+        ];
+
+        foreach ($users as $userData) {
+            User::updateOrCreate(
+                ['email' => $userData['email']],
+                [
+                    'id' => Str::uuid(),
+                    'name' => $userData['name'],
+                    'lastname' => $userData['lastname'],
+                    'id_institution' => $userData['id_institution'],
+                    'type' => $userData['type'],
+                    'email_verified_at' => now(),
+                    'password' => Hash::make($userData['password']),
+                ]
+            );
+        }
+
+        $this->command->info('Usuarios creados/actualizados correctamente');
     }
 }
