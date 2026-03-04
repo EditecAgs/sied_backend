@@ -254,18 +254,16 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::delete('students/{id}', [StudentController::class, 'deleteStudent']);
     Route::patch('students/{id}/restore', [StudentController::class, 'restoreStudent']);
 
-    Route::get('dual-projects/all', [DualProjectController::class, 'getAllDualProjects'])
-        ->name('dual-projects-all');
-    Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects'])
-        ->name('dual-projects-unreported');
-    Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject'])
-        ->name('dual-projects-reported');
+    Route::get('dual-projects/export', [DualProjectController::class, 'exportDualProjects']); // <-- ESTA PRIMERO
+    Route::get('dual-projects/all', [DualProjectController::class, 'getAllDualProjects']);
+    Route::get('dual-projects/unreported', [DualProjectController::class, 'getUnreportedDualProjects']);
+    Route::get('dual-projects/reported', [DualProjectController::class, 'getReportedDualProject']);
 
     Route::get('dual-projects/{id}', [DualProjectController::class, 'getDualProjectById']);
-    Route::post('dual-projects', [DualProjectController::class, 'createDualProject'])
-        ->name('dual-projects-create');
-    Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject'])->name('dual-projects-delete');
-    Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject'])->name('dual-projects-update');
+    Route::post('dual-projects', [DualProjectController::class, 'createDualProject']);
+    Route::put('dual-projects/{id}', [DualProjectController::class, 'updateDualProject']);
+    Route::delete('dual-projects/{id}', [DualProjectController::class, 'deleteDualProject']);
+
 
     Route::get('dashboard/cache', [DashboardController::class, 'showFullCache']);
     Route::post('refresh-cache', [DashboardController::class, 'refreshCache'])->name('dashboard.refresh-cache');
