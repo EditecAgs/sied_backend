@@ -19,3 +19,4 @@ class GenerateDashboardCacheCommand extends Command
         return Command::SUCCESS;
     }
 }
+
