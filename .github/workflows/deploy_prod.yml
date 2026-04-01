@@ -1,0 +1,35 @@
+name: deploy_prod
+
+on:
+  push:
+    branches:
+      - deploy-prod
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, Prod]
+
+    steps:
+      - name: Ir al proyecto
+        run: cd /var/www/html/sied-api
+
+      - name: Actualizar código
+        run: |
+          cd /var/www/html/sied-api
+          git fetch
+          git reset --hard origin/main
+      - name: Instalar dependencias
+        run: |
+          cd /var/www/html/sied-api
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: Ejecutar migraciones
+        run: |
+          cd /var/www/html/sied-api
+          php artisan migrate --force
+      - name: Cachear configuración
+        run: |
+          cd /var/www/html/sied-api
+          php artisan config:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
