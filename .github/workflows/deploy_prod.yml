@@ -16,8 +16,8 @@ jobs:
       - name: Actualizar código
         run: |
           cd /var/www/html/sied-api
-          git fetch
-          git reset --hard origin/main
+          git pull origin deploy-prod
+          
       - name: Instalar dependencias
         run: |
           cd /var/www/html/sied-api
