@@ -16,7 +16,7 @@ jobs:
       - name: Actualizar código
         run: |
           cd /var/www/html/sied-api
-          git pull origin develop
+          git pull origin main
       - name: Instalar dependencias
         run: |
           cd /var/www/html/sied-api
