@@ -26,6 +26,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BenefitTypeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\DraftController;
 use App\Http\Controllers\BitacoraAccesoController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
@@ -294,4 +295,11 @@ Route::middleware(['auth:sanctum', 'token.expiration'])->group(function () {
     Route::get('bitacora-accesos', [BitacoraAccesoController::class, 'index']);
     Route::get('bitacora-accesos/{id}', [BitacoraAccesoController::class, 'show']);
     Route::delete('bitacora-accesos/{id}', [BitacoraAccesoController::class, 'destroy']);
+
+    Route::prefix('drafts')->group(function () {
+        Route::post('/save', [DraftController::class, 'save']);
+        Route::get('/load', [DraftController::class, 'load']);
+        Route::delete('/clear', [DraftController::class, 'clear']);
+        Route::get('/check', [DraftController::class, 'check']);
+    });
 });
